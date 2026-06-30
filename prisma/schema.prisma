@@ -1,0 +1,68 @@
+// ============================================================
+//  VeltaCapital — database schema (Prisma)
+//  This file describes the "shape" of your data. Each `model`
+//  becomes a table in your Neon database. You don't write SQL —
+//  Prisma turns this into the database for you.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---- A person with an account ----
+model User {
+  id            String   @id @default(cuid())   // unique id, auto-generated
+  email         String   @unique                // their login email
+  name          String?                         // display name (optional)
+  plan          String   @default("none")       // none | basic | pro | investor
+  credits       Int      @default(0)            // current credit balance
+  createdAt     DateTime @default(now())
+
+  // links to this user's other records
+  scores        Score[]
+  creditEvents  CreditEvent[]
+  redemptions   Redemption[]
+}
+
+// ---- One played round of the prediction game ----
+model Score {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  symbol      String                            // e.g. "AAPL"
+  accuracy    Int                               // 0–100 overall
+  direction   Int                               // 1 = correct, 0 = wrong
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([accuracy])                           // for leaderboard sorting
+}
+
+// ---- An audit trail of every credit change (never edit credits directly) ----
+model CreditEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Int                               // + earned, - spent
+  reason      String                            // "round_reward" | "purchase_grant" | "redemption" ...
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ---- A reward the user redeemed credits for ----
+model Redemption {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  rewardName  String
+  creditCost  Int
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}

@@ -1,0 +1,511 @@
+<!-- Predict the Graph — candlestick trainer -->
+<style>
+  :root{
+    --ink:#0B1F33; --paper:#F2EDE4; --paper-2:#0E1621; --grid:#1C2A3A;
+    --up:#16A36A; --down:#D8503C; --up-soft:#16A36A55; --down-soft:#D8503C55;
+    --guess:#E0A21A; --band:#E0A21A; --muted:#6A7585; --axis:#8593A6;
+  }
+  *{box-sizing:border-box}
+  .ptg{background:var(--paper);color:var(--ink);
+    font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;
+    max-width:780px;margin:0 auto;padding:22px 22px 28px;
+    border:1px solid #D8CEBC;border-radius:4px}
+  .ptg-eyebrow{font-family:'SF Mono','IBM Plex Mono',ui-monospace,monospace;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+  .ptg-title{font-size:26px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+  .ptg-sub{font-size:14px;color:var(--muted);margin:0 0 16px}
+  .ptg-meta{display:flex;gap:18px;flex-wrap:wrap;
+    font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--muted);margin:0 0 10px}
+  .ptg-meta b{color:var(--ink);font-weight:600}
+  .ptg-stage{position:relative;width:100%;background:var(--paper-2);border-radius:4px;touch-action:none;overflow:hidden}
+  .ptg-stage svg{display:block;width:100%;height:auto}
+  .ptg-ticker{position:absolute;left:12px;top:10px;font-family:'SF Mono',ui-monospace,monospace;
+    font-size:13px;color:#C7D2E0;letter-spacing:.04em}
+  .ptg-ticker b{color:#fff;font-size:15px}
+  .ptg-ohlc{position:absolute;left:12px;top:30px;font-family:'SF Mono',ui-monospace,monospace;
+    font-size:11px;color:var(--muted)}
+  .ptg-hint{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
+    font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:#C7D2E0;
+    pointer-events:none;text-align:center;background:rgba(14,22,33,.85);
+    padding:8px 12px;border-radius:3px;transition:opacity .3s}
+  .ptg-controls{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .ptg-btn{font-family:inherit;font-size:14px;font-weight:600;padding:9px 18px;border-radius:3px;
+    border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;transition:opacity .15s}
+  .ptg-btn:disabled{opacity:.35;cursor:not-allowed}
+  .ptg-btn.ghost{background:transparent;color:var(--ink)}
+  .ptg-right{margin-left:auto;display:flex;gap:14px;align-items:center}
+  .ptg-diff{font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--muted);
+    display:flex;gap:6px;align-items:center}
+  .ptg-diff select{font-family:inherit;font-size:12px;border:1px solid #D8CEBC;
+    background:var(--paper);color:var(--ink);border-radius:3px;padding:3px 5px}
+  .ptg-score{font-family:'SF Mono',ui-monospace,monospace;font-size:13px;color:var(--muted)}
+  .ptg-score b{color:var(--ink);font-size:15px}
+  .ptg-verdict{margin-top:14px;padding:14px 16px;border-radius:3px;background:#E7DFD2;
+    font-size:15px;line-height:1.5;display:none}
+  .ptg-verdict .grade{font-weight:600;font-size:17px}
+  .ptg-verdict .detail{color:var(--muted);font-size:13.5px;margin-top:4px}
+  .ptg-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;
+    font-family:'SF Mono',ui-monospace,monospace;font-size:11px;color:var(--muted)}
+  .ptg-legend span{display:flex;gap:6px;align-items:center}
+  .ptg-swatch{width:12px;height:12px;border-radius:2px;display:inline-block}
+  /* credits */
+  .ptg-credits{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:10px 14px;
+    background:#E7DFD2;border-radius:4px;font-family:'SF Mono',ui-monospace,monospace}
+  .ptg-credits .bal{font-size:20px;font-weight:600;color:var(--ink)}
+  .ptg-credits .bal small{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.1em}
+  .ptg-credits .streak{font-size:12px;color:var(--muted)}
+  .ptg-credits .streak b{color:var(--down)}
+  .ptg-credits .reward-btn{margin-left:auto;font-family:inherit}
+  .ptg-earn{display:inline-block;margin-left:8px;font-family:'SF Mono',ui-monospace,monospace;
+    font-size:13px;color:var(--up);font-weight:600;opacity:0;transition:opacity .3s}
+  .ptg-earn.show{opacity:1}
+  /* why-it-moved panel */
+  .ptg-why{margin-top:12px;padding:14px 16px;border-radius:3px;
+    background:#E7DFD2;font-size:14px;line-height:1.55;display:none}
+  .ptg-why h4{margin:0 0 6px;font-size:13px;font-family:'SF Mono',ui-monospace,monospace;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .ptg-why ul{margin:6px 0 0;padding-left:18px}
+  .ptg-why li{margin:3px 0;color:var(--ink)}
+  /* rewards modal */
+  .ptg-modal{position:fixed;inset:0;background:rgba(11,31,51,.55);display:none;
+    align-items:center;justify-content:center;z-index:50;padding:20px}
+  .ptg-modal.open{display:flex}
+  .ptg-sheet{background:var(--paper);max-width:560px;width:100%;border-radius:6px;
+    padding:22px;max-height:86vh;overflow:auto}
+  .ptg-sheet h3{margin:0 0 4px;font-size:20px}
+  .ptg-sheet p.note{margin:0 0 16px;font-size:13px;color:var(--muted)}
+  .ptg-ladder{width:100%;border-collapse:collapse;font-size:14px}
+  .ptg-ladder th,.ptg-ladder td{text-align:left;padding:9px 8px;border-bottom:1px solid #D8CEBC}
+  .ptg-ladder th{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .ptg-ladder tr.locked{opacity:.45}
+  .ptg-ladder .redeem{font-family:inherit;font-size:13px;font-weight:600;padding:6px 12px;
+    border-radius:3px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+  .ptg-ladder .redeem:disabled{opacity:.3;cursor:not-allowed}
+  .ptg-close{float:right;font-family:inherit;font-size:14px;background:none;border:none;cursor:pointer;color:var(--muted)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="ptg" id="ptg">
+  <p class="ptg-eyebrow">Lesson Lab &middot; Saechan</p>
+  <h1 class="ptg-title">Predict the Graph</h1>
+  <p class="ptg-sub">Read the candles. Tap to place <b id="need">5</b> points where you think price closes next &mdash; then watch the real candles reveal one by one.</p>
+
+  <div class="ptg-credits">
+    <span class="bal" id="bal">0 <small>CREDITS</small></span>
+    <span class="streak" id="streak"></span>
+    <button class="ptg-btn ghost reward-btn" id="open-rewards">Rewards</button>
+  </div>
+
+  <div class="ptg-meta">
+    <span>Window <b id="m-window">&mdash;</b></span>
+    <span>Round <b id="m-round">&mdash;</b></span>
+    <span>Source <b id="m-source">&mdash;</b></span>
+  </div>
+
+  <div class="ptg-stage" id="stage">
+    <div class="ptg-ticker" id="ticker"></div>
+    <div class="ptg-ohlc" id="ohlc"></div>
+    <svg id="svg" viewBox="0 0 760 420" preserveAspectRatio="none" aria-label="Candlestick chart. Tap in the shaded zone to predict the closing path."></svg>
+    <div class="ptg-hint" id="hint">Tap in the shaded zone to place your first point</div>
+  </div>
+
+  <div class="ptg-controls">
+    <button class="ptg-btn" id="reveal" disabled>Reveal candles</button>
+    <button class="ptg-btn ghost" id="clear" disabled>Clear</button>
+    <button class="ptg-btn ghost" id="next" style="display:none">Next chart &rarr;</button>
+    <div class="ptg-right">
+      <label class="ptg-diff">Difficulty
+        <select id="diff">
+          <option value="0.08">Easy</option>
+          <option value="0.05" selected>Normal</option>
+          <option value="0.03">Hard</option>
+        </select>
+      </label>
+      <span class="ptg-score">Avg <b id="score">&mdash;</b></span>
+    </div>
+  </div>
+
+  <div class="ptg-legend">
+    <span><i class="ptg-swatch" style="background:var(--up)"></i>Up candle</span>
+    <span><i class="ptg-swatch" style="background:var(--down)"></i>Down candle</span>
+    <span><i class="ptg-swatch" style="background:var(--guess);height:3px"></i>Your prediction</span>
+    <span><i class="ptg-swatch" style="background:var(--band);opacity:.4"></i>Tolerance</span>
+  </div>
+
+  <div class="ptg-verdict" id="verdict"></div>
+  <div class="ptg-why" id="why"></div>
+</div>
+
+<div class="ptg-modal" id="modal">
+  <div class="ptg-sheet">
+    <button class="ptg-close" id="close-rewards">Close</button>
+    <h3>Rewards</h3>
+    <p class="note">Earn credits by playing well. Redeem them for real rewards. Conversion is fixed and shown up front &mdash; the better you predict, the faster you climb.</p>
+    <table class="ptg-ladder">
+      <thead><tr><th>Reward</th><th>Cost</th><th>Value</th><th></th></tr></thead>
+      <tbody id="ladder-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  const NS="http://www.w3.org/2000/svg";
+  const W=760,H=420,PADL=10,PADR=54,PADT=12;
+  const PRICE_H=300, VOL_TOP=320, VOL_H=88; // price panel + volume panel
+
+  // ---- Credit / rewards system ----
+  // Conversion matches the uploaded table: 1,000 credits = $1 of real reward
+  // value, i.e. a ~10% payout rate vs. typical spend. Fully transparent.
+  const CREDITS_PER_DOLLAR=1000;
+  const REWARDS=[
+    {name:'Sticker / coupon',      credits:500,   value:0.50},
+    {name:'Small item',            credits:1000,  value:1.00},
+    {name:'$2–3 item',             credits:2500,  value:2.50},
+    {name:'$5 gift card / product',credits:5000,  value:5.00},
+    {name:'$10 gift card',         credits:10000, value:10.00},
+    {name:'$25 gift card / premium',credits:25000,value:25.00},
+  ];
+  // Earning model: skill-based. A round pays out credits scaled by score,
+  // with a streak multiplier for consecutive good reads. Honest incentive —
+  // better prediction = more credits, nothing hidden.
+  const BASE_EARN=40;          // credits at 100/100 on a single round
+  const STREAK_STEP=0.15;      // +15% per round in a 60+ streak, capped
+  const STREAK_CAP=2.0;
+  let credits=0, streak=0;
+  const svg=document.getElementById('svg'), stage=document.getElementById('stage'), hint=document.getElementById('hint');
+  const elReveal=document.getElementById('reveal'), elClear=document.getElementById('clear'),
+        elNext=document.getElementById('next'), elVerdict=document.getElementById('verdict'),
+        elScore=document.getElementById('score'), elDiff=document.getElementById('diff'),
+        elTicker=document.getElementById('ticker'), elOhlc=document.getElementById('ohlc');
+  const elBal=document.getElementById('bal'), elStreak=document.getElementById('streak'),
+        elWhy=document.getElementById('why'), elModal=document.getElementById('modal'),
+        elLadder=document.getElementById('ladder-body');
+
+  // ---- synthetic OHLCV fallback so it runs before rounds.json exists ----
+  function fakeWindow(seed,n,start,drift,vol){
+    let s=seed; const r=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
+    const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.2831853*r());
+    let price=start; const out=[];
+    for(let i=0;i<n;i++){const o=price,c=Math.max(.5,o*Math.exp(drift+vol*g()));
+      const hi=Math.max(o,c)*(1+Math.abs(g())*vol*0.5), lo=Math.min(o,c)*(1-Math.abs(g())*vol*0.5);
+      out.push([o,hi,lo,c,Math.floor(Math.abs(g())*8e6)+1e6]); price=c;}
+    return out;
+  }
+  function fbRound(asset,seed,start,drift,vol){const c=fakeWindow(seed,60,start,drift,vol);
+    return{asset:asset,window:'60 sessions',candles:c,series:c.map(k=>k[3])};}
+  const FALLBACK={history_frac:0.6,source:'demo (synthetic)',rounds:[
+    fbRound('AAPL',7,180,0.0009,0.018), fbRound('TSLA',42,240,0.0015,0.035),
+    fbRound('NVDA',99,450,0.0021,0.030), fbRound('KO',13,60,0.0003,0.011),
+    fbRound('SPY',256,420,0.0006,0.010),
+  ]};
+
+  let DATA=FALLBACK, order=[], ptr=0, seen=new Set();
+  let candles=[], closes=[], splitIdx=0, histFrac=0.6, yMin=0, yMax=1, vMax=1;
+  let guessPts=[], scores=[], revealed=false, revealCount=0;
+  const NEED=5;
+
+  const n=()=>candles.length;
+  const xCenter=i=> PADL + (i+0.5)*((W-PADL-PADR)/n());
+  const cw=()=> (W-PADL-PADR)/n() * 0.64; // candle body width
+  const yToPx=v=> PADT + (1-(v-yMin)/(yMax-yMin))*PRICE_H;
+  const pxToVal=py=> yMin + (1-(py-PADT)/PRICE_H)*(yMax-yMin);
+  const xToIdx=px=> (px-PADL)/((W-PADL-PADR)/n()) - 0.5;
+  const volY=v=> VOL_TOP + (1-v/vMax)*VOL_H;
+  const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+  const path=p=>p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+
+  fetch('rounds.json').then(r=>r.ok?r.json():Promise.reject()).then(j=>{
+    if(j&&j.rounds&&j.rounds.length&&j.rounds[0].candles){
+      DATA={history_frac:j.history_frac||0.6,source:'real market data',
+            timeframe:j.timeframe||'1D', sourceShort:(j.source||'market data'),
+            rounds:j.rounds};
+    }
+    boot();
+  }).catch(()=>boot());
+
+  function boot(){
+    DATA.sourceShort = DATA.sourceShort || (DATA.source==='real market data' ? 'market data' : 'demo data');
+    DATA.timeframe = DATA.timeframe || '1D';
+    document.getElementById('m-source').textContent=DATA.source;
+    histFrac=DATA.history_frac||0.6;
+    order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
+    ptr=0; seen=new Set(); scores=[]; elScore.textContent='\u2014';
+    renderCredits();
+    loadRound();
+  }
+
+  function loadRound(){
+    seen.add(order[ptr]);
+    const r=DATA.rounds[order[ptr]];
+    candles=r.candles.map(c=>c.slice());
+    closes=r.series?r.series.slice():candles.map(c=>c[3]);
+    splitIdx=Math.floor(candles.length*histFrac);
+    // y-range from full window so the reveal doesn't rescale jarringly
+    let lo=Infinity,hi=-Infinity,vm=0;
+    candles.forEach(c=>{lo=Math.min(lo,c[2]);hi=Math.max(hi,c[1]);vm=Math.max(vm,c[4]);});
+    const pad=(hi-lo)*0.08; yMin=lo-pad; yMax=hi+pad; vMax=vm*1.05;
+    const tf=DATA.timeframe||'1D';
+    elTicker.innerHTML='<b>'+r.asset+'</b> &middot; '+tf+' &middot; <span style="color:#6A7585">'+DATA.sourceShort+'</span>';
+    document.getElementById('m-window').textContent=r.window||'';
+    document.getElementById('m-round').textContent=(ptr+1)+' / '+order.length;
+    guessPts=[]; revealed=false; revealCount=0;
+    elReveal.disabled=true; elClear.disabled=true; elNext.style.display='none'; elVerdict.style.display='none';
+    elWhy.style.display='none';
+    hint.textContent='Tap in the shaded zone to place your first point'; hint.style.opacity='1';
+    elOhlc.textContent='';
+    render();
+  }
+  function band(){return parseFloat(elDiff.value);}
+
+  function drawCandle(c,i,ghost){
+    const x=xCenter(i), w=cw(), up=c[3]>=c[0];
+    const col=up?'var(--up)':'var(--down)';
+    const o=yToPx(c[0]),cl=yToPx(c[3]),hi=yToPx(c[1]),lo=yToPx(c[2]);
+    const op=ghost?0.0:1;
+    // wick
+    svg.appendChild(el('line',{x1:x,y1:hi,x2:x,y2:lo,stroke:col,'stroke-width':1.2,opacity:op}));
+    // body
+    const top=Math.min(o,cl), bh=Math.max(1.2,Math.abs(cl-o));
+    svg.appendChild(el('rect',{x:x-w/2,y:top,width:w,height:bh,fill:col,opacity:op,rx:0.5}));
+    // volume bar
+    svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:(VOL_TOP+VOL_H)-volY(c[4]),
+      fill:col,opacity:(ghost?0:0.45)}));
+  }
+
+  function render(upTo){
+    svg.innerHTML='';
+    const shown = (upTo===undefined)? splitIdx : upTo; // how many candles are visible
+    // gridlines (price)
+    for(let g=0;g<=4;g++){const y=PADT+g*PRICE_H/4;
+      svg.appendChild(el('line',{x1:PADL,y1:y,x2:W-PADR,y2:y,stroke:'var(--grid)','stroke-width':1}));
+      const val=yMax-(yMax-yMin)*g/4;
+      svg.appendChild(el('text',{x:W-PADR+4,y:y+3,fill:'var(--axis)','font-size':10,'font-family':'monospace'})).textContent=val.toFixed(val>50?0:2);
+    }
+    // volume panel baseline + label
+    svg.appendChild(el('line',{x1:PADL,y1:VOL_TOP+VOL_H,x2:W-PADR,y2:VOL_TOP+VOL_H,stroke:'var(--grid)','stroke-width':1}));
+    svg.appendChild(el('text',{x:PADL+2,y:VOL_TOP-3,fill:'var(--axis)','font-size':9,'font-family':'monospace'})).textContent='Volume';
+    // future zone shading
+    const zx=xCenter(splitIdx)-cw()/2-2;
+    svg.appendChild(el('rect',{x:zx,y:PADT,width:(W-PADR)-zx,height:PRICE_H,fill:'#1b2736','fill-opacity':0.5}));
+    svg.appendChild(el('line',{x1:zx,y1:PADT,x2:zx,y2:VOL_TOP+VOL_H,stroke:'var(--muted)','stroke-width':1,'stroke-dasharray':'4 4'}));
+
+    // candles up to `shown`
+    for(let i=0;i<shown;i++) drawCandle(candles[i],i,false);
+
+    // future volume in GREY (price hidden) for candles not yet revealed —
+    // switches to real up/down color as each candle reveals.
+    for(let i=shown;i<candles.length;i++){
+      const c=candles[i], x=xCenter(i), w=cw();
+      svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:(VOL_TOP+VOL_H)-volY(c[4]),
+        fill:'#7c8696',opacity:0.40}));
+    }
+
+    // prediction points + line + bands
+    if(guessPts.length>=1){
+      const sorted=guessPts.slice().sort((a,b)=>a.x-b.x);
+      const bf=band();
+      sorted.forEach(p=>{const b=p.y*bf;
+        svg.appendChild(el('rect',{x:xCenter(p.x)-6,y:yToPx(p.y+b),width:12,height:Math.abs(yToPx(p.y-b)-yToPx(p.y+b)),fill:'var(--band)','fill-opacity':0.18,rx:2}));});
+      const anchor={x:splitIdx-1,y:closes[splitIdx-1]};
+      const lp=[anchor].concat(sorted).map(p=>[xCenter(p.x),yToPx(p.y)]);
+      svg.appendChild(el('path',{d:path(lp),fill:'none',stroke:'var(--guess)','stroke-width':2,'stroke-dasharray':'3 4','stroke-linecap':'round'}));
+      sorted.forEach(p=>svg.appendChild(el('circle',{cx:xCenter(p.x),cy:yToPx(p.y),r:4.5,fill:'var(--guess)',stroke:'#0E1621','stroke-width':1.5})));
+    }
+  }
+
+  // ---- input ----
+  function evtX(e){const r=stage.getBoundingClientRect();return((e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX)-r.left)/r.width*W;}
+  function evtY(e){const r=stage.getBoundingClientRect();return((e.touches&&e.touches[0]?e.touches[0].clientY:e.clientY)-r.top)/r.height*H;}
+  function placePoint(e){
+    if(revealed)return;
+    const px=evtX(e), py=evtY(e);
+    let xi=Math.round(xToIdx(px));
+    if(xi<splitIdx)return;                 // only future zone
+    xi=Math.max(splitIdx,Math.min(candles.length-1,xi));
+    if(py<PADT||py>PADT+PRICE_H)return;    // ignore taps in volume area
+    const v=Math.max(yMin,Math.min(yMax,pxToVal(py)));
+    const hitR=16;
+    const hit=guessPts.findIndex(p=>Math.abs(xCenter(p.x)-px)<hitR&&Math.abs(yToPx(p.y)-py)<hitR);
+    if(hit>=0){guessPts.splice(hit,1);}
+    else{
+      const exists=guessPts.findIndex(p=>p.x===xi);   // one point per candle slot
+      if(exists>=0)guessPts[exists].y=v;
+      else if(guessPts.length<NEED)guessPts.push({x:xi,y:v});
+      else return;
+    }
+    updateState(); render(); e.preventDefault();
+  }
+  function updateState(){
+    const left=NEED-guessPts.length;
+    elClear.disabled=guessPts.length===0;
+    elReveal.disabled=guessPts.length<NEED;
+    if(guessPts.length===0)hint.textContent='Tap in the shaded zone to place your first point',hint.style.opacity='1';
+    else if(left>0)hint.textContent=left+' more point'+(left>1?'s':'')+' to place',hint.style.opacity='1';
+    else hint.style.opacity='0';
+  }
+  stage.addEventListener('click',function(e){placePoint(e);});
+
+  // ---- reveal candle-by-candle ----
+  function actualClose(x){const i=Math.round(x);return closes[Math.max(0,Math.min(closes.length-1,i))];}
+  function scoreGuess(){
+    const sorted=guessPts.slice().sort((a,b)=>a.x-b.x); const bf=band();
+    // Smooth, distance-based credit per point — no cliffs. A point dead-on the
+    // real close scores 1.0; credit falls off gradually with distance, reaching
+    // 0 at 3× the tolerance band. Closer is ALWAYS better.
+    let ptSum=0, inBand=0;
+    sorted.forEach(p=>{
+      const a=actualClose(p.x);
+      const tol=a*bf;
+      const dist=Math.abs(p.y-a);
+      if(dist<=tol)inBand++;
+      const credit=Math.max(0, 1 - dist/(tol*3));  // 1 at dist 0, 0 at 3*tol
+      ptSum+=credit;
+    });
+    const shape=ptSum/sorted.length;               // 0..1 smooth
+    const startV=closes[splitIdx-1], endV=closes[closes.length-1];
+    const actualUp=endV>=startV, guessUp=sorted[sorted.length-1].y>=startV;
+    const dir=actualUp===guessUp?1:0;
+    return {pct:Math.round((0.4*dir+0.6*shape)*100),dir,inBand,total:sorted.length,actualUp};
+  }
+  function doReveal(){
+    revealed=true; elReveal.disabled=true; elClear.disabled=true;
+    hint.style.opacity='0';
+    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    let i=splitIdx;
+    function step(){
+      i++; render(i);
+      const last=candles[i-1];
+      elOhlc.textContent='O '+last[0].toFixed(2)+'  H '+last[1].toFixed(2)+'  L '+last[2].toFixed(2)+'  C '+last[3].toFixed(2);
+      if(i<candles.length){ setTimeout(step, reduce?0:90); }
+      else finishReveal();
+    }
+    if(reduce){ render(candles.length); finishReveal(); } else step();
+  }
+  function finishReveal(){
+    const s=scoreGuess(); scores.push(s.pct);
+    const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    elScore.textContent=avg;
+    const grade=s.pct>=80?'Sharp read.':s.pct>=60?'Good read.':s.pct>=40?'Partly there.':'Market disagreed.';
+
+    // ---- credits: skill-based earn with streak multiplier ----
+    if(s.pct>=60)streak++; else streak=0;
+    const mult=Math.min(STREAK_CAP, 1+streak*STREAK_STEP);
+    const earned=Math.round(BASE_EARN*(s.pct/100)*mult);
+    credits+=earned;
+    renderCredits();
+    flashEarn(earned);
+
+    elVerdict.style.display='block';
+    elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100'+
+      '<span class="ptg-earn show" id="earn">+'+earned+' credits earned</span></div>'+
+      '<div class="detail">Direction '+(s.dir?'correct':'missed')+' &middot; '+s.inBand+' of '+s.total+
+      ' points inside the band &middot; actual move was '+(s.actualUp?'up':'down')+
+      (mult>1?' &middot; streak &times;'+mult.toFixed(2):'')+'.</div>';
+
+    showWhy();
+
+    // ---- site integration: notify parent page with the full result ----
+    // Harmless when the game runs standalone (no parent listening).
+    try{
+      if(window.parent && window.parent!==window){
+        const r = DATA.rounds[order[ptr]];
+        window.parent.postMessage({type:'velta_round_done'}, '*');
+        window.parent.postMessage({
+          type:'velta_result',
+          symbol: (r && r.asset) ? r.asset : '—',
+          accuracy: s.pct,
+          direction: s.dir,
+          credits: earned,
+        }, '*');
+      }
+    }catch(e){}
+
+    if(ptr<DATA.rounds.length-1)elNext.style.display='inline-block';
+    else elVerdict.innerHTML+='<div class="detail" style="margin-top:8px">Set complete &mdash; average <b>'+avg+'/100</b> over '+scores.length+' charts.</div>';
+  }
+
+  // ---- "Why it moved" — explains the future move using course concepts ----
+  function sma(arr,end,len){let s=0,k=0;for(let i=Math.max(0,end-len);i<end;i++){s+=arr[i];k++;}return k?s/k:arr[end-1];}
+  function showWhy(){
+    const fut=candles.slice(splitIdx);
+    const startV=closes[splitIdx-1], endV=closes[closes.length-1];
+    const pct=((endV-startV)/startV*100);
+    const up=endV>=startV;
+    const histHi=Math.max.apply(null,closes.slice(0,splitIdx));
+    const histLo=Math.min.apply(null,closes.slice(0,splitIdx));
+    const ma20prev=sma(closes,splitIdx,20), ma20now=sma(closes,closes.length,20);
+    // biggest single future candle by range, and its volume vs median
+    let bigI=0,bigRange=0; fut.forEach((c,i)=>{const r=c[1]-c[2];if(r>bigRange){bigRange=r;bigI=i;}});
+    const vols=candles.map(c=>c[4]).slice().sort((a,b)=>a-b);
+    const medVol=vols[Math.floor(vols.length/2)];
+    const bigVol=fut[bigI][4];
+    const greens=fut.filter(c=>c[3]>=c[0]).length, reds=fut.length-greens;
+
+    const pts=[];
+    pts.push('Price '+(up?'rose':'fell')+' about '+Math.abs(pct).toFixed(1)+'% over the predicted stretch ('+
+      greens+' up candles vs '+reds+' down).');
+    if(endV>histHi*0.995 && up)
+      pts.push('It pushed through the prior high near '+histHi.toFixed(2)+' — a <b>breakout</b> above resistance, which often invites more buyers (Ch. 7).');
+    else if(endV<histLo*1.005 && !up)
+      pts.push('It broke below the prior low near '+histLo.toFixed(2)+' — a <b>breakdown</b> through support, where stops can accelerate selling (Ch. 7).');
+    else if(up)
+      pts.push('The move stayed inside the prior range — buyers led, but it never cleared resistance at '+histHi.toFixed(2)+'.');
+    else
+      pts.push('The move stayed inside the prior range — sellers led, but it held above support at '+histLo.toFixed(2)+'.');
+    if(bigVol>medVol*1.4)
+      pts.push('The largest candle (day '+(bigI+1)+' of the reveal) came on <b>volume ~'+(bigVol/medVol).toFixed(1)+'× the median</b> — high volume confirms conviction behind the move (Ch. 7 & 10).');
+    else
+      pts.push('Volume stayed near average throughout — no single session showed a strong conviction spike, so the move was steadier than it was explosive.');
+    if((ma20now-ma20prev)/ma20prev>0.01)
+      pts.push('The 20-day average turned up over the window — a short-term <b>uptrend</b> forming (Ch. 7, moving averages).');
+    else if((ma20now-ma20prev)/ma20prev<-0.01)
+      pts.push('The 20-day average rolled over — a short-term <b>downtrend</b> (Ch. 7, moving averages).');
+
+    elWhy.style.display='block';
+    elWhy.innerHTML='<h4>Why it moved like that</h4><ul>'+pts.map(p=>'<li>'+p+'</li>').join('')+
+      '</ul><div class="detail" style="color:var(--muted);font-size:12px;margin-top:8px">'+
+      'Note: short-horizon moves are partly noise — these are the readable structural reasons, not a guarantee any single signal caused it.</div>';
+  }
+
+  // ---- credits UI ----
+  function renderCredits(){
+    elBal.innerHTML=credits.toLocaleString()+' <small>CREDITS</small>';
+    elStreak.innerHTML=streak>=2?('🔥 streak <b>'+streak+'</b>'):'';
+    renderLadder();
+  }
+  function flashEarn(n){ /* earn shown inline in verdict; balance pulses */
+    elBal.animate?elBal.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:420}):0;
+  }
+  function renderLadder(){
+    elLadder.innerHTML='';
+    REWARDS.forEach(function(rw){
+      const can=credits>=rw.credits;
+      const tr=document.createElement('tr'); if(!can)tr.className='locked';
+      tr.innerHTML='<td>'+rw.name+'</td><td>'+rw.credits.toLocaleString()+'</td><td>$'+rw.value.toFixed(2)+'</td>'+
+        '<td><button class="redeem"'+(can?'':' disabled')+'>Redeem</button></td>';
+      tr.querySelector('.redeem').addEventListener('click',function(){
+        if(credits>=rw.credits){credits-=rw.credits;renderCredits();
+          tr.querySelector('td:last-child').textContent='✓ redeemed';}
+      });
+      elLadder.appendChild(tr);
+    });
+  }
+  document.getElementById('open-rewards').addEventListener('click',function(){renderLadder();elModal.classList.add('open');});
+  document.getElementById('close-rewards').addEventListener('click',function(){elModal.classList.remove('open');});
+  elModal.addEventListener('click',function(e){if(e.target===elModal)elModal.classList.remove('open');});
+
+  elReveal.addEventListener('click',doReveal);
+  elClear.addEventListener('click',function(){guessPts=[];updateState();render();});
+  elNext.addEventListener('click',function(){
+    ptr++;
+    if(ptr>=order.length){ // exhausted the pool — reshuffle for a fresh pass
+      order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
+      ptr=0; seen=new Set();
+    }
+    loadRound();
+  });
+  elDiff.addEventListener('change',function(){if(guessPts.length>=1&&!revealed)render();});
+})();
+</script>

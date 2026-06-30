@@ -1,0 +1,116 @@
+/* ============================================================
+   VeltaCapital — shared site styles
+   Visual identity carried over from the Predict-the-Graph game:
+   warm paper UI, dark trading-panel ink, amber + teal accents.
+   ============================================================ */
+:root{
+  --ink:#0B1F33;          /* deep navy — text & dark panels */
+  --ink-2:#0E1621;        /* chart panel black-blue */
+  --paper:#F2EDE4;        /* warm paper background */
+  --paper-2:#E7DFD2;      /* raised paper */
+  --line:#D8CEBC;         /* hairline on paper */
+  --up:#16A36A;           /* candle up / positive */
+  --down:#D8503C;         /* candle down / negative */
+  --amber:#E0A21A;        /* the "your guess" accent */
+  --teal:#0F8B6C;         /* the "reveal" accent */
+  --muted:#6A7585;
+  --muted-d:#8593A6;      /* muted on dark */
+  --maxw:1140px;
+  --r:6px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;
+}
+.mono{font-family:'SF Mono','IBM Plex Mono',ui-monospace,'Roboto Mono',monospace}
+a{color:inherit}
+img{max-width:100%}
+
+/* ---- layout ---- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.section{padding:84px 0}
+@media(max-width:680px){.section{padding:56px 0}}
+
+/* ---- nav ---- */
+.nav{position:sticky;top:0;z-index:40;background:rgba(242,237,228,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;gap:20px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;letter-spacing:-.01em;text-decoration:none}
+.brand .mark{width:26px;height:26px;display:block}
+.nav-links{margin-left:auto;display:flex;gap:22px;align-items:center}
+.nav-links a{font-size:14px;text-decoration:none;color:var(--muted);transition:color .15s}
+.nav-links a:hover{color:var(--ink)}
+@media(max-width:680px){.nav-links a:not(.btn){display:none}}
+
+/* ---- buttons ---- */
+.btn{font-family:inherit;font-size:14px;font-weight:600;padding:10px 18px;border-radius:var(--r);
+  border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .12s,opacity .15s;white-space:nowrap}
+.btn:hover{opacity:.92}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.amber{background:var(--amber);border-color:var(--amber);color:var(--ink-2)}
+.btn.lg{padding:14px 26px;font-size:16px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---- type ---- */
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1,h2,h3{letter-spacing:-.02em;font-weight:600;margin:0}
+h1{font-size:clamp(38px,6vw,66px);line-height:1.02}
+h2{font-size:clamp(28px,4vw,40px);line-height:1.08}
+h3{font-size:21px}
+.lead{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font-size:12px;letter-spacing:.04em;padding:4px 10px;border:1px solid var(--line);
+  border-radius:100px;color:var(--muted)}
+
+/* ---- cards ---- */
+.card{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+.grid{display:grid;gap:20px}
+
+/* ---- footer ---- */
+.foot{background:var(--ink);color:var(--paper);padding:48px 0 40px}
+.foot a{color:var(--paper);text-decoration:none;opacity:.8}
+.foot a:hover{opacity:1}
+.foot .mono{color:var(--muted-d)}
+.foot-grid{display:flex;gap:48px;flex-wrap:wrap;justify-content:space-between}
+
+/* ---- disclaimer band ---- */
+.disclaim{background:var(--ink-2);color:var(--muted-d);font-size:12.5px;line-height:1.6;
+  padding:18px 0;border-top:1px solid #1d2a3a}
+.disclaim .wrap{max-width:var(--maxw)}
+
+/* ---- simulated-state banner (prototype only) ---- */
+.proto-flag{background:var(--amber);color:var(--ink-2);text-align:center;
+  font-size:12.5px;font-weight:600;padding:7px 16px;letter-spacing:.01em}
+.proto-flag .mono{font-weight:400}
+
+/* ---- modal ---- */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(11,31,51,.62)}
+.modal.open{display:flex}
+.sheet{background:var(--paper);border-radius:10px;max-width:560px;width:100%;max-height:88vh;overflow:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.sheet-pad{padding:28px}
+.x{float:right;background:none;border:none;font-size:15px;color:var(--muted);cursor:pointer;font-family:inherit}
+
+/* ---- pricing ---- */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:860px){.tiers{grid-template-columns:1fr}}
+.tier{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column}
+.tier.feature{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.tier .price{font-size:40px;font-weight:600;margin:8px 0 2px;letter-spacing:-.02em}
+.tier .price small{font-size:15px;color:var(--muted);font-weight:400}
+.tier ul{list-style:none;padding:0;margin:18px 0 24px;flex:1}
+.tier li{padding:8px 0;border-top:1px solid var(--line);font-size:14.5px;display:flex;gap:10px;align-items:flex-start}
+.tier li:first-child{border-top:none}
+.tier li .ic{color:var(--teal);flex:none;margin-top:2px}
+.tier .ribbon{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:4px;min-height:14px}
+
+/* visually-hidden but screen-reader available */
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VeltaCapital — Your account</title>
+<meta name="description" content="Your VeltaCapital member area.">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .acct-bar{display:flex;align-items:center;gap:16px;padding:10px 0;font-size:14px;color:var(--muted)}
+  .acct-bar .who{color:var(--ink);font-weight:600}
+  .acct-bar .credits{margin-left:auto;font-weight:600;color:var(--ink)}
+  .acct-bar .credits .mono{color:var(--amber)}
+
+  /* ---- conversion (pre-purchase) ---- */
+  .convert-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:40px 0}
+  @media(max-width:880px){.convert-hero{grid-template-columns:1fr}}
+  .earned{background:var(--ink-2);border-radius:12px;padding:28px;border:1px solid #1d2a3a;color:var(--paper)}
+  .earned .big{font-size:54px;font-weight:600;letter-spacing:-.02em;color:var(--amber)}
+  .earned .lab{color:var(--muted-d);font-size:14px;margin-bottom:20px}
+  .earned .row{display:flex;justify-content:space-between;padding:11px 0;border-top:1px solid #243345;font-size:14px}
+  .earned .row:first-of-type{border-top:none}
+  .earned .row .v{color:#C7D2E0}
+  .locked-tag{color:var(--muted-d);font-size:12px}
+
+  .unlock-list{list-style:none;padding:0;margin:18px 0 0}
+  .unlock-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+  .unlock-list li:first-child{border-top:none}
+  .unlock-list .ic{color:var(--teal);flex:none;margin-top:2px}
+
+  /* ---- tabs (post-purchase) ---- */
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:8px 0 0}
+  .tab{font-family:inherit;font-size:15px;font-weight:600;padding:14px 20px;border:none;background:none;
+    color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amber)}
+  .panel{display:none;padding:32px 0}
+  .panel.active{display:block}
+
+  .video-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:780px){.video-grid{grid-template-columns:1fr}}
+  .video{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .video .thumb{aspect-ratio:16/9;background:var(--ink-2);display:flex;align-items:center;justify-content:center;
+    color:var(--muted-d);font-size:13px;text-align:center;padding:16px}
+  .video .meta{padding:14px 16px}
+  .video .meta h3{font-size:16px;margin:0 0 4px}
+  .video .meta p{font-size:13px;color:var(--muted);margin:0}
+  .video.locked{opacity:.55}
+  .video.locked .thumb::after{content:'🔒 Upgrade to unlock';color:var(--muted-d)}
+
+  .game-frame{width:100%;border:none;border-radius:10px;height:820px;background:#fff;display:block}
+  .game-meter{display:flex;align-items:center;gap:14px;margin-bottom:14px;font-size:14px;color:var(--muted)}
+  .game-meter .pill{background:var(--paper-2);border:1px solid var(--line);border-radius:100px;padding:6px 14px}
+  .game-meter .pill b{color:var(--ink)}
+
+  .reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:780px){.reward-grid{grid-template-columns:1fr}}
+  .reward{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px}
+  .reward h3{font-size:16px}
+  .reward .cost{font-family:'SF Mono',monospace;font-size:13px;color:var(--muted)}
+  .reward .cost b{color:var(--amber)}
+  .reward.locked{opacity:.5}
+</style>
+</head>
+<body>
+
+<div class="proto-flag">PROTOTYPE — your plan &amp; credits are simulated. <span class="mono">Use the tier buttons to preview each plan.</span></div>
+
+<header class="nav"><div class="wrap nav-in">
+  <a class="brand" href="index.html" id="brand"></a>
+  <nav class="nav-links">
+    <a href="index.html#how">How it works</a>
+    <a href="#" id="reset-link" class="mono" style="font-size:12px">Reset preview</a>
+    <span class="btn ghost" id="plan-badge" style="cursor:default">—</span>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="acct-bar">
+    <span>Signed in as <span class="who" id="who">—</span></span>
+    <span class="credits">Credits: <span class="mono" id="cred">0</span></span>
+  </div>
+</div>
+
+<!-- ============ PRE-PURCHASE: CONVERSION PAGE ============ -->
+<main id="convert" style="display:none">
+  <section class="section" style="padding-top:24px"><div class="wrap">
+    <p class="eyebrow">You're in — almost.</p>
+    <h1 style="font-size:clamp(32px,5vw,52px)">You earned credits in the trial.<br>Here's what they unlock.</h1>
+
+    <div class="convert-hero">
+      <div class="earned">
+        <div class="big" id="earned-credits">0</div>
+        <div class="lab">credits earned in your trial</div>
+        <div class="row"><span>Trial rounds played</span><span class="v" id="earned-rounds">0 / 3</span></div>
+        <div class="row"><span>Credits banked</span><span class="v" id="earned-banked">0</span></div>
+        <div class="row"><span>Toward your first reward</span><span class="v" id="earned-toward">Profile badge · 500</span></div>
+        <p class="locked-tag" style="margin-top:18px">Your credits are saved. Choose a plan to start spending them — and earning a lot more.</p>
+      </div>
+
+      <div>
+        <h2>Keep your streak going.</h2>
+        <ul class="unlock-list">
+          <li><span class="ic">✓</span><span>Unlock the full course — Saechan's complete lesson series.</span></li>
+          <li><span class="ic">✓</span><span>Play up to 20 rounds a day and keep earning credits.</span></li>
+          <li><span class="ic">✓</span><span>Redeem credits for practice packs, hint mode, and 1-on-1 review.</span></li>
+          <li><span class="ic">✓</span><span>Track your skills — see if you're improving at trend, volume, and breakouts.</span></li>
+        </ul>
+        <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn amber lg" id="see-plans">Choose your plan</button>
+          <a class="btn ghost lg" href="index.html#try">Back to trial</a>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="section" id="plans2" style="background:var(--paper-2)"><div class="wrap">
+    <p class="eyebrow">Plans</p>
+    <h2>Three ways in.</h2>
+    <p class="lead" style="margin:14px 0 30px">Every plan includes the course and the game. Your trial credits carry over to whichever you pick.</p>
+    <div class="tiers" id="tiers"></div>
+  </div></section>
+</main>
+
+<!-- ============ POST-PURCHASE: MEMBER AREA ============ -->
+<main id="member" style="display:none">
+  <div class="wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true"  data-tab="videos">Course videos</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="game">Prediction game</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="leaderboard">Leaderboard</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="rewards">Redeem credits</button>
+    </div>
+
+    <!-- VIDEOS -->
+    <section class="panel active" id="panel-videos" role="tabpanel">
+      <h2 style="margin-bottom:6px">Your lessons</h2>
+      <p class="lead" id="videos-sub" style="margin-bottom:24px"></p>
+      <div class="video-grid" id="video-grid"></div>
+      <p class="mono" style="font-size:12px;color:var(--muted);margin-top:24px">
+        [PLACEHOLDER — Saechan's real videos go here later. For now these are empty slots; the layout and locking are final.]</p>
+    </section>
+
+    <!-- GAME -->
+    <section class="panel" id="panel-game" role="tabpanel">
+      <h2 style="margin-bottom:6px">Predict the Graph</h2>
+      <div class="game-meter">
+        <span class="pill">Daily rounds: <b id="rounds-allowance">—</b></span>
+        <span class="pill">Plan: <b id="plan-name-game">—</b></span>
+        <span class="pill">Credits: <b id="cred-game">0</b></span>
+      </div>
+      <iframe class="game-frame" id="game-frame" title="Predict the Graph" src="predict-the-graph.html"></iframe>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="panel" id="panel-leaderboard" role="tabpanel">
+      <h2 style="margin-bottom:6px">Leaderboard</h2>
+      <p class="lead" style="margin-bottom:18px">Ranked by best round accuracy. Play more rounds to climb.</p>
+      <table class="ptg-ladder" style="width:100%;border-collapse:collapse" id="lb-table">
+        <thead><tr>
+          <th style="text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)">#</th>
+          <th style="text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)">Player</th>
+          <th style="text-align:right;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)">Best</th>
+          <th style="text-align:right;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)">Rounds</th>
+        </tr></thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+      <p class="mono" id="lb-empty" style="display:none;color:var(--muted);font-size:13px;margin-top:16px">No scores yet — play a round to get on the board.</p>
+    </section>
+
+    <!-- REWARDS -->
+    <section class="panel" id="panel-rewards" role="tabpanel">
+      <h2 style="margin-bottom:6px">Redeem your credits</h2>
+      <p class="lead" style="margin-bottom:8px">Spend credits on practice and progress — never cash. Conversion is fixed and shown up front.</p>
+      <p class="acct-bar" style="border:none">Balance: <span class="credits" style="margin-left:8px">Credits: <span class="mono" id="cred-rewards">0</span></span></p>
+      <div class="reward-grid" id="reward-grid" style="margin-top:14px"></div>
+    </section>
+  </div>
+</main>
+
+<div class="disclaim"><div class="wrap">
+  <strong style="color:var(--muted-d)">Educational disclaimer.</strong>
+  VeltaCapital is an educational simulation. It does not provide financial advice or guarantees of profit. Charts are historical and for practice only. Past performance does not predict future results.
+</div></div>
+
+<!-- PAYMENT MODAL (simulated) -->
+<div class="modal" id="pay-modal">
+  <div class="sheet"><div class="sheet-pad">
+    <button class="x" id="pay-x">Maybe later</button>
+    <p class="eyebrow">Checkout</p>
+    <h2 style="font-size:26px" id="pay-title">Unlock VeltaCapital</h2>
+    <p style="color:var(--muted);font-size:15px;margin:10px 0 20px" id="pay-sub">Choose a plan to unlock the course, the game, and credit rewards.</p>
+    <div class="tiers" id="pay-tiers" style="grid-template-columns:1fr;gap:12px"></div>
+    <p class="mono" style="font-size:12px;color:var(--muted);margin-top:18px;text-align:center">
+      Simulated checkout — no real payment. In the live product this is secure Stripe Checkout.</p>
+  </div></div>
+</div>
+
+<script src="assets/velta.js"></script>
+<script>
+  document.getElementById('brand').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
+
+  // `user` holds the REAL account from the database (id, email, name, plan, credits).
+  let user = null;
+  let s = Velta.get(); // still used for trial-round display only
+
+  // guard: load the logged-in user from the database; redirect home if none.
+  async function init(){
+    user = await Velta.apiMe();
+    if(!user){ window.location.href='index.html'; return; }
+    refresh();
+  }
+
+  function refresh(){
+    document.getElementById('who').textContent = user.name || 'you';
+    document.getElementById('cred').textContent = fmt(user.credits);
+    const planLabel = user.plan==='none' ? 'No plan yet' : PLANS[user.plan].name+' plan';
+    document.getElementById('plan-badge').textContent = planLabel;
+
+    if(user.plan==='none'){ showConvert(); } else { showMember(); }
+  }
+
+  /* ---------- CONVERSION VIEW ---------- */
+  function showConvert(){
+    document.getElementById('convert').style.display='block';
+    document.getElementById('member').style.display='none';
+    document.getElementById('earned-credits').textContent = fmt(user.credits);
+    document.getElementById('earned-rounds').textContent = Math.min(3,s.trialRoundsUsed)+' / 3';
+    document.getElementById('earned-banked').textContent = fmt(user.credits);
+    // pop the payment modal on arrival (the requested behavior)
+    setTimeout(openPay, 600);
+  }
+  document.getElementById('see-plans').addEventListener('click',()=>{
+    document.getElementById('plans2').scrollIntoView({behavior:'smooth'});
+  });
+
+  /* ---------- pricing tiers (conversion page + pay modal) ---------- */
+  function tierCard(key,compact){
+    const p=PLANS[key], feat=key==='pro';
+    const c=el('div',{class:'tier'+(feat?' feature':'')});
+    c.innerHTML =
+      (compact?'':'<div class="ribbon">'+(feat?'Most popular':'')+'</div>')+
+      '<h3>'+p.name+'</h3>'+
+      '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
+      '<p style="color:var(--muted);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
+      (compact?''
+        :'<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>')+
+      '<a class="btn '+(feat?'amber':'')+'" style="justify-content:center;margin-top:'+(compact?'14px':'0')+'" href="#" data-buy="'+key+'">'+
+        (compact?('Get '+p.name+' — '+p.price):('Choose '+p.name))+'</a>';
+    return c;
+  }
+  ['tiers'].forEach(id=>{
+    const host=document.getElementById(id); if(!host)return;
+    ['basic','pro','investor'].forEach(k=>host.appendChild(tierCard(k,false)));
+  });
+  (function(){
+    const host=document.getElementById('pay-tiers');
+    ['basic','pro','investor'].forEach(k=>host.appendChild(tierCard(k,true)));
+  })();
+
+  // buy handler (any tier button anywhere) — sets plan in the database
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest('[data-buy]'); if(!b)return; e.preventDefault();
+    const plan=b.getAttribute('data-buy');
+    try{
+      user = await Velta.apiBuy(plan);   // [BACKEND] test-mode stand-in for Stripe
+      closePay();
+      refresh();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(err){ alert(err.message); }
+  });
+
+  /* ---------- payment modal ---------- */
+  const payModal=document.getElementById('pay-modal');
+  function openPay(){ payModal.classList.add('open'); }
+  function closePay(){ payModal.classList.remove('open'); }
+  document.getElementById('pay-x').addEventListener('click',closePay);
+  payModal.addEventListener('click',e=>{ if(e.target===payModal)closePay(); });
+
+  /* ---------- MEMBER VIEW ---------- */
+  function showMember(){
+    document.getElementById('convert').style.display='none';
+    document.getElementById('member').style.display='block';
+    const p=PLANS[user.plan];
+    document.getElementById('videos-sub').textContent =
+      (p.videos>=9999?'All lessons':(p.videos+' lessons'))+' included with your '+p.name+' plan.';
+    document.getElementById('rounds-allowance').textContent = p.gameRoundsDaily>=9999?'Unlimited':p.gameRoundsDaily;
+    document.getElementById('plan-name-game').textContent = p.name;
+    document.getElementById('cred-game').textContent = fmt(user.credits);
+    document.getElementById('cred-rewards').textContent = fmt(user.credits);
+    buildVideos(p); buildRewards();
+  }
+
+  function buildVideos(p){
+    const grid=document.getElementById('video-grid'); grid.innerHTML='';
+    const TOTAL=10;
+    const unlocked = p.videos>=9999?TOTAL:p.videos;
+    for(let i=1;i<=TOTAL;i++){
+      const locked = i>unlocked;
+      const v=el('div',{class:'video'+(locked?' locked':'')});
+      v.innerHTML='<div class="thumb">'+(locked?'':'[Video '+i+' placeholder]')+'</div>'+
+        '<div class="meta"><h3>Lesson '+i+'</h3><p>'+(locked?'Upgrade to unlock':'[PLACEHOLDER title]')+'</p></div>';
+      grid.appendChild(v);
+    }
+  }
+
+  function buildRewards(){
+    const grid=document.getElementById('reward-grid'); grid.innerHTML='';
+    REWARDS.forEach(rw=>{
+      const can=user.credits>=rw.credits;
+      const c=el('div',{class:'reward'+(can?'':' locked')});
+      c.innerHTML='<h3>'+rw.name+'</h3>'+
+        '<div class="cost">Cost: <b>'+fmt(rw.credits)+'</b> credits</div>'+
+        '<button class="btn'+(can?' amber':'')+'" '+(can?'':'disabled')+' style="justify-content:center">'+
+        (can?'Redeem':'Need more credits')+'</button>';
+      const btn=c.querySelector('button');
+      if(can) btn.addEventListener('click',async ()=>{
+        btn.disabled=true; btn.textContent='…';
+        try{
+          const res=await Velta.apiRedeem(rw.name, rw.credits); // real spend in DB
+          user.credits=res.credits; refresh();
+          btn.textContent='✓ Redeemed'; btn.classList.remove('amber');
+        }catch(err){
+          btn.textContent='Redeem'; btn.disabled=false; alert(err.message);
+        }
+      });
+      grid.appendChild(c);
+    });
+  }
+
+  /* ---------- leaderboard ---------- */
+  async function loadLeaderboard(){
+    const rows = await Velta.apiLeaderboard();
+    const body=document.getElementById('lb-body');
+    const empty=document.getElementById('lb-empty');
+    body.innerHTML='';
+    if(!rows.length){ empty.style.display='block'; return; }
+    empty.style.display='none';
+    rows.forEach(r=>{
+      const tr=el('tr');
+      if(r.isYou) tr.style.background='rgba(224,162,26,.12)';
+      tr.innerHTML=
+        '<td style="padding:9px 8px;border-bottom:1px solid var(--line)">'+r.rank+'</td>'+
+        '<td style="padding:9px 8px;border-bottom:1px solid var(--line)">'+r.name+(r.isYou?' <span class="mono" style="color:var(--amber);font-size:11px">YOU</span>':'')+'</td>'+
+        '<td style="padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:monospace">'+r.best+'</td>'+
+        '<td style="padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:monospace;color:var(--muted)">'+r.rounds+'</td>';
+      body.appendChild(tr);
+    });
+  }
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+      t.setAttribute('aria-selected','true');
+      const name=t.getAttribute('data-tab');
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      document.getElementById('panel-'+name).classList.add('active');
+      if(name==='leaderboard') loadLeaderboard();
+    });
+  });
+
+  /* ---------- round result from the embedded game → save to server ---------- */
+  window.addEventListener('message', async (ev)=>{
+    if(ev.data && ev.data.type==='velta_result'){
+      try{
+        const res = await Velta.apiSubmitScore({
+          symbol: ev.data.symbol,
+          accuracy: ev.data.accuracy,
+          direction: ev.data.direction,
+          credits: ev.data.credits,
+        });
+        user.credits = res.credits;   // updated balance from the database
+        refresh();
+      }catch(err){ /* ignore transient errors; round still played */ }
+    }
+  });
+
+  /* ---------- log out (real) ---------- */
+  document.getElementById('reset-link').textContent='Log out';
+  document.getElementById('reset-link').addEventListener('click',async e=>{
+    e.preventDefault(); await Velta.apiLogout(); window.location.href='index.html';
+  });
+
+  init();   // load the real user, then render
+</script>
+</body>
+</html>
