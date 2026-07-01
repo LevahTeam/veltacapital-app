@@ -1,9 +1,3 @@
-// ============================================================
-//  GET /api/leaderboard
-//  Returns the top players, ranked by their BEST round accuracy,
-//  with how many rounds they've played. Also flags which row is
-//  the current logged-in user (so the UI can highlight "you").
-// ============================================================
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -13,7 +7,6 @@ export async function GET() {
     const cookieStore = await cookies();
     const uid = cookieStore.get("velta_uid")?.value || null;
 
-    // group scores by user: best accuracy + number of rounds
     const grouped = await prisma.score.groupBy({
       by: ["userId"],
       _max: { accuracy: true },
@@ -22,15 +15,14 @@ export async function GET() {
       take: 20,
     });
 
-    // fetch the display names for those users
-    const ids = grouped.map((g) => g.userId);
+    const ids = grouped.map((g: { userId: string }) => g.userId);
     const users = await prisma.user.findMany({
       where: { id: { in: ids } },
       select: { id: true, name: true },
     });
-    const nameById = new Map(users.map((u) => [u.id, u.name || "Anonymous"]));
+    const nameById = new Map(users.map((u: { id: string; name: string | null }) => [u.id, u.name || "Anonymous"]));
 
-    const rows = grouped.map((g, i) => ({
+    const rows = grouped.map((g: { userId: string; _max: { accuracy: number | null }; _count: { _all: number } }, i: number) => ({
       rank: i + 1,
       name: nameById.get(g.userId) || "Anonymous",
       best: g._max.accuracy ?? 0,
