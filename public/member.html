@@ -213,10 +213,10 @@
   function refresh(){
     document.getElementById('who').textContent = user.name || 'you';
     document.getElementById('cred').textContent = fmt(user.credits);
-    const planLabel = user.plan==='none' ? 'No plan yet' : PLANS[user.plan].name+' plan';
-    document.getElementById('plan-badge').textContent = planLabel;
+    const planCfg = PLANS[user.plan];
+    const planLabel = (!planCfg || user.plan==='none') ? 'No plan yet' : planCfg.name+' plan';
 
-    if(user.plan==='none'){ showConvert(); } else { showMember(); }
+    if(user.plan==='none' || !planCfg){ showConvert(); } else { showMember(); }
   }
 
   /* ---------- CONVERSION VIEW ---------- */
@@ -235,7 +235,7 @@
 
   /* ---------- pricing tiers (conversion page + pay modal) ---------- */
   function tierCard(key,compact){
-    const p=PLANS[key], feat=key==='pro';
+    const p=PLANS[key], feat=key==='standard';
     const c=el('div',{class:'tier'+(feat?' feature':'')});
     c.innerHTML =
       (compact?'':'<div class="ribbon">'+(feat?'Most popular':'')+'</div>')+
@@ -250,11 +250,11 @@
   }
   ['tiers'].forEach(id=>{
     const host=document.getElementById(id); if(!host)return;
-    ['basic','pro','investor'].forEach(k=>host.appendChild(tierCard(k,false)));
+    ['trial','starter','standard','premium'].forEach(k=>host.appendChild(tierCard(k,false)));
   });
   (function(){
     const host=document.getElementById('pay-tiers');
-    ['basic','pro','investor'].forEach(k=>host.appendChild(tierCard(k,true)));
+    ['trial','starter','standard','premium'].forEach(k=>host.appendChild(tierCard(k,true)));
   })();
 
   // buy handler (any tier button anywhere) — sets plan in the database
@@ -359,7 +359,7 @@
     });
   });
 
-  /* ---------- round result from the embedded game → save to server ---------- */
+/* ---------- round result from the embedded game → save to server ---------- */
   window.addEventListener('message', async (ev)=>{
     if(ev.data && ev.data.type==='velta_result'){
       try{
@@ -367,11 +367,28 @@
           symbol: ev.data.symbol,
           accuracy: ev.data.accuracy,
           direction: ev.data.direction,
-          credits: ev.data.credits,
+          meanErrPct: ev.data.meanErrPct,
         });
-        user.credits = res.credits;   // updated balance from the database
+        user.credits = res.credits;
+        user.simRunsLeft = res.simRunsLeft;
+        user.unlimitedSims = res.unlimitedSims;
+// tell the game what the server actually awarded
+        document.getElementById('game-frame')?.contentWindow?.postMessage(
+          { type:'velta_earned', earned: res.earned }, '*'
+        );
         refresh();
-      }catch(err){ /* ignore transient errors; round still played */ }
+
+
+
+
+
+      }catch(err){
+        if(String(err.message||'').includes('out_of_runs')){
+          alert("You're out of simulation runs. Upgrade to keep playing.");
+        }else{
+          console.error('Score submit failed:', err);
+        }
+      }
     }
   });
 

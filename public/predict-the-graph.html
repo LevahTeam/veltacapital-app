@@ -22,6 +22,16 @@
   .ptg-ticker{position:absolute;left:12px;top:10px;font-family:'SF Mono',ui-monospace,monospace;
     font-size:13px;color:#C7D2E0;letter-spacing:.04em}
   .ptg-ticker b{color:#fff;font-size:15px}
+  .hypo{margin-top:14px;padding:14px;border:1px solid rgba(255,255,255,.14);border-radius:8px;background:#0E1621}
+  .hypo-head{font-size:12px;color:#8FA0B4;text-transform:uppercase;letter-spacing:.06em}
+  .hypo-num{font-size:26px;font-weight:600;margin:6px 0 2px;font-family:'SF Mono',ui-monospace,monospace;color:#F2F5F8}
+  .hypo-pl{font-size:16px;font-weight:500}
+  .hypo-rule{font-size:13px;color:#B6C2D0;margin-top:6px}
+  .hypo-disc{font-size:11px;color:#8FA0B4;margin-top:10px;line-height:1.45}
+  .recap-wrap{overflow-x:auto;margin-top:10px}
+  .recap{width:100%;border-collapse:collapse;font-size:13px}
+  .recap th{text-align:left;color:#8FA0B4;font-weight:600;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.14);font-family:'SF Mono',ui-monospace,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .recap td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.06);font-family:'SF Mono',ui-monospace,monospace}
   .ptg-ohlc{position:absolute;left:12px;top:30px;font-family:'SF Mono',ui-monospace,monospace;
     font-size:11px;color:var(--muted)}
   .ptg-hint{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
@@ -203,7 +213,7 @@
 
   let DATA=FALLBACK, order=[], ptr=0, seen=new Set();
   let candles=[], closes=[], splitIdx=0, histFrac=0.6, yMin=0, yMax=1, vMax=1;
-  let guessPts=[], scores=[], revealed=false, revealCount=0;
+  let guessPts=[], scores=[], revealed=false, revealCount=0; let sessionRounds=[];   // recap accumulator: one entry per completed round
   const NEED=5;
 
   const n=()=>candles.length;
@@ -354,7 +364,7 @@
     // Smooth, distance-based credit per point — no cliffs. A point dead-on the
     // real close scores 1.0; credit falls off gradually with distance, reaching
     // 0 at 3× the tolerance band. Closer is ALWAYS better.
-    let ptSum=0, inBand=0;
+    let ptSum=0, inBand=0, errSum=0;
     sorted.forEach(p=>{
       const a=actualClose(p.x);
       const tol=a*bf;
@@ -362,12 +372,21 @@
       if(dist<=tol)inBand++;
       const credit=Math.max(0, 1 - dist/(tol*3));  // 1 at dist 0, 0 at 3*tol
       ptSum+=credit;
+      errSum += Math.abs(p.y - a) / a;   // fractional error for this point
     });
     const shape=ptSum/sorted.length;               // 0..1 smooth
     const startV=closes[splitIdx-1], endV=closes[closes.length-1];
     const actualUp=endV>=startV, guessUp=sorted[sorted.length-1].y>=startV;
     const dir=actualUp===guessUp?1:0;
-    return {pct:Math.round((0.4*dir+0.6*shape)*100),dir,inBand,total:sorted.length,actualUp};
+    // hypothetical: $100 at the split, held to the end, only if you called "up"
+    const guessedUp = guessUp;
+    const hypo = guessedUp ? 100 * (endV / startV) : 100;
+    const meanErrPct = (errSum / sorted.length) * 100;   // average % off
+    return {
+      pct: Math.round((0.4*dir+0.6*shape)*100),
+      dir, inBand, total: sorted.length, actualUp,
+      guessedUp, startV, endV, hypo, meanErrPct,
+    };
   }
   function doReveal(){
     revealed=true; elReveal.disabled=true; elClear.disabled=true;
@@ -389,25 +408,57 @@
     elScore.textContent=avg;
     const grade=s.pct>=80?'Sharp read.':s.pct>=60?'Good read.':s.pct>=40?'Partly there.':'Market disagreed.';
 
-    // ---- credits: skill-based earn with streak multiplier ----
-    if(s.pct>=60)streak++; else streak=0;
-    const mult=Math.min(STREAK_CAP, 1+streak*STREAK_STEP);
-    const earned=Math.round(BASE_EARN*(s.pct/100)*mult);
-    credits+=earned;
+    // ---- credits: banded by average distance from the actual closes ----
+    function creditsFor(errPct){
+      if(errPct <= 2)  return 100;
+      if(errPct <= 5)  return 50;
+      if(errPct <= 10) return 20;
+      if(errPct <= 20) return 5;
+      return 0;
+    }
+    const earned = creditsFor(s.meanErrPct);
+    credits += earned;
     renderCredits();
     flashEarn(earned);
-
-    elVerdict.style.display='block';
-    elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100'+
+elVerdict.style.display='block';
+elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100'+
       '<span class="ptg-earn show" id="earn">+'+earned+' credits earned</span></div>'+
-      '<div class="detail">Direction '+(s.dir?'correct':'missed')+' &middot; '+s.inBand+' of '+s.total+
-      ' points inside the band &middot; actual move was '+(s.actualUp?'up':'down')+
-      (mult>1?' &middot; streak &times;'+mult.toFixed(2):'')+'.</div>';
+      '<div class="detail">Average read was <b>'+s.meanErrPct.toFixed(1)+'%</b> off &middot; direction '+
+      (s.dir?'correct':'missed')+' &middot; '+s.inBand+' of '+s.total+
+      ' points inside the band &middot; actual move was '+(s.actualUp?'up':'down')+'.</div>';
 
+    const pl = s.hypo - 100;
+    const sign = pl >= 0 ? '+' : '';
+    const verb = s.guessedUp
+      ? 'You read the move as up, so this buys at the split and holds to the end of the window.'
+      : 'You read the move as down, so this stays in cash — no position taken.';
+
+    elVerdict.innerHTML +=
+      '<div class="hypo">' +
+        '<div class="hypo-head">If you had put $100 in at the split</div>' +
+        '<div class="hypo-num">$' + s.hypo.toFixed(2) +
+          ' <span class="hypo-pl" style="color:' + (pl>=0?'#3FB950':'#F0616D') + '">' +
+          sign + '$' + pl.toFixed(2) + '</span></div>' +
+        '<div class="hypo-rule">' + verb + '</div>' +
+        '<div class="hypo-disc">Hypothetical result on historical data. Ignores commissions, ' +
+          'slippage, spreads, and taxes. Not a prediction and not investment advice.</div>' +
+      '</div>';
     showWhy();
 
     // ---- site integration: notify parent page with the full result ----
     // Harmless when the game runs standalone (no parent listening).
+    // ---- record this round for the session recap ----
+    const _r = DATA.rounds[order[ptr]];
+    const _marketHypo = 100 * (s.endV / s.startV);   // buy-and-hold baseline
+    sessionRounds.push({
+      symbol: (_r && _r.asset) ? _r.asset : '—',
+      guessedUp: s.guessedUp,
+      actualUp: s.actualUp,
+      hypo: s.hypo,
+      marketHypo: _marketHypo,
+      meanErrPct: s.meanErrPct,
+      dirCorrect: s.dir === 1,
+    });
     try{
       if(window.parent && window.parent!==window){
         const r = DATA.rounds[order[ptr]];
@@ -417,13 +468,13 @@
           symbol: (r && r.asset) ? r.asset : '—',
           accuracy: s.pct,
           direction: s.dir,
+          meanErrPct: s.meanErrPct,
           credits: earned,
         }, '*');
       }
     }catch(e){}
 
-    if(ptr<DATA.rounds.length-1)elNext.style.display='inline-block';
-    else elVerdict.innerHTML+='<div class="detail" style="margin-top:8px">Set complete &mdash; average <b>'+avg+'/100</b> over '+scores.length+' charts.</div>';
+elNext.style.display='inline-block';   // pool reshuffles when exhausted
   }
 
   // ---- "Why it moved" — explains the future move using course concepts ----
@@ -498,13 +549,68 @@
 
   elReveal.addEventListener('click',doReveal);
   elClear.addEventListener('click',function(){guessPts=[];updateState();render();});
-  elNext.addEventListener('click',function(){
+  function renderRecap(){
+    const rounds = sessionRounds.slice(-5);
+    const dirHits = rounds.filter(r=>r.dirCorrect).length;
+    const avgErr = rounds.reduce((a,r)=>a+r.meanErrPct,0)/rounds.length;
+    const beatCash = rounds.filter(r=>r.hypo > r.marketHypo || (r.hypo>=100 && r.marketHypo<100)).length;
+    // "beat holding": your result was at least as good as buy-and-hold
+    const beatHold = rounds.filter(r=>r.hypo >= r.marketHypo).length;
+
+    let rows = rounds.map((r,i)=>{
+      const yourPl = r.hypo - 100;
+      const mktPl  = r.marketHypo - 100;
+      const col = v => v>=0 ? '#3FB950' : '#F0616D';
+      return '<tr>'+
+        '<td>'+(i+1)+'</td>'+
+        '<td>'+r.symbol+'</td>'+
+        '<td>'+(r.guessedUp?'Up':'Down')+'</td>'+
+        '<td>'+(r.actualUp?'Up':'Down')+(r.dirCorrect?' ✓':' ✗')+'</td>'+
+        '<td style="color:'+col(yourPl)+'">$'+r.hypo.toFixed(2)+'</td>'+
+        '<td style="color:'+col(mktPl)+'">$'+r.marketHypo.toFixed(2)+'</td>'+
+        '</tr>';
+    }).join('');
+
+    elVerdict.style.display='block';
+    elVerdict.innerHTML =
+      '<div class="grade">Session recap &mdash; 5 charts</div>'+
+      '<div class="recap-wrap"><table class="recap">'+
+        '<thead><tr><th>#</th><th>Chart</th><th>Your call</th><th>Actual</th>'+
+        '<th>Your $100</th><th>Buy &amp; hold</th></tr></thead>'+
+        '<tbody>'+rows+'</tbody>'+
+      '</table></div>'+
+      '<div class="detail" style="margin-top:10px">'+
+        'Direction called correctly: <b>'+dirHits+' of '+rounds.length+'</b> &middot; '+
+        'average read <b>'+avgErr.toFixed(1)+'%</b> off &middot; '+
+        'matched or beat buy-and-hold in <b>'+beatHold+' of '+rounds.length+'</b>.'+
+      '</div>'+
+      '<div class="hypo-disc" style="margin-top:10px">Hypothetical results on historical data. '+
+        'Not a prediction and not investment advice. Skill here does not indicate real trading results.</div>'+
+      '<button class="ptg-btn" id="recap-continue" style="margin-top:14px">Start a new session &rarr;</button>';
+
+    document.getElementById('why') && (document.getElementById('why').style.display='none');
+    elNext.style.display='none';
+    document.getElementById('recap-continue').addEventListener('click',function(){
+      sessionRounds=[];
+      const el=document.getElementById('why'); if(el) el.style.display='';
+      advanceChart();
+    });
+    elVerdict.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+function advanceChart(){
     ptr++;
-    if(ptr>=order.length){ // exhausted the pool — reshuffle for a fresh pass
+    if(ptr>=order.length){
       order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
       ptr=0; seen=new Set();
     }
     loadRound();
+  }
+  elNext.addEventListener('click',function(){
+    if(sessionRounds.length>0 && sessionRounds.length % 5 === 0){
+      renderRecap();
+      return;
+    }
+    advanceChart();
   });
   elDiff.addEventListener('change',function(){if(guessPts.length>=1&&!revealed)render();});
 })();

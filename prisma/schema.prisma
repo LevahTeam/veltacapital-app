@@ -19,9 +19,22 @@ model User {
   id            String   @id @default(cuid())   // unique id, auto-generated
   email         String   @unique                // their login email
   name          String?                         // display name (optional)
-  plan          String   @default("none")       // none | basic | pro | investor
   credits       Int      @default(0)            // current credit balance
   createdAt     DateTime @default(now())
+
+  emailVerified   DateTime?    // required by NextAuth adapter
+  image           String?      // Google profile picture
+  agreedToTermsAt DateTime?    // your 13+ / ToS gate
+  accounts        Account[]
+  sessions        Session[]
+
+  plan          String   @default("none")   // none | trial | starter | standard | premium
+  simRunsLeft   Int      @default(0)        // simulation runs remaining (bucket, not per-day)
+  unlimitedSims Boolean  @default(false)    // premium
+  canRedeem     Boolean  @default(false)    // standard and above
+  earnMult      Float    @default(1.0)      // 1.5 for premium
+
+
 
   // links to this user's other records
   scores        Score[]
@@ -65,4 +78,41 @@ model Redemption {
   createdAt   DateTime @default(now())
 
   @@index([userId])
+}
+
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

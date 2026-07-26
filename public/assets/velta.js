@@ -48,23 +48,38 @@ const Velta = (() => {
 
   // ---- REAL backend methods (talk to the database via API routes) ----
   // These replace the simulated ones for login/account. They're async.
-  async function apiLogin(email, name){
-    const r = await fetch('/api/auth/login', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email, name }),
-    });
-    const data = await r.json();
-    if(!data.ok) throw new Error(data.error || 'Login failed');
-    return data.user; // { id, email, name, plan, credits }
+  // Google sign-in via NextAuth. Redirects away; no return value.
+async function apiLogin(){
+    const r = await fetch('/api/auth/csrf');
+    const { csrfToken } = await r.json();
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/auth/signin/google';
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfToken';
+    csrf.value = csrfToken;
+    form.appendChild(csrf);
+
+    const cb = document.createElement('input');
+    cb.type = 'hidden';
+    cb.name = 'callbackUrl';
+    cb.value = '/member.html';
+    form.appendChild(cb);
+
+    document.body.appendChild(form);
+    form.submit();
   }
   async function apiMe(){
     const r = await fetch('/api/auth/me');
     const data = await r.json();
     return data.ok ? data.user : null; // null if not logged in
   }
-  async function apiLogout(){
-    await fetch('/api/auth/logout', { method:'POST' });
+  // Sign out via NextAuth, then return home.
+  function apiLogout(){
+    window.location.href = "/api/auth/signout?callbackUrl=/";
   }
   async function apiBuy(plan){
     const r = await fetch('/api/plan/set', {
@@ -114,55 +129,64 @@ const Velta = (() => {
    Designed per the owner's spec; Investor tier proposed.
    Pricing shown as placeholders [P] — owner to confirm. */
 const PLANS = {
-  basic: {
-    name:'Basic',
-    price:'$24.99', cadence:'/ course',
-    blurb:'Everything you need to start reading charts.',
-    gameRoundsDaily:10,
-    videos:5,
+  trial: {
+    name:'Course Trial',
+    price:'$9', cadence:'one-time',
+    blurb:'Try the course and see how the simulator works.',
+    simRuns:5, unlimited:false, canRedeem:false, earnMult:1.0,
     startCredits:0,
-    creditsNote:'Earn credits by playing — redeem for practice packs & badges.',
+    creditsNote:'Earn credits by playing. Redemption unlocks at Standard.',
     features:[
-      '5 core course videos',
-      '10 prediction rounds per day',
-      'Full scoring & "what the chart showed" breakdowns',
+      'Full written course',
+      '5 simulation runs',
+      'Full scoring & "why it moved" breakdowns',
+      'Earn credits from gameplay',
+    ],
+  },
+  starter: {
+    name:'Starter',
+    price:'$19', cadence:'one-time',
+    blurb:'Enough practice to build a real habit.',
+    simRuns:15, unlimited:false, canRedeem:false, earnMult:1.0,
+    startCredits:0,
+    creditsNote:'Earn credits by playing. Redemption unlocks at Standard.',
+    features:[
+      'Full written course',
+      '15 simulation runs',
+      'Full scoring & "why it moved" breakdowns',
       'Earn credits from gameplay',
       'Community leaderboard access',
     ],
   },
-  pro: {
-    name:'Pro',
-    price:'$49.99', cadence:'/ course',
-    blurb:'Go deeper, play more, unlock rewards.',
-    gameRoundsDaily:20,
-    videos:10,
-    startCredits:2500,
-    creditsNote:'Includes 2,500 starter credits toward rewards.',
+  standard: {
+    name:'Standard',
+    price:'$39', cadence:'one-time',
+    blurb:'The full experience \u2014 practice, rewards, and progress.',
+    simRuns:50, unlimited:false, canRedeem:true, earnMult:1.0,
+    startCredits:0,
+    creditsNote:'Credit redemption unlocked \u2014 spend credits on extra runs, modules, and badges.',
     features:[
-      'All 10 course videos',
-      '20 prediction rounds per day',
-      '2,500 starter credits',
-      'Replay-with-hints mode',
+      'Full written course',
+      '50 simulation runs',
+      'Credit redemption unlocked',
       'Progress tracking by skill (trend, volume, support/resistance)',
-      'Priority leaderboard placement',
+      'Community leaderboard access',
     ],
   },
-  investor: {
-    name:'Investor',
-    price:'$129.99', cadence:'/ course',
-    blurb:'The full mentorship experience.',
-    gameRoundsDaily:9999,
-    videos:9999,
-    startCredits:8000,
-    creditsNote:'Includes 8,000 starter credits + monthly credit drops.',
+  premium: {
+    name:'Premium',
+    price:'$69', cadence:'one-time',
+    blurb:'Unlimited practice and the fastest way to earn.',
+    simRuns:0, unlimited:true, canRedeem:true, earnMult:1.5,
+    startCredits:0,
+    creditsNote:'Earn credits 1.5\u00d7 faster on every round.',
     features:[
-      'Everything in Pro',
-      'Unlimited daily rounds',
-      'All current + future course videos',
-      '8,000 starter credits',
-      'Monthly live Q&A session with Saechan',
-      'One 1-on-1 chart-review session',
-      'Certificate of completion',
+      'Full written course',
+      'Unlimited simulation runs',
+      '1.5\u00d7 credit earning rate',
+      'Credit redemption unlocked',
+      'Progress tracking by skill',
+      'Priority leaderboard placement',
       'Early access to new lessons',
     ],
   },

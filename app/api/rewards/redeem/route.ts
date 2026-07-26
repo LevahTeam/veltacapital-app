@@ -6,13 +6,12 @@
 //  it can't be faked).
 // ============================================================
 import { prisma } from "@/lib/prisma";
+import { getUid } from "@/lib/getUid";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const uid = cookieStore.get("velta_uid")?.value;
+    const uid = await getUid();
     if (!uid) {
       return NextResponse.json({ ok: false, error: "Not logged in" }, { status: 401 });
     }

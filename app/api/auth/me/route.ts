@@ -1,23 +1,22 @@
 // ============================================================
 //  GET /api/auth/me
-//  Returns the currently logged-in user (read fresh from the
-//  database, so plan/credits are always accurate). Returns
-//  { user: null } if nobody is logged in.
+//  Returns the currently logged-in user, read fresh from the DB.
+//  Now backed by NextAuth (Google). Response shape unchanged,
+//  so existing callers keep working.
 // ============================================================
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { getUid } from "@/lib/getUid";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const uid = cookieStore.get("velta_uid")?.value;
+    const uid = await getUid();
     if (!uid) return NextResponse.json({ ok: true, user: null });
 
     const user = await prisma.user.findUnique({ where: { id: uid } });
     if (!user) return NextResponse.json({ ok: true, user: null });
 
-    return NextResponse.json({
+return NextResponse.json({
       ok: true,
       user: {
         id: user.id,
@@ -25,6 +24,10 @@ export async function GET() {
         name: user.name,
         plan: user.plan,
         credits: user.credits,
+        simRunsLeft: user.simRunsLeft,
+        unlimitedSims: user.unlimitedSims,
+        canRedeem: user.canRedeem,
+        agreedToTermsAt: user.agreedToTermsAt,
       },
     });
   } catch (err) {

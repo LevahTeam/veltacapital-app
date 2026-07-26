@@ -215,16 +215,14 @@
     <button class="x" id="login-x">Close</button>
     <p class="eyebrow">Sign in</p>
     <h2 style="font-size:26px">Continue to VeltaCapital</h2>
-    <p style="color:var(--muted);font-size:15px;margin:10px 0 18px">Enter your details to create your account. <span class="mono" style="font-size:12px">(Temporary login — Google sign-in comes later.)</span></p>
-    <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:4px">Email</label>
-    <input id="login-email" type="email" placeholder="you@example.com"
-      style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:15px;margin-bottom:14px;background:var(--paper)">
-    <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:4px">Name</label>
-    <input id="login-name" type="text" placeholder="Your name"
-      style="width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:15px;margin-bottom:8px;background:var(--paper)">
+    <p style="color:var(--muted);font-size:15px;margin:10px 0 22px">Sign in with your Google account to save your progress, credits, and leaderboard position.</p>
     <p id="login-err" style="color:var(--down);font-size:13px;min-height:18px;margin:4px 0"></p>
-    <button class="btn lg" id="google-btn" style="width:100%;justify-content:center">Continue</button>
-    <p class="mono" style="font-size:12px;color:var(--muted);margin-top:16px;text-align:center">You'll be taken to your member area.</p>
+    <button class="btn lg" id="google-btn" style="width:100%;justify-content:center">Continue with Google</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:16px;text-align:center;line-height:1.5">
+      By continuing you confirm you are at least 13 years old and agree to our
+      <a href="/terms" style="color:var(--muted);text-decoration:underline">Terms of Service</a> and
+      <a href="/privacy" style="color:var(--muted);text-decoration:underline">Privacy Policy</a>.
+    </p>
   </div></div>
 </div>
 
@@ -271,10 +269,10 @@
   // ---- pricing tiers ----
   (function(){
     const host=document.getElementById('tiers');
-    const order=['basic','pro','investor'];
+    const order=['trial','starter','standard','premium'];
     order.forEach(key=>{
       const p=PLANS[key];
-      const feat = key==='pro';
+      const feat = key==='standard';
       const card=el('div',{class:'tier'+(feat?' feature':'')});
       card.innerHTML =
         '<div class="ribbon">'+(feat?'Most popular':'')+'</div>'+
@@ -299,17 +297,8 @@
   document.getElementById('login-x').addEventListener('click',closeLogin);
   modal.addEventListener('click',e=>{ if(e.target===modal)closeLogin(); });
 
-  async function doLogin(){
-    const email=document.getElementById('login-email').value;
-    const name=document.getElementById('login-name').value;
-    const errEl=document.getElementById('login-err');
-    errEl.textContent='';
-    try{
-      await Velta.apiLogin(email, name);   // creates/finds the real user in the database
-      window.location.href='member.html';
-    }catch(e){
-      errEl.textContent = e.message || 'Login failed. Check your email and try again.';
-    }
+  function doLogin(){
+    Velta.apiLogin();   // redirects to Google; NextAuth handles the rest
   }
   document.getElementById('google-btn').addEventListener('click',doLogin);
 

@@ -1,11 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import { getUid } from "@/lib/getUid";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const uid = cookieStore.get("velta_uid")?.value || null;
+    const uid = await getUid();
 
     const grouped = await prisma.score.groupBy({
       by: ["userId"],
