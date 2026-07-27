@@ -1,0 +1,176 @@
+{
+  "title": "The Complete Beginner's Stock Market Course",
+  "author": "Saechan",
+  "note": "Educational content only. Not financial advice. Some figures (e.g. tax limits) are as of the date noted and may change.",
+  "chapters": [
+    {
+      "n": 1,
+      "title": "What Are Stocks?",
+      "summary": "Ownership, why prices move, and the two ways you make money.",
+      "sections": [
+        { "h": "The basic concept", "p": "A stock (also called a share or equity) is a small piece of ownership in a company. When you buy one share of Apple (AAPL), you literally own a tiny fraction of Apple Inc. — including a claim on its assets and earnings. Companies sell stocks to raise money. Instead of taking a bank loan, a company can go public through an IPO (Initial Public Offering) and sell shares to the public. In exchange for your money, you get ownership." },
+        { "h": "Why do stocks go up and down?", "p": "Stock prices move on supply and demand. If more people want to buy than sell, the price rises; if more want to sell than buy, it falls. What drives that demand is mostly expectations about future earnings. If investors believe a company will earn more next year, they buy now. If they think it's struggling, they sell." },
+        { "h": "How do you make money?", "p": "Two main ways. Capital gains: buy low, sell higher — buy at $50, sell at $80, that's $30 profit per share. Dividends: some companies pay shareholders a share of profits regularly, usually quarterly. Own 100 shares of a company paying a $0.46 dividend and you receive $46 without selling anything." },
+        { "h": "Public vs. private companies", "p": "Public companies are listed on exchanges like the NYSE or NASDAQ — anyone can buy their stock. Private companies aren't listed; you generally can't buy shares unless you're an investor, employee, or venture capitalist." }
+      ]
+    },
+    {
+      "n": 2,
+      "title": "How the Stock Market Works",
+      "summary": "Exchanges, market hours, company sizes, and the major indices.",
+      "sections": [
+        { "h": "Stock exchanges", "p": "An exchange is a marketplace where buyers and sellers trade stocks. The two biggest in the U.S. are the NYSE (New York Stock Exchange), the largest in the world by market cap and home to established names like Coca-Cola, JPMorgan, and Walmart; and the NASDAQ, known for tech — Apple, Microsoft, Amazon, Google, Meta." },
+        { "h": "Market hours", "p": "U.S. markets are open Monday–Friday, 9:30 AM to 4:00 PM Eastern, excluding federal holidays. Pre-market runs 4:00–9:30 AM ET and after-hours 4:00–8:00 PM ET, both with lower volume and more volatility. Beginners should stick to regular hours when volume is highest and spreads are tightest." },
+        { "h": "Market cap: small, mid, and large", "p": "Market capitalization = stock price × total shares. It measures company size. Mega cap ($200B+): Apple, Microsoft, Amazon. Large cap ($10B–$200B): Nike, McDonald's, Boeing. Mid cap ($2B–$10B). Small cap ($300M–$2B). Micro cap (under $300M). General rule: larger companies are more stable but grow slower; smaller ones can grow faster but carry more risk." },
+        { "h": "Indices: the market's report card", "p": "When people say 'the market,' they usually mean an index. The S&P 500 tracks 500 of the largest U.S. companies and is the most-watched benchmark. The Dow Jones Industrial Average tracks 30 major companies. The NASDAQ Composite is heavily weighted toward tech. 'The market is up 1% today' usually refers to the S&P 500." }
+      ]
+    },
+    {
+      "n": 3,
+      "title": "Types of Stocks & Investments",
+      "summary": "Common vs. preferred, growth/value/dividend, ETFs, mutual funds, and why to avoid derivatives early.",
+      "sections": [
+        { "h": "Common vs. preferred stock", "p": "Common stock is what most people buy — you get voting rights and potential dividends, but in bankruptcy you're paid last. Preferred stock gets priority over common for dividends and in bankruptcy, usually with no voting rights — a hybrid between a stock and a bond." },
+        { "h": "Growth, value, and dividend stocks", "p": "Growth stocks are companies expected to grow faster than average; they reinvest profits instead of paying dividends. Higher risk, higher potential reward — Tesla, Nvidia, Shopify. Value stocks appear undervalued versus their true worth, often older businesses at low P/E ratios — Ford, Bank of America. Dividend stocks pay consistent dividends and are popular with income investors — Johnson & Johnson, Realty Income, AT&T." },
+        { "h": "ETFs (Exchange-Traded Funds)", "p": "An ETF is a basket of stocks bundled together and traded like a single stock. Instead of buying 500 companies, you buy one share of SPY and own a slice of all 500. For beginners, ETFs offer instant diversification, lower risk than single stocks, low fees (often under 0.10%), and easy trading. Popular ones: SPY/VOO (S&P 500), QQQ (NASDAQ top 100), VTI (total U.S. market), SCHD (dividend-focused)." },
+        { "h": "Mutual funds", "p": "Similar to ETFs but traded only once per day at end-of-day prices, and often actively managed with higher fees. ETFs have largely replaced mutual funds for most modern investors." },
+        { "h": "Options, futures, and derivatives", "p": "Advanced instruments beginners should avoid until they have years of experience. Options let you bet on where a stock goes by a certain date — they can be very profitable or lose 100% in days. Leave these alone for now." }
+      ]
+    },
+    {
+      "n": 4,
+      "title": "How Much Money Do You Need to Start?",
+      "summary": "Very little — and why time matters far more than the amount.",
+      "sections": [
+        { "h": "The short answer: very little", "p": "Many brokers let you start with $0 — or as little as $1 using fractional shares. You do not need thousands of dollars to begin." },
+        { "h": "Fractional shares", "p": "If a stock costs $185 and you have $20, you can buy a fractional share — about 0.108 of a share. Fidelity, Charles Schwab, and Robinhood all support this." },
+        { "h": "Realistic starting points", "p": "$1–$50: buy fractional shares of ETFs or major stocks; great for learning with real money. $50–$500: start a small diversified portfolio. $500–$2,000: a meaningful portfolio holding 5–10 positions. $2,000+: more flexibility for advanced strategies." },
+        { "h": "Time matters more than amount", "p": "Investing $50/month starting at 16 is far more powerful than $5,000 at 30, because of compound growth — your returns earn returns. $100/month from age 16 to 65 at 8% average annual return is roughly $700,000+; the same starting at 30 is roughly $175,000. Start small, start now." },
+        { "h": "Don't invest money you can't afford to lose", "p": "A critical rule: only invest money you won't need for at least 3–5 years. The market can drop 30–40% in a crash. If you invest rent money and the market falls, you're in serious trouble." }
+      ]
+    },
+    {
+      "n": 5,
+      "title": "Brokers — Where You Actually Buy Stocks",
+      "summary": "What a broker is, the best ones for beginners, paper trading, and account types.",
+      "sections": [
+        { "h": "What a broker is", "p": "A broker is the platform that executes your trades — the middleman between you and the exchange. You open an account, deposit money, and place orders through them." },
+        { "h": "Top brokers for beginners", "p": "Fidelity (best overall): $0 minimum, $0 commissions, fractional shares, excellent research and service, no gamification. Charles Schwab: similar to Fidelity; acquired TD Ameritrade's thinkorswim, one of the best professional charting tools. Robinhood: simple, mobile-first, but deliberately gamified — fine to learn on, not for serious research. Webull: better charting than Robinhood, still mobile-first. Interactive Brokers: very low costs, great for serious and international investing." },
+        { "h": "Paper trading", "p": "Before risking real money, use paper trading — simulated trading with fake money but real market prices. TradingView, Webull, and thinkorswim all offer it. Strongly recommended: paper trade for at least 1–3 months before putting real money in." },
+        { "h": "Account types", "p": "Taxable brokerage account: pay taxes on gains each year; flexible. Roth IRA: contributions taxed now, growth and withdrawals tax-free — best for young people. Traditional IRA: contributions may be deductible, taxed on withdrawal. 401(k): through an employer, tax-advantaged. If you're young with earned income, a Roth IRA is one of the most powerful tools available — you could contribute up to $7,000/year (2024 limit; check the current year's figure) and the growth is tax-free in retirement." }
+      ]
+    },
+    {
+      "n": 6,
+      "title": "Essential Websites & Tools",
+      "summary": "TradingView and the research, news, and filing sites worth knowing.",
+      "sections": [
+        { "h": "TradingView — the charting standard", "p": "TradingView (tradingview.com) is the gold standard for charting; nearly every serious trader uses it, and it's free with a basic account. It offers real-time charts, dozens of indicators (RSI, MACD, moving averages, Bollinger Bands), drawing tools, a screener, community scripts, alerts, built-in paper trading, and an integrated news feed. To start: create a free account, search a ticker like AAPL, and you'll see a candlestick chart — your main tool. The free plan allows up to 3 indicators at once." },
+        { "h": "Research & fundamentals", "p": "Yahoo Finance for free data, news, and financials. Macrotrends for long-term historical data and ratios. Finviz for stock screening. Seeking Alpha for analysis (some paywalled). Morningstar for professional-grade research." },
+        { "h": "News & sentiment", "p": "Bloomberg and CNBC for market news, MarketWatch for data and commentary, The Wall Street Journal for premium journalism, Reuters for neutral global news." },
+        { "h": "Filings & calendars", "p": "SEC EDGAR (sec.gov/edgar) holds every public company's official filings — free and invaluable for deep research. Earnings Whispers for earnings dates, Investing.com for the economic calendar (CPI, jobs report, Fed meetings)." }
+      ]
+    },
+    {
+      "n": 7,
+      "title": "How to Read a Stock Chart",
+      "summary": "Candlesticks, trends, support and resistance, volume, time frames, and moving averages.",
+      "sections": [
+        { "h": "What you're looking at", "p": "A stock chart shows price history over time. The horizontal axis is time; the vertical axis is price." },
+        { "h": "Candlestick charts", "p": "The most common chart type. Each candle represents a time period — 1 minute, 1 hour, 1 day, depending on your settings — and shows four prices: the Open (price when the period began), the Close (price when it ended), the High, and the Low. A green candle is bullish: the close is higher than the open, price went up. A red candle is bearish: the close is lower than the open. The thin lines above and below the body are wicks (shadows) marking the high and low. A long upper wick means price tried to rise but got pushed back (selling pressure); a long lower wick means it tried to fall but bounced (buying pressure)." },
+        { "h": "Reading trends", "p": "An uptrend is a series of higher highs and higher lows — buyers in control. A downtrend is lower highs and lower lows — sellers in control. Sideways/consolidation is horizontal movement with no clear direction; the stock is digesting." },
+        { "h": "Support and resistance", "p": "Two of the most important concepts. Support is a level where a stock tends to stop falling and bounce — a floor where buyers step in. Resistance is a level where it tends to stop rising and pull back — a ceiling where sellers step in. Key rule: when a stock breaks through resistance and stays above it, that resistance often becomes new support, and vice versa." },
+        { "h": "Volume", "p": "Volume is the number of shares traded in a period, shown as bars at the bottom of the chart — the fuel behind price moves. High volume on an up day signals strong buying and a move more likely to continue; high volume on a down day signals significant selling. Low-volume moves are weaker signals. A breakout on very low volume is suspect — it may be a false breakout." },
+        { "h": "Time frames", "p": "The same stock looks different across time frames. 1- and 5-minute charts suit day traders; 15-minute and hourly suit swing traders watching intraday; daily is standard for most investors; weekly and monthly are for long-term trend analysis. Beginner rule: check the weekly chart first for the big trend, then the daily for entries and exits." },
+        { "h": "Moving averages", "p": "A moving average (MA) plots the average closing price over a set number of periods, smoothing out noise to reveal the trend. The 20-day is short-term, the 50-day medium-term, and the 200-day the most important long-term line. Price above the 200 MA generally means a long-term uptrend; below it, a downtrend. When the 50 MA crosses above the 200 MA it's a 'Golden Cross' (bullish); when it crosses below, a 'Death Cross' (bearish)." }
+      ]
+    },
+    {
+      "n": 8,
+      "title": "Key Stock Market Terminology",
+      "summary": "The vocabulary you'll hear constantly — know it cold.",
+      "sections": [
+        { "h": "Market conditions", "p": "Bull market: rising or expected to rise; optimistic sentiment. Bear market: fallen 20%+ from recent highs; pessimistic sentiment. Correction: a decline of 10–20% from recent highs — normal and healthy. Rally: a sustained period of price increases. Pullback: a small, temporary decline within an uptrend." },
+        { "h": "Stock behavior & risk", "p": "Volatility: how much a price fluctuates. Liquidity: how easily a stock can be traded without moving the price. Breakout: price moving above a resistance level, often bullish. Catalyst: an event that moves a stock significantly (earnings, FDA approval, merger). 52-week high/low: the highest and lowest price over the past year." },
+        { "h": "Valuation & income", "p": "P/E ratio: price ÷ earnings per share, a key valuation metric. EPS: earnings per share — profit per share outstanding. Dividend yield: annual dividend ÷ price, the income return from dividends." },
+        { "h": "Trading terms", "p": "Bid/ask spread: the bid is what buyers will pay, the ask what sellers want; you buy at the ask and sell at the bid. Going long: buying a stock expecting it to rise — the normal way most people invest. Short selling: borrowing shares to sell, hoping to buy back cheaper — complex and risky. Portfolio: all your investments. Diversification: spreading investments to reduce risk." },
+        { "h": "Structural terms", "p": "IPO: when a private company first lists shares publicly. Sector: a category of the economy — Technology, Healthcare, Energy, Financials, Consumer Staples. Circuit breaker: a market-wide halt triggered when the S&P 500 drops 7%, 13%, or 20% in a single day." }
+      ]
+    },
+    {
+      "n": 9,
+      "title": "Fundamental Analysis",
+      "summary": "Judging whether a company is actually a good business.",
+      "sections": [
+        { "h": "What it is", "p": "Fundamental analysis means evaluating a company's financial health to decide whether its stock is a good investment. The core question: is this actually a good business?" },
+        { "h": "The three financial statements", "p": "Income statement: revenue, expenses, and profit over a period — look for growing revenue and consistent profit. Balance sheet: a snapshot of what the company owns (assets) versus owes (liabilities) — look for more assets than liabilities and manageable debt. Cash flow statement: actual cash in and out — often the most honest of the three, since paper profit doesn't mean cash in hand." },
+        { "h": "Key metrics", "p": "P/E ratio: price ÷ earnings per share; a P/E of 20 means paying $20 per $1 of earnings — compare to the company's history and its industry. EPS growth: is the company earning more per share each year? Revenue growth: is it selling more? Profit margins: net profit ÷ revenue — higher is better. Debt-to-equity: high debt is dangerous, especially as rates rise. Return on equity (ROE): how efficiently the company turns shareholder money into profit." },
+        { "h": "Earnings reports", "p": "Every quarter, companies release earnings — major market movers. An EPS beat (more than analysts expected) often lifts the stock; a miss often drops it. But not always: a beat can still drop a stock if future guidance is weak ('sell the news'). Always check the earnings date before owning a stock, to avoid surprises." }
+      ]
+    },
+    {
+      "n": 10,
+      "title": "Technical Analysis",
+      "summary": "Reading charts and patterns to anticipate price movement.",
+      "sections": [
+        { "h": "What it is", "p": "Technical analysis studies charts and price patterns to anticipate future movement. Unlike fundamental analysis, it doesn't care about the business — only what the chart says." },
+        { "h": "Key indicators", "p": "RSI (Relative Strength Index): measures overbought/oversold on a 0–100 scale — above 70 is overbought (possible pullback), below 30 is oversold (possible bounce). MACD: shows the relationship between two moving averages; the MACD line crossing above the signal line is bullish, below is bearish. Bollinger Bands: a 20-day average with two bands 2 standard deviations out — touching the upper band suggests overbought, the lower band oversold, and a narrow 'squeeze' means volatility is about to expand. Always confirm patterns with volume." },
+        { "h": "Common chart patterns", "p": "Cup and handle: a rounded bottom then a small consolidation, then an upward breakout — a reliable bullish pattern. Head and shoulders: a peak, a higher peak, a lower peak — signals a reversal from up to down. Double bottom: price hits a level twice and bounces both times — strong support, potential upward reversal. Flag/pennant: after a strong move, a tight consolidation that often continues the original direction. Triangles: ascending (bullish), descending (bearish), symmetrical (breakout either way)." }
+      ]
+    },
+    {
+      "n": 11,
+      "title": "Risk Management — The Most Important Chapter",
+      "summary": "What separates people who build wealth from people who blow up their accounts.",
+      "sections": [
+        { "h": "The #1 rule", "p": "Never risk more than you can afford to lose. The market can and does crash — the NASDAQ fell 78% in 2000, the S&P 500 fell 57% in 2008 and 34% in a month in March 2020. Put your life savings in at the wrong time without a plan and you might panic-sell at the bottom, locking in devastating losses." },
+        { "h": "Position sizing", "p": "Never put all your money in one stock — even professionals diversify. A common rule: no more than 5–10% of your portfolio in a single stock, so if any one goes to zero you lose at most 5–10%, not everything." },
+        { "h": "The 1% rule for traders", "p": "Active traders often never risk more than 1–2% of the account on a single trade. On a $1,000 account, that's $10–$20 per trade — enough to survive 50+ losses in a row while you improve." },
+        { "h": "Stop losses", "p": "A stop loss automatically sells if a stock falls to a set price, capping your loss. Buy at $100, set a stop at $92, and if it drops there it sells — you lose 8% instead of riding it down to $60 for a 40% loss. Never trade without knowing your stop before you enter." },
+        { "h": "Risk/reward ratio", "p": "Before any trade, weigh potential loss against potential gain. A good trade has a ratio of at least 1:2. Stock at $100, stop at $95 (risk $5), target at $115 (reward $15) is 1:3 — worth considering." },
+        { "h": "Emotional control & DCA", "p": "The two emotions that destroy accounts are fear (selling at the bottom) and greed (holding too long). Build a plan — entry, stop, target — before you enter, then stick to it. Dollar-cost averaging (investing a fixed amount regularly) buys fewer shares when prices are high and more when low, smoothing your average cost and removing the need to time the market." }
+      ]
+    },
+    {
+      "n": 12,
+      "title": "Common Beginner Mistakes",
+      "summary": "Knowing what not to do is as important as knowing what to do.",
+      "sections": [
+        { "h": "The ten mistakes", "p": "1) Investing money you can't afford to lose. 2) FOMO — chasing a stock after it's already up 50%; by the time it's all over social media, smart money has often already bought. 3) No stop losses — 'hope' is not a strategy. 4) Over-trading — more trading isn't more profit; it racks up taxes and burnout. 5) Not doing research — never buy because someone on Reddit or TikTok said so. 6) Panic selling during crashes — crashes are temporary, selling locks in permanent loss. 7) Ignoring taxes — selling under a year means higher short-term rates. 8) Checking your portfolio obsessively — it drives emotional trading. 9) No plan — buying without knowing why, when you'd sell, or your risk. 10) Expecting to get rich quick — the S&P 500 averages about 10% a year; unexciting day-to-day, enormous over decades." }
+      ]
+    },
+    {
+      "n": 13,
+      "title": "Building Your First Portfolio",
+      "summary": "The simplest portfolio that works, plus how to grow from there.",
+      "sections": [
+        { "h": "The simplest portfolio", "p": "For most beginners, the best portfolio is also the simplest: 100% in a total-market or S&P 500 ETF. VOO, VTI, or SPY gives you hundreds of great companies, requires zero stock-picking skill, beats most professional managers over time, and charges tiny fees. Warren Buffett himself says most people should just buy index funds." },
+        { "h": "A 3-fund starter", "p": "Once you have the basics: 60–70% VTI or VOO (U.S. large-cap), 20–30% VXUS or VEA (international, for geographic diversity), 0–20% BND or AGG (bonds, for stability — optional for young investors)." },
+        { "h": "Adding individual stocks", "p": "With a solid ETF foundation, you can use a small portion (10–20%) for individual stocks you believe in — companies whose products you use, whose model you understand, whose financials you've researched. Never let individual picks dominate until you have significant experience." },
+        { "h": "Rebalancing", "p": "Over time some positions grow larger than others. Rebalancing means trimming winners and adding to underperformers to return to your target allocations — typically once or twice a year." }
+      ]
+    },
+    {
+      "n": 14,
+      "title": "Taxes & Stocks",
+      "summary": "Not exciting, but ignoring it costs real money.",
+      "sections": [
+        { "h": "Capital gains tax", "p": "When you sell for a profit, you owe capital gains tax. Short-term (held under a year) is taxed at your ordinary income rate (10–37%). Long-term (held over a year) is taxed at 0%, 15%, or 20% depending on income — almost always lower. Practical takeaway: hold at least a year when you can." },
+        { "h": "Tax-loss harvesting", "p": "Selling a losing position realizes a loss that offsets your gains. Make $500 on Stock A, sell Stock B for a $300 loss, and you owe tax on only $200 of net gains." },
+        { "h": "The wash sale rule", "p": "If you sell at a loss and buy the same (or substantially identical) stock within 30 days before or after, the IRS won't let you claim the loss. Plan accordingly." },
+        { "h": "Dividends and accounts", "p": "Qualified dividends are taxed at the lower long-term rate; non-qualified as ordinary income. The easiest way to avoid most tax headaches is to invest inside a Roth or Traditional IRA — no capital gains tax on trades inside them, and a Roth's qualified retirement withdrawals are completely tax-free." }
+      ]
+    },
+    {
+      "n": 15,
+      "title": "Next Steps & Continued Learning",
+      "summary": "An action plan, books, and where to keep learning.",
+      "sections": [
+        { "h": "Your action plan", "p": "Week 1: open a paper trading account on TradingView or Webull and observe the market daily without risking money. Weeks 2–4: start reading charts — pick 5–10 stocks, follow them daily, keep a journal of support, resistance, and earnings reactions. Month 2: research 2–3 companies in industries you understand; read their latest earnings, revenue growth, and P/E. Month 3: open a real brokerage account (Fidelity recommended), start with a small amount you're comfortable losing, buy one ETF (VOO or VTI) and one or two researched stocks. Ongoing: invest regularly, don't panic during pullbacks, review quarterly." },
+        { "h": "Books to read", "p": "The Intelligent Investor by Benjamin Graham — the classic on value investing. A Random Walk Down Wall Street by Burton Malkiel — the case for index funds. One Up On Wall Street by Peter Lynch — finding stocks in everyday life. How to Make Money in Stocks by William O'Neil — the CANSLIM growth system. Reminiscences of a Stock Operator by Edwin Lefèvre — a classic on trading psychology." },
+        { "h": "Where to keep learning", "p": "Aswath Damodaran (NYU professor) for valuation deep-dives, Patrick Boyle for sophisticated commentary, TradingView's YouTube for chart tutorials, and Investopedia as the best financial dictionary online." },
+        { "h": "Final thoughts", "p": "The market rewards patience, discipline, and education, and punishes impatience, overconfidence, and emotion. You don't need to be a genius or find the next Apple first. Invest consistently, diversify, manage risk, stay calm when markets get scary, and never stop learning. The investors who win long-term aren't the ones making the most trades — they're the ones making the fewest mistakes." }
+      ]
+    }
+  ]
+}
