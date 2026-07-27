@@ -33,7 +33,8 @@ model User {
   unlimitedSims Boolean  @default(false)    // premium
   canRedeem     Boolean  @default(false)    // standard and above
   earnMult      Float    @default(1.0)      // 1.5 for premium
-
+  advancedUnlocked Boolean @default(false)  // redeemed the advanced module
+  hasBadge         Boolean @default(false)  // redeemed the leaderboard badge
 
 
   // links to this user's other records

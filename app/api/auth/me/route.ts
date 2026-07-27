@@ -28,6 +28,8 @@ return NextResponse.json({
         unlimitedSims: user.unlimitedSims,
         canRedeem: user.canRedeem,
         agreedToTermsAt: user.agreedToTermsAt,
+        advancedUnlocked: user.advancedUnlocked,
+        hasBadge: user.hasBadge,
       },
     });
   } catch (err) {

@@ -81,6 +81,12 @@ async function apiLogin(){
   function apiLogout(){
     window.location.href = "/api/auth/signout?callbackUrl=/";
   }
+  async function apiStats(){
+    const r = await fetch('/api/stats');
+    const data = await r.json();
+    if(!data.ok) throw new Error(data.error || 'Could not load stats');
+    return data;
+  }
   async function apiBuy(plan){
     const r = await fetch('/api/plan/set', {
       method:'POST',
@@ -106,15 +112,15 @@ async function apiLogin(){
     const data = await r.json();
     return data.ok ? data.rows : [];
   }
-  async function apiRedeem(rewardName, creditCost){
+  async function apiRedeem(rewardId){
     const r = await fetch('/api/rewards/redeem', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ rewardName, creditCost }),
+      body: JSON.stringify({ rewardId }),
     });
     const data = await r.json();
     if(!data.ok) throw new Error(data.error || 'Could not redeem');
-    return data; // { credits: newBalance }
+    return data;
   }
 
   return {
@@ -194,14 +200,7 @@ const PLANS = {
 
 /* ---- Reward ladder (shared) — internal rewards only, no cash/gift cards.
    Conversion mirrors the game: ~1,000 credits ≈ $1 of internal value. */
-const REWARDS = [
-  { name:'Profile badge',                 credits:500 },
-  { name:'Extra practice pack (10 rounds)',credits:1200 },
-  { name:'Replay-with-hints unlock',       credits:2000 },
-  { name:'$5 course-credit toward next tier',credits:5000 },
-  { name:'Instructor feedback ticket',     credits:9000 },
-  { name:'1-on-1 chart review session',    credits:20000 },
-];
+
 
 /* ---- shared UI helpers ---- */
 function el(tag, attrs={}, html){

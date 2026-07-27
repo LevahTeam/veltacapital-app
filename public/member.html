@@ -302,23 +302,44 @@
       grid.appendChild(v);
     }
   }
+  const REWARDS = [
+    { id:'extra_runs',      name:'+5 simulation runs',  credits:100, once:false },
+    { id:'advanced_module', name:'Advanced module',     credits:250, once:true, ownedField:'advancedUnlocked' },
+    { id:'badge',           name:'Leaderboard badge',   credits:50,  once:true, ownedField:'hasBadge' },
+    { id:'discount',        name:'$5 off next upgrade',  credits:500, once:false },
+    ];
 
-  function buildRewards(){
+function buildRewards(){
     const grid=document.getElementById('reward-grid'); grid.innerHTML='';
     REWARDS.forEach(rw=>{
-      const can=user.credits>=rw.credits;
-      const c=el('div',{class:'reward'+(can?'':' locked')});
+      const owned = rw.once && rw.ownedField && user[rw.ownedField];
+      const canRedeem = user.canRedeem;
+      const afford = user.credits >= rw.credits;
+      const usable = canRedeem && afford && !owned;
+
+      const c=el('div',{class:'reward'+(usable?'':' locked')});
+      let label, disabled=false;
+      if(owned)            { label='✓ Owned'; disabled=true; }
+      else if(!canRedeem)  { label='Standard+ only'; disabled=true; }
+      else if(!afford)     { label='Need more credits'; disabled=true; }
+      else                 { label='Redeem'; }
+
       c.innerHTML='<h3>'+rw.name+'</h3>'+
         '<div class="cost">Cost: <b>'+fmt(rw.credits)+'</b> credits</div>'+
-        '<button class="btn'+(can?' amber':'')+'" '+(can?'':'disabled')+' style="justify-content:center">'+
-        (can?'Redeem':'Need more credits')+'</button>';
+        '<button class="btn'+(usable?' amber':'')+'" '+(disabled?'disabled':'')+
+        ' style="justify-content:center">'+label+'</button>';
+
       const btn=c.querySelector('button');
-      if(can) btn.addEventListener('click',async ()=>{
+      if(usable) btn.addEventListener('click',async ()=>{
         btn.disabled=true; btn.textContent='…';
         try{
-          const res=await Velta.apiRedeem(rw.name, rw.credits); // real spend in DB
-          user.credits=res.credits; refresh();
-          btn.textContent='✓ Redeemed'; btn.classList.remove('amber');
+          const res=await Velta.apiRedeem(rw.id);
+          user.credits=res.credits;
+          user.simRunsLeft=res.simRunsLeft;
+          user.advancedUnlocked=res.advancedUnlocked;
+          user.hasBadge=res.hasBadge;
+          refresh();
+          buildRewards();
         }catch(err){
           btn.textContent='Redeem'; btn.disabled=false; alert(err.message);
         }
