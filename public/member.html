@@ -97,6 +97,10 @@
     .lesson-title{font-size:28px}
   }
 
+  .course-toggle{display:inline-flex;gap:4px;background:var(--paper-2,#EFE9DF);border-radius:10px;padding:4px;margin-bottom:22px}
+  .ct-btn{background:none;border:none;padding:8px 20px;border-radius:8px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}
+  .ct-btn.active{background:#fff;color:var(--ink,#1A2233);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .ct-btn.locked{color:var(--muted);opacity:.6}
 
   .video-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
   @media(max-width:780px){.video-grid{grid-template-columns:1fr}}
@@ -128,6 +132,31 @@
   .reward .cost{font-family:'SF Mono',monospace;font-size:13px;color:var(--muted)}
   .reward .cost b{color:var(--amber)}
   .reward.locked{opacity:.5}
+
+  .fc-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:780px){.fc-picker{grid-template-columns:1fr}}
+  .fc-card-pick{background:#fff;border:1px solid var(--line,#E5DDD0);border-radius:12px;padding:18px;transition:transform .12s}
+  .fc-card-pick:not(.locked):hover{transform:translateY(-2px);border-color:#16A36A}
+  .fc-card-pick.locked{opacity:.55}
+  .fc-pick-n{font-size:12px;color:var(--muted);font-family:'SF Mono',ui-monospace,monospace;margin-bottom:6px}
+  .fc-pick-t{font-size:16px;font-weight:600;margin-bottom:10px;line-height:1.3}
+  .fc-pick-meta{font-size:13px;color:#0F7A47;font-weight:600}
+  .fc-card-pick.locked .fc-pick-meta{color:var(--muted)}
+
+  .deck-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:20px}
+  .deck-counter{font-size:14px;color:var(--muted);font-family:'SF Mono',ui-monospace,monospace}
+  .deck-card{width:min(560px,90vw);height:320px;perspective:1200px;cursor:pointer}
+  .deck-card-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+  .deck-card-inner.flipped{transform:rotateY(180deg)}
+  .deck-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+  .deck-front{background:linear-gradient(135deg,#12324A,#0E5C3E);color:#fff;font-size:28px;font-weight:600}
+  .deck-back{background:#fff;color:#3A4453;font-size:19px;line-height:1.6;transform:rotateY(180deg);border:1px solid var(--line,#E5DDD0)}
+  .deck-hint{font-size:13px;color:var(--muted)}
+  .deck-nav{display:flex;gap:12px}
+  .deck-btn{background:#16A36A;color:#fff;border:none;border-radius:8px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer}
+  .deck-btn:hover{background:#128a59}
+  .deck-btn.ghost{background:none;color:var(--muted);border:1px solid var(--line,#E5DDD0)}
+
 </style>
 </head>
 <body>
@@ -200,13 +229,23 @@
       <button class="tab" role="tab" aria-selected="false" data-tab="rewards">Redeem credits</button>
     </div>
 
+
     <!-- VIDEOS -->
     <section class="panel active" id="panel-videos" role="tabpanel">
-      <h2 style="margin-bottom:6px">Your lessons</h2>
-      <p class="lead" id="videos-sub" style="margin-bottom:24px"></p>
-      <div class="video-grid" id="video-grid"></div>
+      <h2 style="margin-bottom:6px">Your course</h2>
+      <p class="lead" id="videos-sub" style="margin-bottom:18px"></p>
+      <div class="course-toggle">
+        <button class="ct-btn active" id="ct-lessons">Lessons</button>
+        <button class="ct-btn" id="ct-flashcards">Flashcards</button>
+      </div>
+      <div id="course-lessons-view">
+        <div class="video-grid" id="video-grid"></div>
+      </div>
+      <div id="course-flashcards-view" style="display:none">
+        <div class="fc-picker" id="fc-picker"></div>
+      </div>
       <p class="mono" style="font-size:12px;color:var(--muted);margin-top:24px">
-        [PLACEHOLDER — Saechan's real videos go here later. For now these are empty slots; the layout and locking are final.]</p>
+        Educational content only. Not financial advice. Charts are historical and for practice only. Past performance does not predict future results.</p>
     </section>
 
     <!-- GAME -->
@@ -365,7 +404,7 @@
     document.getElementById('plan-name-game').textContent = p.name;
     document.getElementById('cred-game').textContent = fmt(user.credits);
     document.getElementById('cred-rewards').textContent = fmt(user.credits);
-    buildVideos(p); buildRewards();
+    buildVideos(p); buildRewards(); setupCourseToggle();
     loadStats();
   }
   async function loadStats(){
@@ -550,6 +589,128 @@ function buildRewards(){
       grid.appendChild(c);
     });
   }
+
+function setupCourseToggle(){
+    const btnL=document.getElementById('ct-lessons');
+    const btnF=document.getElementById('ct-flashcards');
+    const viewL=document.getElementById('course-lessons-view');
+    const viewF=document.getElementById('course-flashcards-view');
+    if(!btnL||!btnF) return;
+
+    // Flashcards are a Standard+ feature (canRedeem is true only for Standard/Premium)
+    const canFlash = !!user.canRedeem;
+    if(!canFlash){
+      btnF.classList.add('locked');
+      btnF.textContent='🔒 Flashcards (Standard+)';
+    } else {
+      btnF.classList.remove('locked');
+      btnF.textContent='Flashcards';
+    }
+
+    btnL.onclick=()=>{
+      btnL.classList.add('active'); btnF.classList.remove('active');
+      viewL.style.display=''; viewF.style.display='none';
+    };
+    btnF.onclick=()=>{
+      if(!canFlash){
+        alert("Flashcards unlock at the Standard plan. Upgrade to review key terms.");
+        return;
+      }
+      btnF.classList.add('active'); btnL.classList.remove('active');
+      viewF.style.display=''; viewL.style.display='none';
+      buildFlashcards();
+    };
+  }
+
+function buildFlashcards(){
+    const host=document.getElementById('fc-picker'); if(!host) return;
+    if(!user.canRedeem){ host.innerHTML='<p style="color:var(--muted)">Flashcards unlock at the Standard plan.</p>'; return; }
+    host.innerHTML='';
+    if(!COURSE){ host.innerHTML='<p style="color:var(--muted)">Loading…</p>'; return; }
+    const limit = CHAPTER_LIMITS[user.plan] || 0;
+
+    COURSE.chapters.forEach(ch=>{
+      const locked = ch.n>limit;
+      const count = (ch.terms||[]).length;
+      const c=el('div',{class:'fc-card-pick'+(locked?' locked':'')});
+      c.innerHTML=
+        '<div class="fc-pick-n">Chapter '+ch.n+'</div>'+
+        '<div class="fc-pick-t">'+ch.title+'</div>'+
+        '<div class="fc-pick-meta">'+(locked?'🔒 Upgrade to unlock':count+' cards')+'</div>';
+      if(!locked && count>0){
+        c.style.cursor='pointer';
+        c.addEventListener('click',()=>openDeck(ch.n));
+      } else if(!locked && count===0){
+        c.querySelector('.fc-pick-meta').textContent='No cards';
+      }
+      host.appendChild(c);
+    });
+  }
+
+  let deckState = { cards:[], i:0, flipped:false };
+
+  function openDeck(n){
+    const ch = COURSE.chapters.find(c=>c.n===n);
+    if(!ch || !ch.terms || !ch.terms.length) return;
+    closeDeck();
+    deckState = { cards: ch.terms.slice(), i:0, flipped:false, title:ch.title, n:ch.n };
+
+    const fs = el('div',{class:'lesson-fs',id:'deck-fs'});
+    fs.innerHTML =
+      '<div class="lesson-fs-top">'+
+        '<span class="brand">🃏 Flashcards</span>'+
+        '<span class="unit-tag">Chapter '+ch.n+' · '+ch.title+'</span>'+
+        '<button class="lesson-fs-close" id="deck-close">Close ✕</button>'+
+      '</div>'+
+      '<div class="deck-body">'+
+        '<div class="deck-counter" id="deck-counter"></div>'+
+        '<div class="deck-card" id="deck-card"><div class="deck-card-inner" id="deck-inner">'+
+          '<div class="deck-face deck-front" id="deck-front"></div>'+
+          '<div class="deck-face deck-back" id="deck-back"></div>'+
+        '</div></div>'+
+        '<div class="deck-hint">Click the card to flip</div>'+
+        '<div class="deck-nav">'+
+          '<button class="deck-btn" id="deck-prev">← Prev</button>'+
+          '<button class="deck-btn ghost" id="deck-shuffle">⤨ Shuffle</button>'+
+          '<button class="deck-btn" id="deck-next">Next →</button>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(fs);
+    document.body.style.overflow='hidden';
+
+    document.getElementById('deck-close').addEventListener('click',closeDeck);
+    document.getElementById('deck-card').addEventListener('click',flipCard);
+    document.getElementById('deck-prev').addEventListener('click',()=>moveCard(-1));
+    document.getElementById('deck-next').addEventListener('click',()=>moveCard(1));
+    document.getElementById('deck-shuffle').addEventListener('click',shuffleDeck);
+    renderCard();
+  }
+
+  function renderCard(){
+    const s=deckState; const card=s.cards[s.i];
+    document.getElementById('deck-front').textContent = card.term;
+    document.getElementById('deck-back').textContent = card.def;
+    document.getElementById('deck-inner').classList.toggle('flipped', s.flipped);
+    document.getElementById('deck-counter').textContent = (s.i+1)+' / '+s.cards.length;
+  }
+  function flipCard(){ deckState.flipped=!deckState.flipped; renderCard(); }
+  function moveCard(d){
+    const s=deckState;
+    s.i=(s.i+d+s.cards.length)%s.cards.length;
+    s.flipped=false; renderCard();
+  }
+  function shuffleDeck(){
+    deckState.cards.sort(()=>Math.random()-0.5);
+    deckState.i=0; deckState.flipped=false; renderCard();
+  }
+  function closeDeck(){
+    const o=document.getElementById('deck-fs'); if(o) o.remove();
+    document.body.style.overflow='';
+  }
+
+
+
+
 
   /* ---------- leaderboard ---------- */
   async function loadLeaderboard(){
