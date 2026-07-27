@@ -127,7 +127,7 @@ async function apiLogin(){
     get:()=>({...state}),
     fakeLogin, fakeBuy, addCredits, spendCredits, useTrialRound, reset,
     save:()=>save(state),
-    apiLogin, apiMe, apiLogout, apiBuy, apiSubmitScore, apiLeaderboard, apiRedeem,
+    apiLogin, apiMe, apiLogout, apiBuy, apiSubmitScore, apiLeaderboard, apiRedeem, apiStats,
   };
 })();
 

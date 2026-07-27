@@ -52,6 +52,13 @@
   .game-meter .pill{background:var(--paper-2);border:1px solid var(--line);border-radius:100px;padding:6px 14px}
   .game-meter .pill b{color:var(--ink)}
 
+  .stats-strip{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin:10px 0 6px}
+  .stats-strip .stat{font-size:13px;color:var(--ink);font-weight:600}
+  .stat-bar{flex:1;min-width:220px}
+  .stat-bar-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .stat-bar-track{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+  .stat-bar-fill{height:100%;background:#16A36A;border-radius:99px;transition:width .4s ease}
+
   .reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
   @media(max-width:780px){.reward-grid{grid-template-columns:1fr}}
   .reward{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px}
@@ -143,10 +150,18 @@
     <!-- GAME -->
     <section class="panel" id="panel-game" role="tabpanel">
       <h2 style="margin-bottom:6px">Predict the Graph</h2>
-      <div class="game-meter">
-        <span class="pill">Daily rounds: <b id="rounds-allowance">—</b></span>
+    <div class="game-meter">
+        <span class="pill">Runs left: <b id="rounds-allowance">—</b></span>
         <span class="pill">Plan: <b id="plan-name-game">—</b></span>
         <span class="pill">Credits: <b id="cred-game">0</b></span>
+      </div>
+      <div class="stats-strip" id="stats-strip">
+        <span class="stat" id="stat-best"></span>
+        <span class="stat" id="stat-streak"></span>
+        <div class="stat-bar" id="stat-bar-wrap">
+          <div class="stat-bar-label" id="stat-bar-label"></div>
+          <div class="stat-bar-track"><div class="stat-bar-fill" id="stat-bar-fill"></div></div>
+        </div>
       </div>
       <iframe class="game-frame" id="game-frame" title="Predict the Graph" src="predict-the-graph.html"></iframe>
     </section>
@@ -282,23 +297,60 @@
     document.getElementById('member').style.display='block';
     const p=PLANS[user.plan];
     document.getElementById('videos-sub').textContent =
-      (p.videos>=9999?'All lessons':(p.videos+' lessons'))+' included with your '+p.name+' plan.';
-    document.getElementById('rounds-allowance').textContent = p.gameRoundsDaily>=9999?'Unlimited':p.gameRoundsDaily;
+      'Full written course included with your '+p.name+' plan.';
+    document.getElementById('rounds-allowance').textContent =
+      user.unlimitedSims ? 'Unlimited' : fmt(user.simRunsLeft);
     document.getElementById('plan-name-game').textContent = p.name;
     document.getElementById('cred-game').textContent = fmt(user.credits);
     document.getElementById('cred-rewards').textContent = fmt(user.credits);
     buildVideos(p); buildRewards();
+    loadStats();
+  }
+  async function loadStats(){
+    const elBest=document.getElementById('stat-best');
+    const elStreak=document.getElementById('stat-streak');
+    const elBarWrap=document.getElementById('stat-bar-wrap');
+    const elBarLabel=document.getElementById('stat-bar-label');
+    const elBarFill=document.getElementById('stat-bar-fill');
+    try{
+      const st=await Velta.apiStats();
+
+      // personal best
+      elBest.textContent = st.totalRounds>0 ? ('Best read: '+st.bestAccuracy+'/100') : '';
+
+      // streak — encouragement only, shown at 2+ days
+      elStreak.textContent = st.streakDays>=2 ? ('🔥 '+st.streakDays+'-day streak') : '';
+
+      // progress toward the cheapest reward not yet owned/afforded
+      const next = REWARDS
+        .filter(r=>!(r.once && r.ownedField && user[r.ownedField]))
+        .filter(r=>user.credits < r.credits)
+        .sort((a,b)=>a.credits-b.credits)[0];
+      if(next){
+        const pct=Math.min(100, Math.round(user.credits/next.credits*100));
+        elBarLabel.textContent = fmt(user.credits)+' / '+fmt(next.credits)+' → '+next.name;
+        elBarFill.style.width = pct+'%';
+        elBarWrap.style.display='block';
+      } else {
+        elBarLabel.textContent = 'You can afford every reward.';
+        elBarFill.style.width = '100%';
+        elBarWrap.style.display='block';
+      }
+    }catch(err){
+      // stats are non-critical; fail quietly
+      elBest.textContent=''; elStreak.textContent='';
+      elBarWrap.style.display='none';
+    }
   }
 
   function buildVideos(p){
     const grid=document.getElementById('video-grid'); grid.innerHTML='';
     const TOTAL=10;
-    const unlocked = p.videos>=9999?TOTAL:p.videos;
+    // Every paid plan includes the full course — all lessons unlocked.
     for(let i=1;i<=TOTAL;i++){
-      const locked = i>unlocked;
-      const v=el('div',{class:'video'+(locked?' locked':'')});
-      v.innerHTML='<div class="thumb">'+(locked?'':'[Video '+i+' placeholder]')+'</div>'+
-        '<div class="meta"><h3>Lesson '+i+'</h3><p>'+(locked?'Upgrade to unlock':'[PLACEHOLDER title]')+'</p></div>';
+      const v=el('div',{class:'video'});
+      v.innerHTML='<div class="thumb">[Video '+i+' placeholder]</div>'+
+        '<div class="meta"><h3>Lesson '+i+'</h3><p>[PLACEHOLDER title]</p></div>';
       grid.appendChild(v);
     }
   }
