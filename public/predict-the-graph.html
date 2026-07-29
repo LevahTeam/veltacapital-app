@@ -1,15 +1,16 @@
 <!-- Predict the Graph — candlestick trainer -->
 <style>
   :root{
-    --ink:#0B1F33; --paper:#F2EDE4; --paper-2:#0E1621; --grid:#1C2A3A;
-    --up:#16A36A; --down:#D8503C; --up-soft:#16A36A55; --down-soft:#D8503C55;
-    --guess:#E0A21A; --band:#E0A21A; --muted:#6A7585; --axis:#8593A6;
+    --ink:#EAF2F0; --paper:#0B0F12; --paper-2:#0A0E11; --grid:#1B2329;
+    --up:#2BD37F; --down:#E5573C; --up-soft:#2BD37F55; --down-soft:#E5573C55;
+    --guess:#19E6C3; --band:#19E6C3; --muted:#7A8A88; --axis:#5F6F6D;
+    --surface:#12181D; --line:#1B2329;
   }
   *{box-sizing:border-box}
   .ptg{background:var(--paper);color:var(--ink);
     font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;
     max-width:780px;margin:0 auto;padding:22px 22px 28px;
-    border:1px solid #D8CEBC;border-radius:4px}
+    border:1px solid var(--line);border-radius:4px}
   .ptg-eyebrow{font-family:'SF Mono','IBM Plex Mono',ui-monospace,monospace;
     font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
   .ptg-title{font-size:26px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
@@ -40,17 +41,17 @@
     padding:8px 12px;border-radius:3px;transition:opacity .3s}
   .ptg-controls{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
   .ptg-btn{font-family:inherit;font-size:14px;font-weight:600;padding:9px 18px;border-radius:3px;
-    border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;transition:opacity .15s}
+    border:1px solid #273139;background:#12181D;color:#EAF2F0;cursor:pointer;transition:opacity .15s}
   .ptg-btn:disabled{opacity:.35;cursor:not-allowed}
-  .ptg-btn.ghost{background:transparent;color:var(--ink)}
+  .ptg-btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
   .ptg-right{margin-left:auto;display:flex;gap:14px;align-items:center}
   .ptg-diff{font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--muted);
     display:flex;gap:6px;align-items:center}
-  .ptg-diff select{font-family:inherit;font-size:12px;border:1px solid #D8CEBC;
-    background:var(--paper);color:var(--ink);border-radius:3px;padding:3px 5px}
+  .ptg-diff select{font-family:inherit;font-size:12px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);border-radius:3px;padding:3px 5px}
   .ptg-score{font-family:'SF Mono',ui-monospace,monospace;font-size:13px;color:var(--muted)}
   .ptg-score b{color:var(--ink);font-size:15px}
-  .ptg-verdict{margin-top:14px;padding:14px 16px;border-radius:3px;background:#E7DFD2;
+  .ptg-verdict{margin-top:14px;padding:14px 16px;border-radius:3px;background:var(--surface);border:1px solid var(--line);
     font-size:15px;line-height:1.5;display:none}
   .ptg-verdict .grade{font-weight:600;font-size:17px}
   .ptg-verdict .detail{color:var(--muted);font-size:13.5px;margin-top:4px}
@@ -60,9 +61,8 @@
   .ptg-swatch{width:12px;height:12px;border-radius:2px;display:inline-block}
   /* credits */
   .ptg-credits{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:10px 14px;
-    background:#E7DFD2;border-radius:4px;font-family:'SF Mono',ui-monospace,monospace}
-  .ptg-credits .bal{font-size:20px;font-weight:600;color:var(--ink)}
-  .ptg-credits .bal small{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.1em}
+    background:var(--surface);border:1px solid var(--line);border-radius:4px;font-family:'SF Mono',ui-monospace,monospace}
+  .ptg-credits .bal{font-size:20px;font-weight:600;color:var(--up)}  .ptg-credits .bal small{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.1em}
   .ptg-credits .streak{font-size:12px;color:var(--muted)}
   .ptg-credits .streak b{color:var(--down)}
   .ptg-credits .reward-btn{margin-left:auto;font-family:inherit}
@@ -71,33 +71,32 @@
   .ptg-earn.show{opacity:1}
   /* why-it-moved panel */
   .ptg-why{margin-top:12px;padding:14px 16px;border-radius:3px;
-    background:#E7DFD2;font-size:14px;line-height:1.55;display:none}
+    background:var(--surface);border:1px solid var(--line);font-size:14px;line-height:1.55;display:none}
   .ptg-why h4{margin:0 0 6px;font-size:13px;font-family:'SF Mono',ui-monospace,monospace;
     letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
   .ptg-why ul{margin:6px 0 0;padding-left:18px}
   .ptg-why li{margin:3px 0;color:var(--ink)}
   /* rewards modal */
-  .ptg-modal{position:fixed;inset:0;background:rgba(11,31,51,.55);display:none;
+  .ptg-modal{position:fixed;inset:0;background:rgba(2,4,4,.7);display:none;
     align-items:center;justify-content:center;z-index:50;padding:20px}
   .ptg-modal.open{display:flex}
-  .ptg-sheet{background:var(--paper);max-width:560px;width:100%;border-radius:6px;
+  .ptg-sheet{background:var(--paper);border:1px solid var(--line);max-width:560px;width:100%;border-radius:6px;
     padding:22px;max-height:86vh;overflow:auto}
   .ptg-sheet h3{margin:0 0 4px;font-size:20px}
   .ptg-sheet p.note{margin:0 0 16px;font-size:13px;color:var(--muted)}
   .ptg-ladder{width:100%;border-collapse:collapse;font-size:14px}
-  .ptg-ladder th,.ptg-ladder td{text-align:left;padding:9px 8px;border-bottom:1px solid #D8CEBC}
-  .ptg-ladder th{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;
+  .ptg-ladder th,.ptg-ladder td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}  .ptg-ladder th{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;
     letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
   .ptg-ladder tr.locked{opacity:.45}
   .ptg-ladder .redeem{font-family:inherit;font-size:13px;font-weight:600;padding:6px 12px;
-    border-radius:3px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+    border-radius:3px;border:1px solid #273139;background:#12181D;color:#EAF2F0;cursor:pointer}
   .ptg-ladder .redeem:disabled{opacity:.3;cursor:not-allowed}
   .ptg-close{float:right;font-family:inherit;font-size:14px;background:none;border:none;cursor:pointer;color:var(--muted)}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <div class="ptg" id="ptg">
-  <p class="ptg-eyebrow">Lesson Lab &middot; Saechan</p>
+  <p class="ptg-eyebrow">Lesson Lab &middot; Candlestick Trainer</p>
   <h1 class="ptg-title">Predict the Graph</h1>
   <p class="ptg-sub">Read the candles. Tap to place <b id="need">5</b> points where you think price closes next &mdash; then watch the real candles reveal one by one.</p>
 

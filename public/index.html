@@ -4,64 +4,248 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VeltaCapital — Practice reading stock charts</title>
-<meta name="description" content="VeltaCapital is a chart-reading practice platform. Learn to read candlestick charts through guided prediction rounds and a structured course — in a risk-free environment.">
-<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="VeltaCapital turns real historical charts into hands-on practice. Learn to read candlesticks through guided prediction rounds and a structured course — risk-free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  /* ---- landing-specific ---- */
-  .hero{position:relative;overflow:hidden;padding:72px 0 64px}
-  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
-  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:32px}}
-  .hero h1 .am{color:var(--amber)}
-  .hero .lead{margin:22px 0 30px}
-  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-  .hero-note{font-size:13px;color:var(--muted);margin-top:16px}
-  /* animated candle strip as the hero signature */
-  .candles{background:var(--ink-2);border-radius:10px;padding:22px;border:1px solid #1d2a3a}
-  .candles svg{display:block;width:100%;height:auto}
-  .candles .cap{display:flex;justify-content:space-between;align-items:center;margin-top:14px;
-    color:var(--muted-d);font-size:12px}
-  .candles .cap b{color:#C7D2E0;font-weight:600}
+/* ============================================================
+   VeltaCapital — True Dark / Market Signal
+   Display: Fraunces (optical serif)  Body: Inter  Data: JetBrains Mono
+   Base: near-black ink   Accent: emerald→cyan (a *market* up-signal)
+   ============================================================ */
+:root{
+  --bg:#060809;              /* near-black base */
+  --bg-1:#0B0F12;            /* raised surface */
+  --bg-2:#12181D;            /* card surface */
+  --line:#1B2329;            /* hairline */
+  --line-2:#273139;          /* stronger hairline */
+  --fg:#EAF2F0;              /* primary text */
+  --fg-dim:#9FB0AE;          /* secondary text */
+  --fg-mute:#5F6F6D;         /* muted / captions */
+  --up:#2BD37F;              /* emerald — up candle & primary accent */
+  --up-2:#19E6C3;            /* cyan — glow shift */
+  --down:#E5573C;            /* down candle */
+  --glow:0 0 40px rgba(43,211,127,.18);
+  --glow-strong:0 0 60px rgba(25,230,195,.28);
+  --maxw:1180px;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:'Inter',system-ui,sans-serif;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.05;letter-spacing:-.02em;margin:0}
+.mono{font-family:'JetBrains Mono',monospace}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--fg-mute)}
 
-  .kpis{display:flex;gap:36px;flex-wrap:wrap;margin-top:40px;padding-top:28px;border-top:1px solid var(--line)}
-  .kpi .n{font-size:30px;font-weight:600;letter-spacing:-.02em}
-  .kpi .l{font-size:13px;color:var(--muted)}
+/* ambient background: faint moving grid + glow blooms */
+.atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.atmos .grid{position:absolute;inset:-2px;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:64px 64px;opacity:.35;
+  mask-image:radial-gradient(ellipse 80% 60% at 70% 0%,#000 20%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 70% 0%,#000 20%,transparent 75%);}
+.atmos .bloom{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5}
+.atmos .b1{width:520px;height:520px;top:-160px;right:-80px;
+  background:radial-gradient(circle,rgba(43,211,127,.22),transparent 65%)}
+.atmos .b2{width:420px;height:420px;top:640px;left:-140px;
+  background:radial-gradient(circle,rgba(25,230,195,.14),transparent 65%)}
+main,header,footer{position:relative;z-index:1}
 
-  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:36px}
-  @media(max-width:780px){.how{grid-template-columns:1fr}}
-  .step{position:relative;padding-top:14px}
-  .step .num{font-size:13px;color:var(--amber);font-weight:600;letter-spacing:.1em}
-  .step h3{margin:10px 0 6px}
-  .step p{color:var(--muted);font-size:15px;margin:0}
+/* proto flag */
+.proto-flag{position:relative;z-index:2;text-align:center;font-family:'JetBrains Mono',monospace;
+  font-size:12px;letter-spacing:.04em;color:#04110B;background:var(--up);padding:7px 14px}
+.proto-flag .mono{opacity:.75}
 
-  .people{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:36px}
-  @media(max-width:780px){.people{grid-template-columns:1fr}}
-  .person{display:flex;gap:18px;align-items:flex-start}
-  .person .ph{width:72px;height:72px;border-radius:50%;background:var(--ink);flex:none;
-    display:flex;align-items:center;justify-content:center;color:var(--paper);font-size:13px;text-align:center;line-height:1.2}
-  .person h3{margin:0 0 2px}
-  .person .role{font-size:13px;color:var(--amber);margin-bottom:8px}
-  .person p{font-size:14.5px;color:var(--muted);margin:0}
+/* nav */
+.nav{position:sticky;top:0;z-index:40;backdrop-filter:blur(12px);
+  background:rgba(6,8,9,.72);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:600;font-size:19px}
+.brand svg{filter:drop-shadow(0 0 6px rgba(43,211,127,.5))}
+.nav-links{display:flex;align-items:center;gap:30px;font-size:14px;color:var(--fg-dim)}
+.nav-links a:hover{color:var(--fg)}
+.nav-links .btn{margin-left:6px}
 
-  .trial-wrap{background:var(--ink-2);border-radius:12px;padding:8px;border:1px solid #1d2a3a}
-  .trial-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;flex-wrap:wrap;gap:10px}
-  .trial-head .t{color:#fff;font-weight:600}
-  .trial-head .s{color:var(--muted-d);font-size:13px}
-  .trial-frame{width:100%;border:none;border-radius:8px;background:#fff;height:760px;display:block}
-  .trial-gate{padding:40px 24px;text-align:center;color:var(--muted-d)}
-  .trial-gate .btn{margin-top:16px}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:600;padding:12px 22px;border-radius:100px;
+  border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .25s ease,background .2s ease,border-color .2s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn.solid{background:var(--up);color:#04110B;box-shadow:var(--glow)}
+.btn.solid:hover{box-shadow:var(--glow-strong)}
+.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--fg)}
+.btn.ghost:hover{border-color:var(--up);color:var(--up)}
+.btn.lg{padding:15px 28px;font-size:15px}
 
-  .contact{display:flex;gap:14px;flex-wrap:wrap}
-  .contact a{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--line);
-    border-radius:100px;text-decoration:none;font-size:14px;color:var(--ink)}
-  .contact a:hover{background:var(--paper-2)}
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ---------- HERO ---------- */
+.hero{padding:90px 0 60px}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
+@media(max-width:940px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero h1{font-size:clamp(44px,6.4vw,82px)}
+.hero h1 .am{color:var(--up);font-style:italic;position:relative}
+.hero h1 .am::after{content:"";position:absolute;left:0;right:0;bottom:.08em;height:.5em;
+  background:radial-gradient(ellipse at center,rgba(43,211,127,.35),transparent 70%);filter:blur(6px);z-index:-1}
+.hero .lead{color:var(--fg-dim);font-size:clamp(16px,1.5vw,19px);max-width:33em;margin:26px 0 32px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.hero-note{font-size:13px;color:var(--fg-mute);margin-top:18px;font-family:'JetBrains Mono',monospace}
+
+/* hero chart signature */
+.chart-card{position:relative;background:linear-gradient(160deg,var(--bg-2),var(--bg-1));
+  border:1px solid var(--line-2);border-radius:var(--r);padding:20px;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.03)}
+.chart-card::before{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
+  background:linear-gradient(160deg,rgba(43,211,127,.4),transparent 40%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.chart-card svg{display:block;width:100%;height:auto}
+.chart-cap{display:flex;justify-content:space-between;align-items:center;margin-top:14px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg-mute)}
+.chart-cap b{color:var(--up);font-weight:500}
+
+/* ---------- KPIS ---------- */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:64px}
+@media(max-width:720px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--bg-1);padding:26px 28px}
+.kpi .n{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--fg)}
+.kpi .n.accent{color:var(--up)}
+.kpi .l{font-size:13px;color:var(--fg-dim);margin-top:2px}
+
+/* ---------- SECTION SHELL ---------- */
+.section{padding:96px 0}
+.section-head{max-width:44em}
+.section-head h2{font-size:clamp(30px,4vw,46px);margin:14px 0 0}
+.section-head .lead{color:var(--fg-dim);font-size:17px;margin:18px 0 0}
+
+/* ---------- HOW ---------- */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:52px}
+@media(max-width:820px){.how{grid-template-columns:1fr}}
+.step{background:linear-gradient(180deg,var(--bg-1),var(--bg));border:1px solid var(--line);
+  border-radius:var(--r);padding:28px;transition:border-color .3s,transform .3s,box-shadow .3s}
+.step:hover{border-color:var(--line-2);transform:translateY(-4px);box-shadow:0 24px 50px -30px rgba(0,0,0,.9)}
+.step .num{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.15em;color:var(--up)}
+.step h3{font-size:22px;margin:16px 0 8px}
+.step p{color:var(--fg-dim);font-size:15px;margin:0}
+
+/* ---------- FOUNDERS (the signature redesign) ---------- */
+.people{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
+@media(max-width:820px){.people{grid-template-columns:1fr}}
+.person{position:relative;background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
+  border:1px solid var(--line);border-radius:18px;padding:28px;overflow:hidden;
+  transition:border-color .35s,transform .35s,box-shadow .35s}
+.person:hover{border-color:var(--up);transform:translateY(-4px);box-shadow:var(--glow)}
+.person-top{display:flex;align-items:center;gap:18px}
+.portrait{width:84px;height:84px;border-radius:16px;flex:none;position:relative;
+  background:
+    radial-gradient(120% 120% at 30% 20%,rgba(43,211,127,.25),transparent 60%),
+    linear-gradient(145deg,#1a2620,#0c1512);
+  border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--up)}
+.portrait::after{content:"";position:absolute;inset:0;border-radius:16px;
+  box-shadow:inset 0 0 24px rgba(43,211,127,.15);pointer-events:none;z-index:2}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  border-radius:16px;z-index:1;opacity:0;transition:opacity .6s ease,transform .45s ease}
+.portrait img.loaded{opacity:1}
+.person:hover .portrait img{transform:scale(1.08)}
+.person h3{font-size:23px}
+.person .role{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;
+  color:var(--up);margin-top:5px;text-transform:uppercase}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}
+.tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.03em;
+  color:var(--fg-dim);background:rgba(43,211,127,.07);border:1px solid var(--line-2);
+  padding:6px 11px;border-radius:100px}
+.person .bio{color:var(--fg-dim);font-size:14.5px;margin:20px 0 0;line-height:1.65}
+.person .bio.full{max-height:0;opacity:0;overflow:hidden;margin-top:0;
+  transition:max-height .5s ease,opacity .4s ease,margin-top .4s ease}
+.person .bio.full.open{max-height:520px;opacity:1;margin-top:14px}
+.more{background:none;border:none;cursor:pointer;color:var(--up);font-family:'JetBrains Mono',monospace;
+  font-size:12px;letter-spacing:.05em;padding:16px 0 0;display:inline-flex;align-items:center;gap:6px}
+.more:hover{color:var(--up-2)}
+.pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:22px}
+.pstat{background:var(--bg-1);padding:14px 12px;text-align:center}
+.pstat .v{font-family:'Fraunces',serif;font-size:20px;color:var(--up);font-weight:600}
+.pstat .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;
+  color:var(--fg-mute);text-transform:uppercase;margin-top:3px}
+
+/* ---------- TRY ---------- */
+#try .trial-wrap{background:var(--bg-1);border:1px solid var(--line-2);border-radius:var(--r);
+  padding:8px;margin-top:44px;box-shadow:0 40px 90px -40px rgba(0,0,0,.9)}
+.trial-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-wrap:wrap;gap:10px}
+.trial-head .t{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--fg)}
+.trial-head .s{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--up)}
+.trial-frame{width:100%;border:none;border-radius:10px;background:#0A0E11;height:760px;display:block}
+.trial-gate{padding:48px 24px;text-align:center;color:var(--fg-dim)}
+.trial-gate h3{font-size:26px;color:var(--fg)}
+.trial-gate .btn{margin-top:18px}
+
+/* ---------- PRICING ---------- */
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
+@media(max-width:920px){.tiers{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.tiers{grid-template-columns:1fr}}
+.tier{position:relative;background:linear-gradient(180deg,var(--bg-1),var(--bg));
+  border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:border-color .3s,transform .3s}
+.tier:hover{border-color:var(--line-2);transform:translateY(-4px)}
+.tier.feature{border-color:var(--up);box-shadow:var(--glow)}
+.tier .ribbon{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--up);min-height:16px}
+.tier h3{font-size:20px;margin:8px 0}
+.tier .price{font-family:'Fraunces',serif;font-size:32px;color:var(--fg)}
+.tier .price small{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg-mute)}
+.tier ul{list-style:none;padding:0;margin:18px 0;display:grid;gap:9px}
+.tier li{display:flex;gap:9px;font-size:13.5px;color:var(--fg-dim)}
+.tier li .ic{color:var(--up)}
+.tier .btn{width:100%;justify-content:center}
+
+/* ---------- CONTACT / FOOTER ---------- */
+.contact{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px}
+.contact a{display:inline-flex;align-items:center;gap:9px;padding:12px 18px;
+  border:1px solid var(--line-2);border-radius:100px;font-size:14px;color:var(--fg-dim);transition:.2s}
+.contact a:hover{border-color:var(--up);color:var(--up)}
+.foot{border-top:1px solid var(--line);padding:56px 0 30px;margin-top:40px}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}
+@media(max-width:720px){.foot-grid{grid-template-columns:1fr}}
+.foot .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--fg-mute);margin:0 0 12px}
+.foot a{color:var(--fg-dim);font-size:14px}.foot a:hover{color:var(--up)}
+.disclaim{border-top:1px solid var(--line);padding:22px 0;font-size:12px;color:var(--fg-mute);line-height:1.7}
+.disclaim strong{color:var(--fg-dim)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  background:rgba(2,4,4,.7);backdrop-filter:blur(6px);padding:20px}
+.modal.open{display:flex}
+.sheet{background:var(--bg-1);border:1px solid var(--line-2);border-radius:18px;max-width:420px;width:100%;
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.9)}
+.sheet-pad{padding:32px}
+.sheet h2{font-size:26px;margin:6px 0 0}
+.sheet .x{background:none;border:none;color:var(--fg-mute);cursor:pointer;float:right;font-size:13px}
+.sheet .x:hover{color:var(--fg)}
 </style>
 </head>
 <body>
 
+<div class="atmos" aria-hidden="true">
+  <div class="grid"></div><div class="bloom b1"></div><div class="bloom b2"></div>
+</div>
+
 <div class="proto-flag">PROTOTYPE — login &amp; payment are simulated for design preview. <span class="mono">No real accounts or charges.</span></div>
 
 <header class="nav"><div class="wrap nav-in">
-  <a class="brand" href="index.html" id="brand"></a>
+  <a class="brand" href="#top" id="brand"></a>
   <nav class="nav-links">
     <a href="#how">How it works</a>
     <a href="#course">Course</a>
@@ -71,81 +255,118 @@
   </nav>
 </div></header>
 
+<main id="top">
+
 <!-- HERO -->
 <section class="hero"><div class="wrap hero-grid">
-  <div>
+  <div class="reveal">
     <p class="eyebrow">Chart-reading practice · by Saechan</p>
-    <h1>Learn to <span class="am">read</span> the chart<br>before you risk a cent.</h1>
-    <p class="lead">VeltaCapital turns real historical charts into hands-on practice. Watch Saechan's lessons, then test what you've learned in a prediction game that scores how you read trend, volume, and support — all in a risk-free environment.</p>
+    <h1 style="margin-top:18px">Learn to <span class="am">read</span> the chart before you risk a cent.</h1>
+    <p class="lead">VeltaCapital turns real historical charts into hands-on practice. Watch Saechan's lessons, then test what you've learned in a prediction game that scores how you read trend, volume, and support — all risk-free.</p>
     <div class="hero-cta">
-      <a class="btn amber lg" href="#try">Try 3 free rounds</a>
+      <a class="btn solid lg" href="#try">Try 3 free rounds</a>
       <a class="btn ghost lg" href="#how">See how it works</a>
     </div>
     <p class="hero-note">No account needed to try. No trading, no real money — just practice.</p>
   </div>
 
-  <div class="candles" aria-hidden="true">
+  <div class="chart-card reveal" aria-hidden="true">
     <svg id="heroChart" viewBox="0 0 420 240" preserveAspectRatio="none"></svg>
-    <div class="cap"><span>Read the setup →</span><b>Predict the next move</b></div>
+    <div class="chart-cap"><span>Read the setup →</span><b>Predict the next move</b></div>
   </div>
 </div></section>
 
-<!-- VALUE / KPIs -->
-<section class="section" style="padding-top:0"><div class="wrap">
-  <div class="kpis">
-    <div class="kpi"><div class="n mono">Real</div><div class="l">historical market charts</div></div>
-    <div class="kpi"><div class="n mono">Skill</div><div class="l">scored on how you read, not luck</div></div>
-    <div class="kpi"><div class="n mono">0</div><div class="l">real money at risk, ever</div></div>
-  </div>
-</div></section>
+<!-- KPIS -->
+<div class="wrap"><div class="kpis reveal">
+  <div class="kpi"><div class="n accent mono">Real</div><div class="l">historical market charts</div></div>
+  <div class="kpi"><div class="n mono">Skill</div><div class="l">scored on how you read, not luck</div></div>
+  <div class="kpi"><div class="n mono">0</div><div class="l">real money at risk, ever</div></div>
+</div></div>
 
-<!-- HOW IT WORKS -->
-<section class="section" id="how" style="background:var(--paper-2)"><div class="wrap">
-  <p class="eyebrow">How it works</p>
-  <h2>Watch, predict, understand.</h2>
+<!-- HOW -->
+<section class="section" id="how"><div class="wrap">
+  <div class="section-head reveal">
+    <p class="eyebrow">How it works</p>
+    <h2>Watch, predict, understand.</h2>
+  </div>
   <div class="how">
-    <div class="step"><div class="num">STEP 1</div><h3>Learn the concept</h3>
+    <div class="step reveal"><div class="num">STEP 01</div><h3>Learn the concept</h3>
       <p>Short lessons from Saechan cover candlesticks, trend, support &amp; resistance, volume, and moving averages — the real toolkit for reading a chart.</p></div>
-    <div class="step"><div class="num">STEP 2</div><h3>Predict the graph</h3>
+    <div class="step reveal"><div class="num">STEP 02</div><h3>Predict the graph</h3>
       <p>You're shown the first half of a real chart. Place your prediction, then watch the actual candles reveal one by one and see how you did.</p></div>
-    <div class="step"><div class="num">STEP 3</div><h3>See what the chart showed</h3>
+    <div class="step reveal"><div class="num">STEP 03</div><h3>See what it showed</h3>
       <p>Every round breaks down the readable clues behind the move — breakouts, volume confirmation, trend shifts — and ties them back to the lesson.</p></div>
   </div>
 </div></section>
 
-<!-- COURSE / PEOPLE -->
+<!-- COURSE / FOUNDERS -->
 <section class="section" id="course"><div class="wrap">
-  <p class="eyebrow">The course</p>
-  <h2>Taught by people who actually read charts.</h2>
-  <p class="lead" style="margin-top:14px">A focused curriculum built for beginners — from "what is a candlestick" to spotting breakouts and managing risk. Paired with practice so the concepts actually stick.</p>
+  <div class="section-head reveal">
+    <p class="eyebrow">The course</p>
+    <h2>Taught by people who actually read charts.</h2>
+    <p class="lead">A focused curriculum built for beginners — from "what is a candlestick" to spotting breakouts and managing risk. Paired with practice so the concepts stick.</p>
+  </div>
 
   <div class="people">
-    <div class="person">
-      <div class="ph">[PHOTO]</div>
-      <div>
-        <h3>Saechan</h3>
-        <div class="role">Instructor</div>
-        <p>[PLACEHOLDER — Saechan's bio. 2–3 sentences: experience, background in markets/trading, teaching style, and why he built this course. Keep it credible and educational, not hype.]</p>
+    <!-- Saechan -->
+    <div class="person reveal">
+      <div class="person-top">
+        <div class="portrait" data-photo="saechan">SJ<img src="assets/img/Saechan.png" alt="Saechan Jung" loading="lazy" onload="this.classList.add('loaded')" onerror="this.remove()"></div>
+        <div>
+          <h3>Saechan Jung</h3>
+          <div class="role">Co-founder · Course &amp; Strategy</div>
+        </div>
       </div>
+      <div class="tags">
+        <span class="tag">Stock-sim top 9%</span>
+        <span class="tag">Options educator</span>
+        <span class="tag">Finance club president</span>
+      </div>
+      <p class="bio">Led a year-long macro trading simulation from $100K to $236K, and placed 22nd of 251 in Ithaca College's stock sim with a 7.46% return. Runs a live options-trading channel chasing $10K from a $500 start.</p>
+      <div class="pstats">
+        <div class="pstat"><div class="v">22nd</div><div class="k">of 251</div></div>
+        <div class="pstat"><div class="v">+7.46%</div><div class="k">return</div></div>
+        <div class="pstat"><div class="v">$236K</div><div class="k">sim peak</div></div>
+      </div>
+      <div class="bio full" id="bio-s">Saechan has completed Forage job simulations in investment banking, risk analysis, and quantitative research affiliated with Bank of America, Goldman Sachs, and JPMorgan Chase respectively. He writes on Medium across economics and political topics, and serves as president of his high school's finance club and DECA co-president.</div>
+      <button class="more" data-target="bio-s">Read more <span>↓</span></button>
     </div>
-    <div class="person">
-      <div class="ph">[PHOTO]</div>
-      <div>
-        <h3>[Your name]</h3>
-        <div class="role">Founder &amp; builder</div>
-        <p>[PLACEHOLDER — your bio. 2–3 sentences: who you are, that you built the platform and the prediction game, and what you wanted it to do for learners. This is the founder story.]</p>
+
+    <!-- Samuel -->
+    <div class="person reveal">
+      <div class="person-top">
+        <div class="portrait" data-photo="samuel">SH<img src="assets/img/Samuel.png" alt="Samuel Ha" loading="lazy" onload="this.classList.add('loaded')" onerror="this.remove()"></div>
+        <div>
+          <h3>Samuel Ha</h3>
+          <div class="role">Co-founder · Engineering</div>
+        </div>
       </div>
+      <div class="tags">
+        <span class="tag">Full-stack build</span>
+        <span class="tag">Next.js · Prisma · Postgres</span>
+        <span class="tag">Accessibility tech</span>
+      </div>
+      <p class="bio">Built and coded the whole platform — prediction game, course system, real-time market data, auth, credits and leaderboards. Interested in making financial literacy more accessible.</p>
+      <div class="pstats">
+        <div class="pstat"><div class="v">3</div><div class="k">countries</div></div>
+        <div class="pstat"><div class="v">Full</div><div class="k">stack</div></div>
+        <div class="pstat"><div class="v">a11y</div><div class="k">focus</div></div>
+      </div>
+      <div class="bio full" id="bio-h">Having lived in Australia, Korea, and the United States, Samuel brings a global perspective to technology and entrepreneurship. As president of the Healthtech Club, he develops accessibility-focused technologies, including a navigation system for visually impaired students. His work spans financial education, award-winning robotics, AI, and social impact. Follow his Healthtech initiatives at **@hlthtech**.
+</div>
+      <button class="more" data-target="bio-h">Read more <span>↓</span></button>
     </div>
   </div>
 </div></section>
 
-<!-- TRY IT -->
-<section class="section" id="try" style="background:var(--ink);color:var(--paper)"><div class="wrap">
-  <p class="eyebrow" style="color:var(--muted-d)">Try it now</p>
-  <h2 style="color:#fff">Three rounds, free. No sign-up to play.</h2>
-  <p class="lead" style="color:var(--muted-d);margin:14px 0 28px">Read the chart, place your prediction, watch it reveal. After three rounds, log in with Google to save your score and unlock the full course.</p>
-
-  <div class="trial-wrap">
+<!-- TRY -->
+<section class="section" id="try"><div class="wrap">
+  <div class="section-head reveal">
+    <p class="eyebrow">Try it now</p>
+    <h2>Three rounds, free. No sign-up to play.</h2>
+    <p class="lead">Read the chart, place your prediction, watch it reveal. After three rounds, log in with Google to save your score and unlock the full course.</p>
+  </div>
+  <div class="trial-wrap reveal">
     <div class="trial-head">
       <span class="t">Predict the Graph — Trial</span>
       <span class="s" id="trial-count">3 free rounds</span>
@@ -154,81 +375,85 @@
       <iframe class="trial-frame" id="trial-frame" title="Predict the Graph trial" src="predict-the-graph.html"></iframe>
     </div>
     <div class="trial-gate" id="trial-gate" style="display:none">
-      <h3 style="color:#fff">Nice reads. Want to keep going?</h3>
+      <h3>Nice reads. Want to keep going?</h3>
       <p>Log in with Google to save your trial score, claim your credits, and unlock the full course.</p>
-      <button class="btn amber lg" id="trial-login">Continue with Google</button>
+      <button class="btn solid lg" id="trial-login">Continue with Google</button>
     </div>
   </div>
 </div></section>
 
-<!-- PRICING TEASER -->
+<!-- PRICING -->
 <section class="section" id="pricing"><div class="wrap">
-  <p class="eyebrow">Plans</p>
-  <h2>Pick how deep you want to go.</h2>
-  <p class="lead" style="margin:14px 0 30px">Every plan includes the course and the prediction game. Higher tiers add more daily practice, more lessons, and credits toward rewards.</p>
+  <div class="section-head reveal">
+    <p class="eyebrow">Plans</p>
+    <h2>Pick how deep you want to go.</h2>
+    <p class="lead">Every plan includes the course and the prediction game. Higher tiers add more practice, more lessons, and credits toward rewards.</p>
+  </div>
   <div class="tiers" id="tiers"></div>
-  <p class="hero-note" style="margin-top:20px">Prices shown are placeholders for preview. Plan details are illustrative and editable.</p>
+  <p class="hero-note" style="margin-top:22px">Prices shown are placeholders for preview. Plan details are illustrative and editable.</p>
 </div></section>
 
 <!-- CONTACT -->
-<section class="section" style="background:var(--paper-2)"><div class="wrap">
-  <p class="eyebrow">Get in touch</p>
-  <h2>Questions? Reach out.</h2>
-  <div class="contact" style="margin-top:22px">
-    <a href="#" id="c-ig">📷 [PLACEHOLDER @instagram]</a>
-    <a href="#" id="c-mail">✉️ [PLACEHOLDER email]</a>
-    <a href="#" id="c-phone">📞 [PLACEHOLDER phone]</a>
+<section class="section"><div class="wrap">
+  <div class="section-head reveal">
+    <p class="eyebrow">Get in touch</p>
+    <h2>Questions? Reach out.</h2>
+  </div>
+  <div class="contact reveal">
+    <a href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener" id="c-ig">@veltacapital</a>
+    <a href="mailto:veltacapitalhq@gmail.com" id="c-mail">veltacapitalhq@gmail.com</a>
   </div>
 </div></section>
+
+</main>
 
 <!-- FOOTER -->
 <footer class="foot"><div class="wrap">
   <div class="foot-grid">
     <div style="max-width:320px">
-      <a class="brand" href="index.html" style="color:#fff" id="brand-foot"></a>
-      <p class="mono" style="font-size:13px;margin-top:12px;line-height:1.6">Chart-reading practice and financial education. Built for learning, not trading.</p>
+      <a class="brand" href="#top" style="font-size:19px" id="brand-foot"></a>
+      <p class="mono" style="font-size:13px;margin-top:14px;line-height:1.7;color:var(--fg-mute)">Chart-reading practice and financial education. Built for learning, not trading.</p>
     </div>
     <div>
-      <p class="mono" style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 12px">Explore</p>
-      <p style="margin:6px 0"><a href="#how">How it works</a></p>
-      <p style="margin:6px 0"><a href="#course">Course</a></p>
-      <p style="margin:6px 0"><a href="#try">Try the game</a></p>
-      <p style="margin:6px 0"><a href="#pricing">Pricing</a></p>
+      <p class="lbl">Explore</p>
+      <p style="margin:8px 0"><a href="#how">How it works</a></p>
+      <p style="margin:8px 0"><a href="#course">Course</a></p>
+      <p style="margin:8px 0"><a href="#try">Try the game</a></p>
+      <p style="margin:8px 0"><a href="#pricing">Pricing</a></p>
     </div>
     <div>
-      <p class="mono" style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 12px">Contact</p>
-      <p style="margin:6px 0"><a href="#" id="f-ig">[Instagram]</a></p>
-      <p style="margin:6px 0"><a href="#" id="f-mail">[Email]</a></p>
-      <p style="margin:6px 0"><a href="#" id="f-phone">[Phone]</a></p>
+      <p class="lbl">Contact</p>
+      <p style="margin:8px 0"><a href="#" id="f-ig">Instagram</a></p>
+      <p style="margin:8px 0"><a href="#" id="f-mail">Email</a></p>
+      <p style="margin:8px 0"><a href="#" id="f-phone">Phone</a></p>
     </div>
+  </div>
+  <div class="disclaim" style="margin-top:40px">
+    <strong>Educational disclaimer.</strong>
+    VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. All charts are historical and for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.
   </div>
 </div></footer>
 
-<div class="disclaim"><div class="wrap">
-  <strong style="color:var(--muted-d)">Educational disclaimer.</strong>
-  VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. All charts are historical and for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.
-</div></div>
-
-<!-- LOGIN MODAL (simulated) -->
+<!-- LOGIN MODAL -->
 <div class="modal" id="login-modal">
   <div class="sheet"><div class="sheet-pad">
     <button class="x" id="login-x">Close</button>
     <p class="eyebrow">Sign in</p>
-    <h2 style="font-size:26px">Continue to VeltaCapital</h2>
-    <p style="color:var(--muted);font-size:15px;margin:10px 0 22px">Sign in with your Google account to save your progress, credits, and leaderboard position.</p>
+    <h2>Continue to VeltaCapital</h2>
+    <p style="color:var(--fg-dim);font-size:15px;margin:12px 0 22px">Sign in with your Google account to save your progress, credits, and leaderboard position.</p>
     <p id="login-err" style="color:var(--down);font-size:13px;min-height:18px;margin:4px 0"></p>
-    <button class="btn lg" id="google-btn" style="width:100%;justify-content:center">Continue with Google</button>
-    <p style="font-size:12px;color:var(--muted);margin-top:16px;text-align:center;line-height:1.5">
+    <button class="btn solid lg" id="google-btn" style="width:100%;justify-content:center">Continue with Google</button>
+    <p style="font-size:12px;color:var(--fg-mute);margin-top:16px;text-align:center;line-height:1.6">
       By continuing you confirm you are at least 13 years old and agree to our
-      <a href="/terms" style="color:var(--muted);text-decoration:underline">Terms of Service</a> and
-      <a href="/privacy" style="color:var(--muted);text-decoration:underline">Privacy Policy</a>.
+      <a href="/terms" style="text-decoration:underline">Terms of Service</a> and
+      <a href="/privacy" style="text-decoration:underline">Privacy Policy</a>.
     </p>
   </div></div>
 </div>
 
 <script src="assets/velta.js"></script>
 <script>
-  // brand marks
+  // brand marks (real veltaMark from velta.js)
   document.getElementById('brand').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
   document.getElementById('brand-foot').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
 
@@ -253,20 +478,38 @@
       e.setAttribute('stroke',s);e.setAttribute('stroke-width',1.2);svg.appendChild(e);}
     const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
     data.forEach((d,i)=>{
-      const x=pad+i*cw+cw*0.5, up=d[3]>=d[0], col=up?'#16A36A':'#D8503C';
+      const x=pad+i*cw+cw*0.5, up=d[3]>=d[0], col=up?'#2BD37F':'#E5573C';
       const future=i>=Math.floor(n*0.6);
-      const fill=future?'#7c8696':col;
+      const fill=future?'#3a4a52':col;
       line(x,y(d[1]),x,y(d[2]),fill);
       const top=Math.min(y(d[0]),y(d[3])), bh=Math.max(2,Math.abs(y(d[3])-y(d[0])));
       const bar=rect(x-cw*0.3,top,cw*0.6,bh,fill,future?0.5:1);
       if(future && !reduce){ bar.style.opacity=0;
         bar.animate([{opacity:0},{opacity:0.5}],{duration:500,delay:600+(i-Math.floor(n*0.6))*180,fill:'forwards'}); }
     });
-    // split marker
-    line(pad+Math.floor(n*0.6)*cw, pad, pad+Math.floor(n*0.6)*cw, H-pad, '#3a4a5e');
+    line(pad+Math.floor(n*0.6)*cw, pad, pad+Math.floor(n*0.6)*cw, H-pad, '#273139');
   })();
 
-  // ---- pricing tiers ----
+  // ---- scroll reveal (redesign) ----
+  (function(){
+    const els=document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver'in window)){els.forEach(e=>e.classList.add('in'));return;}
+    const io=new IntersectionObserver((ents)=>{
+      ents.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('in'),i*70);io.unobserve(e.target);}});
+    },{threshold:.12});
+    els.forEach(e=>io.observe(e));
+  })();
+
+  // ---- founder read-more (redesign) ----
+  document.querySelectorAll('.more').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const t=document.getElementById(btn.dataset.target);
+      const open=t.classList.toggle('open');
+      btn.innerHTML= open ? 'Read less <span>&uarr;</span>' : 'Read more <span>&darr;</span>';
+    });
+  });
+
+  // ---- pricing tiers (real PLANS + el() from velta.js) ----
   (function(){
     const host=document.getElementById('tiers');
     const order=['trial','starter','standard','premium'];
@@ -278,18 +521,18 @@
         '<div class="ribbon">'+(feat?'Most popular':'')+'</div>'+
         '<h3>'+p.name+'</h3>'+
         '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
-        '<p style="color:var(--muted);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
-        '<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>'+
-        '<a class="btn '+(feat?'amber':'')+'" style="justify-content:center" href="#" data-buy="'+key+'">Choose '+p.name+'</a>';
+        '<p style="color:var(--fg-dim);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
+        '<ul>'+p.features.map(f=>'<li><span class="ic">&check;</span><span>'+f+'</span></li>').join('')+'</ul>'+
+        '<a class="btn '+(feat?'solid':'ghost')+'" style="justify-content:center" href="#" data-buy="'+key+'">Choose '+p.name+'</a>';
       host.appendChild(card);
     });
     host.addEventListener('click',e=>{
       const b=e.target.closest('[data-buy]'); if(!b)return; e.preventDefault();
-      openLogin(); // must log in before buying
+      openLogin();
     });
   })();
 
-  // ---- login modal (simulated) ----
+  // ---- login modal (real Velta.apiLogin) ----
   const modal=document.getElementById('login-modal');
   function openLogin(){ modal.classList.add('open'); }
   function closeLogin(){ modal.classList.remove('open'); }
@@ -297,9 +540,7 @@
   document.getElementById('login-x').addEventListener('click',closeLogin);
   modal.addEventListener('click',e=>{ if(e.target===modal)closeLogin(); });
 
-  function doLogin(){
-    Velta.apiLogin();   // redirects to Google; NextAuth handles the rest
-  }
+  function doLogin(){ Velta.apiLogin(); }
   document.getElementById('google-btn').addEventListener('click',doLogin);
 
   // ---- trial gating: after 3 rounds, swap iframe for the login gate ----
@@ -318,10 +559,7 @@
     const left=Math.max(0,3-trialRounds);
     document.getElementById('trial-count').textContent = left+' free round'+(left===1?'':'s')+' left';
   }
-  // the trial gate's "continue" button opens the same login modal
-  document.getElementById('trial-login').addEventListener('click',()=>{
-    openLogin();
-  });
+  document.getElementById('trial-login').addEventListener('click',openLogin);
 </script>
 </body>
 </html>

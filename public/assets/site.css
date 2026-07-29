@@ -4,17 +4,17 @@
    warm paper UI, dark trading-panel ink, amber + teal accents.
    ============================================================ */
 :root{
-  --ink:#0B1F33;          /* deep navy — text & dark panels */
-  --ink-2:#0E1621;        /* chart panel black-blue */
-  --paper:#F2EDE4;        /* warm paper background */
-  --paper-2:#E7DFD2;      /* raised paper */
-  --line:#D8CEBC;         /* hairline on paper */
+  --ink:#0F172A;          /* deep slate — text & dark panels */
+  --ink-2:#0B1220;        /* chart panel — near-black slate */
+  --paper:#F8FAFC;        /* cool off-white background */
+  --paper-2:#EEF2F6;      /* raised surface */
+  --line:#E2E8F0;         /* hairline on light surfaces */
   --up:#16A36A;           /* candle up / positive */
   --down:#D8503C;         /* candle down / negative */
-  --amber:#E0A21A;        /* the "your guess" accent */
-  --teal:#0F8B6C;         /* the "reveal" accent */
-  --muted:#6A7585;
-  --muted-d:#8593A6;      /* muted on dark */
+  --amber:#059669;        /* primary accent — now emerald */
+  --teal:#0F8B6C;         /* secondary/reveal accent */
+  --muted:#64748B;
+  --muted-d:#94A3B8;      /* muted on dark */
   --maxw:1140px;
   --r:6px;
 }
@@ -114,3 +114,6 @@ h3{font-size:21px}
 
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+
+/* --- hide prototype banner (temporary; delete to restore) --- */
+.proto-flag{display:none !important}

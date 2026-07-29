@@ -113,7 +113,7 @@
   .video.locked{opacity:.55}
   .video.locked .thumb::after{content:'🔒 Upgrade to unlock';color:var(--muted-d)}
 
-  .game-frame{width:100%;border:none;border-radius:10px;height:820px;background:#fff;display:block}
+  .game-frame{width:100%;border:1px solid #1B2329;border-radius:16px;height:820px;background:#0B0F12;display:block;box-shadow:0 20px 60px -30px rgba(0,0,0,.5)}
   .game-meter{display:flex;align-items:center;gap:14px;margin-bottom:14px;font-size:14px;color:var(--muted)}
   .game-meter .pill{background:var(--paper-2);border:1px solid var(--line);border-radius:100px;padding:6px 14px}
   .game-meter .pill b{color:var(--ink)}
@@ -132,6 +132,9 @@
   .reward .cost{font-family:'SF Mono',monospace;font-size:13px;color:var(--muted)}
   .reward .cost b{color:var(--amber)}
   .reward.locked{opacity:.5}
+  .reward .btn{background:#12181D;border:1px solid #273139;color:#EAF2F0}
+  .reward .btn:hover{background:#1B2329}
+  .reward .btn:disabled{opacity:.4}
 
   .fc-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   @media(max-width:780px){.fc-picker{grid-template-columns:1fr}}
