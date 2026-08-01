@@ -5,6 +5,7 @@
 //   DELETE → delete a report (ADMIN ONLY)   ?id=<reportId>
 //  File location: app/api/reports/route.ts
 // ============================================================
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/isAdmin";
 import { NextResponse } from "next/server";

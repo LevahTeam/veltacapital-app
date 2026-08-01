@@ -5,6 +5,7 @@
 //  confirms payment. This route just starts the payment.
 //  File location: app/api/checkout/route.ts
 // ============================================================
+export const dynamic = "force-dynamic";
 import { stripe, PRICE_IDS } from "@/lib/stripe";
 import { getUid } from "@/lib/getUid";
 import { prisma } from "@/lib/prisma";
