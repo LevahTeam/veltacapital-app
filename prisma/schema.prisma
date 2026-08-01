@@ -117,3 +117,21 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model ProcessedStripeEvent {
+  id          String   @id
+  processedAt DateTime @default(now())
+}
+
+// ---- ADD this model to your schema.prisma ----
+// One weekly stock report. `published` lets you save drafts (false) and
+// only show finished ones (true) to members.
+model WeeklyReport {
+  id          String   @id @default(cuid())
+  ticker      String                       // e.g. "AAPL"
+  title       String                       // headline for the week
+  body        String   @db.Text            // the report text (long)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

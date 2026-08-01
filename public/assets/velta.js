@@ -1,19 +1,8 @@
 /* ============================================================
-   VeltaCapital — shared front-end state (PROTOTYPE)
-   ------------------------------------------------------------
-   ⚠️  EVERYTHING IN THIS FILE IS SIMULATED.
-   None of this is secure or real. When the backend is built,
-   each function marked  // [BACKEND]  gets replaced by a real
-   server call (auth, payments, plan checks, credit ledger).
-
-   Why it's fake for now: GitHub Pages serves static files only,
-   so login/payment/credits cannot be trusted here. This layer
-   lets us design and test the full flow without a server.
+   VeltaCapital — shared front-end state
    ============================================================ */
 
 const Velta = (() => {
-  // Prototype state lives in the browser only. A real build keeps
-  // this server-side so users can't edit their own plan/credits.
   const KEY = 'velta_proto_v1';
   const DEFAULTS = { loggedIn:false, name:'', email:'', plan:'none', credits:0, trialRoundsUsed:0 };
 
@@ -24,22 +13,18 @@ const Velta = (() => {
   function save(s){ try { sessionStorage.setItem(KEY, JSON.stringify(s)); } catch(e){} }
   let state = load();
 
-  // [BACKEND] real version: redirect to Google OAuth, verify on server.
   function fakeLogin(name, email){
     state.loggedIn = true;
     state.name = name || 'Trial User';
     state.email = email || 'you@example.com';
     save(state);
   }
-  // [BACKEND] real version: Stripe Checkout → webhook confirms → server sets plan.
   function fakeBuy(plan){
     state.plan = plan;
-    // grant the plan's starting credits (Pro/Investor include some)
     const grant = PLANS[plan]?.startCredits || 0;
     state.credits += grant;
     save(state);
   }
-  // [BACKEND] real version: server-side credit ledger with an audit trail.
   function addCredits(n){ state.credits += n; save(state); }
   function spendCredits(n){ if(state.credits>=n){ state.credits-=n; save(state); return true; } return false; }
 
@@ -47,9 +32,7 @@ const Velta = (() => {
   function reset(){ state = Object.assign({}, DEFAULTS); save(state); }
 
   // ---- REAL backend methods (talk to the database via API routes) ----
-  // These replace the simulated ones for login/account. They're async.
-  // Google sign-in via NextAuth. Redirects away; no return value.
-async function apiLogin(){
+  async function apiLogin(){
     const r = await fetch('/api/auth/csrf');
     const { csrfToken } = await r.json();
 
@@ -75,9 +58,8 @@ async function apiLogin(){
   async function apiMe(){
     const r = await fetch('/api/auth/me');
     const data = await r.json();
-    return data.ok ? data.user : null; // null if not logged in
+    return data.ok ? data.user : null;
   }
-  // Sign out via NextAuth, then return home.
   function apiLogout(){
     window.location.href = "/api/auth/signout?callbackUrl=/";
   }
@@ -87,15 +69,16 @@ async function apiLogin(){
     if(!data.ok) throw new Error(data.error || 'Could not load stats');
     return data;
   }
+  // ---- Stripe checkout: starts real payment; plan granted by webhook after payment ----
   async function apiBuy(plan){
-    const r = await fetch('/api/plan/set', {
+    const r = await fetch('/api/checkout', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ plan }),
     });
     const data = await r.json();
-    if(!data.ok) throw new Error(data.error || 'Could not set plan');
-    return data.user;
+    if(!data.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
+    window.location.href = data.url; // go to Stripe's hosted checkout page
   }
   async function apiSubmitScore(result){
     const r = await fetch('/api/score/submit', {
@@ -105,7 +88,7 @@ async function apiLogin(){
     });
     const data = await r.json();
     if(!data.ok) throw new Error(data.error || 'Could not save score');
-    return data; // { credits: newBalance }
+    return data;
   }
   async function apiLeaderboard(){
     const r = await fetch('/api/leaderboard');
@@ -131,9 +114,7 @@ async function apiLogin(){
   };
 })();
 
-/* ---- Plan definitions (shared across pages) ----
-   Designed per the owner's spec; Investor tier proposed.
-   Pricing shown as placeholders [P] — owner to confirm. */
+/* ---- Plan definitions (shared across pages) ---- */
 const PLANS = {
   trial: {
     name:'Course Trial',
@@ -197,10 +178,6 @@ const PLANS = {
     ],
   },
 };
-
-/* ---- Reward ladder (shared) — internal rewards only, no cash/gift cards.
-   Conversion mirrors the game: ~1,000 credits ≈ $1 of internal value. */
-
 
 /* ---- shared UI helpers ---- */
 function el(tag, attrs={}, html){

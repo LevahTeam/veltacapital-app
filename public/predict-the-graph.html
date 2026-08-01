@@ -164,9 +164,6 @@
   const W=760,H=420,PADL=10,PADR=54,PADT=12;
   const PRICE_H=300, VOL_TOP=320, VOL_H=88; // price panel + volume panel
 
-  // ---- Credit / rewards system ----
-  // Conversion matches the uploaded table: 1,000 credits = $1 of real reward
-  // value, i.e. a ~10% payout rate vs. typical spend. Fully transparent.
   const CREDITS_PER_DOLLAR=1000;
   const REWARDS=[
     {name:'Sticker / coupon',      credits:500,   value:0.50},
@@ -176,11 +173,8 @@
     {name:'$10 gift card',         credits:10000, value:10.00},
     {name:'$25 gift card / premium',credits:25000,value:25.00},
   ];
-  // Earning model: skill-based. A round pays out credits scaled by score,
-  // with a streak multiplier for consecutive good reads. Honest incentive —
-  // better prediction = more credits, nothing hidden.
-  const BASE_EARN=40;          // credits at 100/100 on a single round
-  const STREAK_STEP=0.15;      // +15% per round in a 60+ streak, capped
+  const BASE_EARN=40;
+  const STREAK_STEP=0.15;
   const STREAK_CAP=2.0;
   let credits=0, streak=0;
   const svg=document.getElementById('svg'), stage=document.getElementById('stage'), hint=document.getElementById('hint');
@@ -192,7 +186,6 @@
         elWhy=document.getElementById('why'), elModal=document.getElementById('modal'),
         elLadder=document.getElementById('ladder-body');
 
-  // ---- synthetic OHLCV fallback so it runs before rounds.json exists ----
   function fakeWindow(seed,n,start,drift,vol){
     let s=seed; const r=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
     const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.2831853*r());
@@ -212,12 +205,12 @@
 
   let DATA=FALLBACK, order=[], ptr=0, seen=new Set();
   let candles=[], closes=[], splitIdx=0, histFrac=0.6, yMin=0, yMax=1, vMax=1;
-  let guessPts=[], scores=[], revealed=false, revealCount=0; let sessionRounds=[];   // recap accumulator: one entry per completed round
+  let guessPts=[], scores=[], revealed=false, revealCount=0; let sessionRounds=[];
   const NEED=5;
 
   const n=()=>candles.length;
   const xCenter=i=> PADL + (i+0.5)*((W-PADL-PADR)/n());
-  const cw=()=> (W-PADL-PADR)/n() * 0.64; // candle body width
+  const cw=()=> (W-PADL-PADR)/n() * 0.64;
   const yToPx=v=> PADT + (1-(v-yMin)/(yMax-yMin))*PRICE_H;
   const pxToVal=py=> yMin + (1-(py-PADT)/PRICE_H)*(yMax-yMin);
   const xToIdx=px=> (px-PADL)/((W-PADL-PADR)/n()) - 0.5;
@@ -251,7 +244,6 @@
     candles=r.candles.map(c=>c.slice());
     closes=r.series?r.series.slice():candles.map(c=>c[3]);
     splitIdx=Math.floor(candles.length*histFrac);
-    // y-range from full window so the reveal doesn't rescale jarringly
     let lo=Infinity,hi=-Infinity,vm=0;
     candles.forEach(c=>{lo=Math.min(lo,c[2]);hi=Math.max(hi,c[1]);vm=Math.max(vm,c[4]);});
     const pad=(hi-lo)*0.08; yMin=lo-pad; yMax=hi+pad; vMax=vm*1.05;
@@ -273,45 +265,35 @@
     const col=up?'var(--up)':'var(--down)';
     const o=yToPx(c[0]),cl=yToPx(c[3]),hi=yToPx(c[1]),lo=yToPx(c[2]);
     const op=ghost?0.0:1;
-    // wick
     svg.appendChild(el('line',{x1:x,y1:hi,x2:x,y2:lo,stroke:col,'stroke-width':1.2,opacity:op}));
-    // body
     const top=Math.min(o,cl), bh=Math.max(1.2,Math.abs(cl-o));
     svg.appendChild(el('rect',{x:x-w/2,y:top,width:w,height:bh,fill:col,opacity:op,rx:0.5}));
-    // volume bar
     svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:(VOL_TOP+VOL_H)-volY(c[4]),
       fill:col,opacity:(ghost?0:0.45)}));
   }
 
   function render(upTo){
     svg.innerHTML='';
-    const shown = (upTo===undefined)? splitIdx : upTo; // how many candles are visible
-    // gridlines (price)
+    const shown = (upTo===undefined)? splitIdx : upTo;
     for(let g=0;g<=4;g++){const y=PADT+g*PRICE_H/4;
       svg.appendChild(el('line',{x1:PADL,y1:y,x2:W-PADR,y2:y,stroke:'var(--grid)','stroke-width':1}));
       const val=yMax-(yMax-yMin)*g/4;
       svg.appendChild(el('text',{x:W-PADR+4,y:y+3,fill:'var(--axis)','font-size':10,'font-family':'monospace'})).textContent=val.toFixed(val>50?0:2);
     }
-    // volume panel baseline + label
     svg.appendChild(el('line',{x1:PADL,y1:VOL_TOP+VOL_H,x2:W-PADR,y2:VOL_TOP+VOL_H,stroke:'var(--grid)','stroke-width':1}));
     svg.appendChild(el('text',{x:PADL+2,y:VOL_TOP-3,fill:'var(--axis)','font-size':9,'font-family':'monospace'})).textContent='Volume';
-    // future zone shading
     const zx=xCenter(splitIdx)-cw()/2-2;
     svg.appendChild(el('rect',{x:zx,y:PADT,width:(W-PADR)-zx,height:PRICE_H,fill:'#1b2736','fill-opacity':0.5}));
     svg.appendChild(el('line',{x1:zx,y1:PADT,x2:zx,y2:VOL_TOP+VOL_H,stroke:'var(--muted)','stroke-width':1,'stroke-dasharray':'4 4'}));
 
-    // candles up to `shown`
     for(let i=0;i<shown;i++) drawCandle(candles[i],i,false);
 
-    // future volume in GREY (price hidden) for candles not yet revealed —
-    // switches to real up/down color as each candle reveals.
     for(let i=shown;i<candles.length;i++){
       const c=candles[i], x=xCenter(i), w=cw();
       svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:(VOL_TOP+VOL_H)-volY(c[4]),
         fill:'#7c8696',opacity:0.40}));
     }
 
-    // prediction points + line + bands
     if(guessPts.length>=1){
       const sorted=guessPts.slice().sort((a,b)=>a.x-b.x);
       const bf=band();
@@ -324,22 +306,21 @@
     }
   }
 
-  // ---- input ----
   function evtX(e){const r=stage.getBoundingClientRect();return((e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX)-r.left)/r.width*W;}
   function evtY(e){const r=stage.getBoundingClientRect();return((e.touches&&e.touches[0]?e.touches[0].clientY:e.clientY)-r.top)/r.height*H;}
   function placePoint(e){
     if(revealed)return;
     const px=evtX(e), py=evtY(e);
     let xi=Math.round(xToIdx(px));
-    if(xi<splitIdx)return;                 // only future zone
+    if(xi<splitIdx)return;
     xi=Math.max(splitIdx,Math.min(candles.length-1,xi));
-    if(py<PADT||py>PADT+PRICE_H)return;    // ignore taps in volume area
+    if(py<PADT||py>PADT+PRICE_H)return;
     const v=Math.max(yMin,Math.min(yMax,pxToVal(py)));
     const hitR=16;
     const hit=guessPts.findIndex(p=>Math.abs(xCenter(p.x)-px)<hitR&&Math.abs(yToPx(p.y)-py)<hitR);
     if(hit>=0){guessPts.splice(hit,1);}
     else{
-      const exists=guessPts.findIndex(p=>p.x===xi);   // one point per candle slot
+      const exists=guessPts.findIndex(p=>p.x===xi);
       if(exists>=0)guessPts[exists].y=v;
       else if(guessPts.length<NEED)guessPts.push({x:xi,y:v});
       else return;
@@ -356,35 +337,62 @@
   }
   stage.addEventListener('click',function(e){placePoint(e);});
 
-  // ---- reveal candle-by-candle ----
   function actualClose(x){const i=Math.round(x);return closes[Math.max(0,Math.min(closes.length-1,i))];}
+
+  // ===== options simulation (Black-Scholes, at-the-money) =====
+  function normCDF(x){const t=1/(1+0.2316419*Math.abs(x));const d=0.3989422804014327*Math.exp(-x*x/2);
+    let p=d*t*(0.31938153+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));return x>0?1-p:p;}
+  function bsPrice(type,S,K,T,r,sigma){
+    if(T<=0||sigma<=0){return type==='call'?Math.max(0,S-K):Math.max(0,K-S);}
+    const d1=(Math.log(S/K)+(r+sigma*sigma/2)*T)/(sigma*Math.sqrt(T));const d2=d1-sigma*Math.sqrt(T);
+    if(type==='call')return S*normCDF(d1)-K*Math.exp(-r*T)*normCDF(d2);
+    return K*Math.exp(-r*T)*normCDF(-d2)-S*normCDF(-d1);}
+  function realizedVol(cl){const rets=[];for(let i=1;i<cl.length;i++)rets.push(Math.log(cl[i]/cl[i-1]));
+    if(rets.length<2)return 0.3;
+    const mean=rets.reduce((a,b)=>a+b,0)/rets.length;
+    const varc=rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/Math.max(1,rets.length-1);
+    return Math.sqrt(varc)*Math.sqrt(252);}
+  function simulateOptions(guessedUp){
+    const S=closes[splitIdx-1], endV=closes[closes.length-1];
+    const daysToExp=(closes.length-1)-(splitIdx-1);
+    const T=Math.max(1/252,daysToExp/252), r=0.04;
+    let sigma=realizedVol(closes.slice(0,splitIdx));
+    if(!isFinite(sigma)||sigma<0.10)sigma=0.10;
+    if(sigma>2)sigma=2;
+    const type=guessedUp?'call':'put';
+    const K=S; // at-the-money
+    let premium=bsPrice(type,S,K,T,r,sigma);
+    if(premium<0.05)premium=0.05;
+    const contracts=100/premium;
+    const payoff=type==='call'?Math.max(0,endV-K):Math.max(0,K-endV);
+    const finalValue=contracts*payoff;
+    const movePct=((endV-S)/S*100);
+    return {type,S,K,endV,daysToExp,sigma,premium,finalValue,pl:finalValue-100,movePct};
+  }
+
   function scoreGuess(){
     const sorted=guessPts.slice().sort((a,b)=>a.x-b.x); const bf=band();
-    // Smooth, distance-based credit per point — no cliffs. A point dead-on the
-    // real close scores 1.0; credit falls off gradually with distance, reaching
-    // 0 at 3× the tolerance band. Closer is ALWAYS better.
     let ptSum=0, inBand=0, errSum=0;
     sorted.forEach(p=>{
       const a=actualClose(p.x);
       const tol=a*bf;
       const dist=Math.abs(p.y-a);
       if(dist<=tol)inBand++;
-      const credit=Math.max(0, 1 - dist/(tol*3));  // 1 at dist 0, 0 at 3*tol
+      const credit=Math.max(0, 1 - dist/(tol*3));
       ptSum+=credit;
-      errSum += Math.abs(p.y - a) / a;   // fractional error for this point
+      errSum += Math.abs(p.y - a) / a;
     });
-    const shape=ptSum/sorted.length;               // 0..1 smooth
+    const shape=ptSum/sorted.length;
     const startV=closes[splitIdx-1], endV=closes[closes.length-1];
     const actualUp=endV>=startV, guessUp=sorted[sorted.length-1].y>=startV;
     const dir=actualUp===guessUp?1:0;
-    // hypothetical: $100 at the split, held to the end, only if you called "up"
     const guessedUp = guessUp;
-    const hypo = guessedUp ? 100 * (endV / startV) : 100;
-    const meanErrPct = (errSum / sorted.length) * 100;   // average % off
+    const opt = simulateOptions(guessedUp);   // options sim replaces buy-and-hold
+    const meanErrPct = (errSum / sorted.length) * 100;
     return {
       pct: Math.round((0.4*dir+0.6*shape)*100),
       dir, inBand, total: sorted.length, actualUp,
-      guessedUp, startV, endV, hypo, meanErrPct,
+      guessedUp, startV, endV, opt, meanErrPct,
     };
   }
   function doReveal(){
@@ -407,7 +415,6 @@
     elScore.textContent=avg;
     const grade=s.pct>=80?'Sharp read.':s.pct>=60?'Good read.':s.pct>=40?'Partly there.':'Market disagreed.';
 
-    // ---- credits: banded by average distance from the actual closes ----
     function creditsFor(errPct){
       if(errPct <= 2)  return 100;
       if(errPct <= 5)  return 50;
@@ -419,41 +426,56 @@
     credits += earned;
     renderCredits();
     flashEarn(earned);
-elVerdict.style.display='block';
-elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100'+
+    elVerdict.style.display='block';
+    elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100'+
       '<span class="ptg-earn show" id="earn">+'+earned+' credits earned</span></div>'+
       '<div class="detail">Average read was <b>'+s.meanErrPct.toFixed(1)+'%</b> off &middot; direction '+
       (s.dir?'correct':'missed')+' &middot; '+s.inBand+' of '+s.total+
       ' points inside the band &middot; actual move was '+(s.actualUp?'up':'down')+'.</div>';
 
-    const pl = s.hypo - 100;
-    const sign = pl >= 0 ? '+' : '';
-    const verb = s.guessedUp
-      ? 'You read the move as up, so this buys at the split and holds to the end of the window.'
-      : 'You read the move as down, so this stays in cash — no position taken.';
-
+    // ---- options hypothetical ----
+    const o = s.opt;
+    const won = o.finalValue > 100;
+    const plColor = o.pl>=0 ? '#3FB950' : '#F0616D';
+    const sign = o.pl>=0 ? '+' : '';
+    const typeLabel = o.type==='call' ? 'call option' : 'put option';
+    const dirWord = o.type==='call' ? 'rise above' : 'fall below';
+    // plain-English explanation of the result
+    let explain;
+    if(won){
+      explain = 'You predicted '+(o.type==='call'?'up':'down')+', so this buys a '+typeLabel+
+        ' at the $'+o.S.toFixed(2)+' strike. The stock '+(o.movePct>=0?'rose':'fell')+' '+
+        Math.abs(o.movePct).toFixed(1)+'% to $'+o.endV.toFixed(2)+' by expiry — '+
+        (o.type==='call'?'above':'below')+' the strike — so the option finished in the money.';
+    } else {
+      explain = 'You predicted '+(o.type==='call'?'up':'down')+', so this buys a '+typeLabel+
+        ' at the $'+o.S.toFixed(2)+' strike. For it to pay off, the stock needed to '+dirWord+
+        ' $'+o.K.toFixed(2)+' by expiry. It closed at $'+o.endV.toFixed(2)+' ('+
+        (o.movePct>=0?'+':'')+o.movePct.toFixed(1)+'%), so the option expired worthless.';
+    }
     elVerdict.innerHTML +=
       '<div class="hypo">' +
-        '<div class="hypo-head">If you had put $100 in at the split</div>' +
-        '<div class="hypo-num">$' + s.hypo.toFixed(2) +
-          ' <span class="hypo-pl" style="color:' + (pl>=0?'#3FB950':'#F0616D') + '">' +
-          sign + '$' + pl.toFixed(2) + '</span></div>' +
-        '<div class="hypo-rule">' + verb + '</div>' +
-        '<div class="hypo-disc">Hypothetical result on historical data. Ignores commissions, ' +
-          'slippage, spreads, and taxes. Not a prediction and not investment advice.</div>' +
+        '<div class="hypo-head">If you had put $100 into a '+o.daysToExp+'-day '+typeLabel+' at the split</div>' +
+        '<div class="hypo-num">$' + o.finalValue.toFixed(2) +
+          ' <span class="hypo-pl" style="color:' + plColor + '">' +
+          sign + '$' + o.pl.toFixed(2) + '</span></div>' +
+        '<div class="hypo-rule">' + explain + '</div>' +
+        '<div class="hypo-disc">Simulated at-the-money option using Black-Scholes with volatility (' +
+          (o.sigma*100).toFixed(0) + '% annualized) estimated from the chart\'s own history; ' +
+          'expiry set to the end of the reveal window, ~4% risk-free rate. ' +
+          'A model, not a live quote. Ignores commissions, spreads, slippage, early exercise, and taxes. ' +
+          'Hypothetical result on historical data — not a prediction and not investment advice.</div>' +
       '</div>';
     showWhy();
 
-    // ---- site integration: notify parent page with the full result ----
-    // Harmless when the game runs standalone (no parent listening).
-    // ---- record this round for the session recap ----
     const _r = DATA.rounds[order[ptr]];
-    const _marketHypo = 100 * (s.endV / s.startV);   // buy-and-hold baseline
+    const _marketHypo = 100 * (s.endV / s.startV);
     sessionRounds.push({
       symbol: (_r && _r.asset) ? _r.asset : '—',
       guessedUp: s.guessedUp,
       actualUp: s.actualUp,
-      hypo: s.hypo,
+      optValue: o.finalValue,
+      optType: o.type,
       marketHypo: _marketHypo,
       meanErrPct: s.meanErrPct,
       dirCorrect: s.dir === 1,
@@ -473,10 +495,9 @@ elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100
       }
     }catch(e){}
 
-elNext.style.display='inline-block';   // pool reshuffles when exhausted
+    elNext.style.display='inline-block';
   }
 
-  // ---- "Why it moved" — explains the future move using course concepts ----
   function sma(arr,end,len){let s=0,k=0;for(let i=Math.max(0,end-len);i<end;i++){s+=arr[i];k++;}return k?s/k:arr[end-1];}
   function showWhy(){
     const fut=candles.slice(splitIdx);
@@ -486,7 +507,6 @@ elNext.style.display='inline-block';   // pool reshuffles when exhausted
     const histHi=Math.max.apply(null,closes.slice(0,splitIdx));
     const histLo=Math.min.apply(null,closes.slice(0,splitIdx));
     const ma20prev=sma(closes,splitIdx,20), ma20now=sma(closes,closes.length,20);
-    // biggest single future candle by range, and its volume vs median
     let bigI=0,bigRange=0; fut.forEach((c,i)=>{const r=c[1]-c[2];if(r>bigRange){bigRange=r;bigI=i;}});
     const vols=candles.map(c=>c[4]).slice().sort((a,b)=>a-b);
     const medVol=vols[Math.floor(vols.length/2)];
@@ -519,13 +539,12 @@ elNext.style.display='inline-block';   // pool reshuffles when exhausted
       'Note: short-horizon moves are partly noise — these are the readable structural reasons, not a guarantee any single signal caused it.</div>';
   }
 
-  // ---- credits UI ----
   function renderCredits(){
     elBal.innerHTML=credits.toLocaleString()+' <small>CREDITS</small>';
     elStreak.innerHTML=streak>=2?('🔥 streak <b>'+streak+'</b>'):'';
     renderLadder();
   }
-  function flashEarn(n){ /* earn shown inline in verdict; balance pulses */
+  function flashEarn(n){
     elBal.animate?elBal.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:420}):0;
   }
   function renderLadder(){
@@ -552,21 +571,17 @@ elNext.style.display='inline-block';   // pool reshuffles when exhausted
     const rounds = sessionRounds.slice(-5);
     const dirHits = rounds.filter(r=>r.dirCorrect).length;
     const avgErr = rounds.reduce((a,r)=>a+r.meanErrPct,0)/rounds.length;
-    const beatCash = rounds.filter(r=>r.hypo > r.marketHypo || (r.hypo>=100 && r.marketHypo<100)).length;
-    // "beat holding": your result was at least as good as buy-and-hold
-    const beatHold = rounds.filter(r=>r.hypo >= r.marketHypo).length;
+    const optWins = rounds.filter(r=>r.optValue > 100).length;
 
     let rows = rounds.map((r,i)=>{
-      const yourPl = r.hypo - 100;
-      const mktPl  = r.marketHypo - 100;
+      const optPl = r.optValue - 100;
       const col = v => v>=0 ? '#3FB950' : '#F0616D';
       return '<tr>'+
         '<td>'+(i+1)+'</td>'+
         '<td>'+r.symbol+'</td>'+
-        '<td>'+(r.guessedUp?'Up':'Down')+'</td>'+
+        '<td>'+(r.guessedUp?'Up (call)':'Down (put)')+'</td>'+
         '<td>'+(r.actualUp?'Up':'Down')+(r.dirCorrect?' ✓':' ✗')+'</td>'+
-        '<td style="color:'+col(yourPl)+'">$'+r.hypo.toFixed(2)+'</td>'+
-        '<td style="color:'+col(mktPl)+'">$'+r.marketHypo.toFixed(2)+'</td>'+
+        '<td style="color:'+col(optPl)+'">$'+r.optValue.toFixed(2)+'</td>'+
         '</tr>';
     }).join('');
 
@@ -575,13 +590,13 @@ elNext.style.display='inline-block';   // pool reshuffles when exhausted
       '<div class="grade">Session recap &mdash; 5 charts</div>'+
       '<div class="recap-wrap"><table class="recap">'+
         '<thead><tr><th>#</th><th>Chart</th><th>Your call</th><th>Actual</th>'+
-        '<th>Your $100</th><th>Buy &amp; hold</th></tr></thead>'+
+        '<th>Your $100 option</th></tr></thead>'+
         '<tbody>'+rows+'</tbody>'+
       '</table></div>'+
       '<div class="detail" style="margin-top:10px">'+
         'Direction called correctly: <b>'+dirHits+' of '+rounds.length+'</b> &middot; '+
         'average read <b>'+avgErr.toFixed(1)+'%</b> off &middot; '+
-        'matched or beat buy-and-hold in <b>'+beatHold+' of '+rounds.length+'</b>.'+
+        'options finished in the money in <b>'+optWins+' of '+rounds.length+'</b>.'+
       '</div>'+
       '<div class="hypo-disc" style="margin-top:10px">Hypothetical results on historical data. '+
         'Not a prediction and not investment advice. Skill here does not indicate real trading results.</div>'+
@@ -596,7 +611,7 @@ elNext.style.display='inline-block';   // pool reshuffles when exhausted
     });
     elVerdict.scrollIntoView({behavior:'smooth', block:'start'});
   }
-function advanceChart(){
+  function advanceChart(){
     ptr++;
     if(ptr>=order.length){
       order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);

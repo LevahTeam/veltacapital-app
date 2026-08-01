@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VeltaCapital — Publish Report (Admin)</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060809; --bg-1:#0B0F12; --bg-2:#12181D; --line:#1B2329; --line-2:#273139;
+  --fg:#EAF2F0; --fg-dim:#9FB0AE; --fg-mute:#5F6F6D; --up:#2BD37F; --down:#E5573C;
+  --maxw:720px; --r:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;line-height:1.6}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:40px 24px 80px}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:32px;margin:0 0 6px}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:22px;margin:48px 0 4px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-mute)}
+.sub{color:var(--fg-dim);font-size:15px;margin:0 0 28px}
+label{display:block;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg-mute);margin:18px 0 7px}
+input,textarea{width:100%;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;color:var(--fg);font-family:'Inter',sans-serif;font-size:15px;padding:12px 14px}
+input:focus,textarea:focus{outline:none;border-color:var(--up)}
+textarea{min-height:280px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:14px}
+.row .ticker-field{flex:0 0 160px}
+.actions{margin-top:24px;display:flex;gap:12px;align-items:center}
+.btn{font-family:'Inter',sans-serif;font-weight:600;font-size:15px;padding:13px 26px;border-radius:100px;border:1px solid transparent;cursor:pointer;transition:.2s;text-decoration:none;display:inline-block}
+.btn.solid{background:var(--up);color:#04110B}
+.btn.solid:hover{box-shadow:0 0 30px rgba(43,211,127,.25)}
+.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--fg-dim)}
+.msg{margin-top:18px;padding:13px 16px;border-radius:8px;font-size:14px;display:none}
+.msg.ok{display:block;background:rgba(43,211,127,.1);border:1px solid var(--up);color:var(--up)}
+.msg.err{display:block;background:rgba(229,87,60,.1);border:1px solid var(--down);color:var(--down)}
+.hint{font-size:12px;color:var(--fg-mute);margin-top:5px}
+.checkbox-row{display:flex;align-items:center;gap:9px;margin-top:18px}
+.checkbox-row input{width:auto}
+.checkbox-row label{margin:0;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:14px;color:var(--fg-dim)}
+
+/* report list */
+.list{margin-top:16px;display:grid;gap:12px}
+.item{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.item .meta{flex:1;min-width:0}
+.item .tk{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--up);font-weight:600}
+.item .ti{font-size:15px;color:var(--fg);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .dt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg-mute);margin-top:2px}
+.item .draft{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-mute);border:1px solid var(--line-2);border-radius:100px;padding:2px 8px;margin-left:8px}
+.del{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:100px;border:1px solid var(--down);background:transparent;color:var(--down);cursor:pointer;flex:0 0 auto}
+.del:hover{background:rgba(229,87,60,.12)}
+.list-empty{color:var(--fg-mute);font-style:italic;font-size:14px;padding:12px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Admin</p>
+  <h1>Publish a weekly report</h1>
+  <p class="sub">Only your account can publish. Reports appear on the public reports page.</p>
+
+  <label for="ticker">Ticker</label>
+  <div class="row">
+    <div class="ticker-field">
+      <input id="ticker" placeholder="AAPL" maxlength="10" autocapitalize="characters">
+    </div>
+  </div>
+
+  <label for="title">Headline</label>
+  <input id="title" placeholder="What happened with Apple this week" maxlength="200">
+
+  <label for="body">Report</label>
+  <textarea id="body" placeholder="Write the news and how to read it. Plain English. Educational — describe what's happening and what to watch, not buy/sell calls."></textarea>
+  <p class="hint">Line breaks are preserved. Keep it educational — reporting events and how to read them, not recommendations.</p>
+
+  <div class="checkbox-row">
+    <input type="checkbox" id="published" checked>
+    <label for="published">Publish immediately (uncheck to save as a hidden draft)</label>
+  </div>
+
+  <div class="actions">
+    <button class="btn solid" id="publish">Publish report</button>
+    <a class="btn ghost" href="reports.html">View reports page</a>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <!-- existing reports with delete -->
+  <h2>Your reports</h2>
+  <p class="sub" style="margin-bottom:0">Everything you've posted, including hidden drafts. Delete is permanent.</p>
+  <div class="list" id="list"><div class="list-empty">Loading…</div></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ---- publish ----
+$('publish').addEventListener('click', async ()=>{
+  const msg = $('msg');
+  msg.className = 'msg'; msg.textContent = '';
+  const ticker = $('ticker').value.trim();
+  const title  = $('title').value.trim();
+  const body   = $('body').value.trim();
+  const published = $('published').checked;
+
+  if(!ticker || !title || !body){
+    msg.className = 'msg err';
+    msg.textContent = 'Ticker, headline, and report text are all required.';
+    return;
+  }
+  $('publish').disabled = true; $('publish').textContent = 'Publishing…';
+  try{
+    const r = await fetch('/api/reports', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ticker, title, body, published }),
+    });
+    const data = await r.json();
+    if(r.status === 403){
+      msg.className = 'msg err';
+      msg.textContent = 'Not authorized — this account is not the admin.';
+    } else if(!data.ok){
+      msg.className = 'msg err';
+      msg.textContent = data.error || 'Could not publish.';
+    } else {
+      msg.className = 'msg ok';
+      msg.textContent = '✓ Published "'+data.report.title+'" ('+data.report.ticker+').';
+      $('ticker').value=''; $('title').value=''; $('body').value='';
+      loadList(); // refresh the list to show the new one
+    }
+  }catch(err){
+    msg.className = 'msg err';
+    msg.textContent = 'Network error — please try again.';
+  }finally{
+    $('publish').disabled = false; $('publish').textContent = 'Publish report';
+  }
+});
+
+// ---- list + delete ----
+async function loadList(){
+  const host = $('list');
+  try{
+    const r = await fetch('/api/reports');
+    const data = await r.json();
+    if(!data.ok || !data.reports || !data.reports.length){
+      host.innerHTML = '<div class="list-empty">No reports yet.</div>';
+      return;
+    }
+    host.innerHTML = data.reports.map(rep=>{
+      const d = new Date(rep.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+      const draft = rep.published ? '' : '<span class="draft">DRAFT</span>';
+      return '<div class="item" data-id="'+rep.id+'">'+
+        '<div class="meta">'+
+          '<div class="tk">'+esc(rep.ticker)+draft+'</div>'+
+          '<div class="ti">'+esc(rep.title)+'</div>'+
+          '<div class="dt">'+d+'</div>'+
+        '</div>'+
+        '<button class="del" data-id="'+rep.id+'" data-title="'+esc(rep.title)+'">Delete</button>'+
+      '</div>';
+    }).join('');
+    // wire delete buttons
+    host.querySelectorAll('.del').forEach(btn=>{
+      btn.addEventListener('click', ()=>deleteReport(btn.dataset.id, btn.dataset.title, btn));
+    });
+  }catch(err){
+    host.innerHTML = '<div class="list-empty">Could not load reports.</div>';
+  }
+}
+
+async function deleteReport(id, title, btn){
+  if(!confirm('Delete "'+title+'"? This cannot be undone.')) return;
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try{
+    const r = await fetch('/api/reports?id='+encodeURIComponent(id), { method:'DELETE' });
+    const data = await r.json();
+    if(r.status === 403){
+      alert('Not authorized.');
+      btn.disabled=false; btn.textContent='Delete';
+    } else if(!data.ok){
+      alert(data.error || 'Could not delete.');
+      btn.disabled=false; btn.textContent='Delete';
+    } else {
+      // remove the row
+      const row = btn.closest('.item'); if(row) row.remove();
+      if(!$('list').querySelector('.item')){ $('list').innerHTML='<div class="list-empty">No reports yet.</div>'; }
+    }
+  }catch(err){
+    alert('Network error.');
+    btn.disabled=false; btn.textContent='Delete';
+  }
+}
+
+loadList();
+</script>
+</body>
+</html>

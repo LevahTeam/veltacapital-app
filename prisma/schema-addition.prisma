@@ -1,0 +1,15 @@
+// ---- ADD this model to your schema.prisma ----
+// Records Stripe event IDs we've already handled, so a duplicate webhook
+// delivery can't grant a plan twice. The webhook does `create({ id })`;
+// the unique primary key makes a repeat insert fail, which we catch.
+model ProcessedStripeEvent {
+  id          String   @id            // Stripe's event id (evt_...)
+  processedAt DateTime @default(now())
+}
+
+// Note: your existing User model already has every field the webhook needs
+// (plan, simRunsLeft, unlimitedSims, canRedeem, earnMult, credits, and the
+// creditEvents relation). No changes to User are required for this to work.
+// You could OPTIONALLY add `stripeCustomerId String? @unique` later if you
+// want to link users to Stripe customers for receipts/refunds, but it's not
+// needed for the purchase flow itself.

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VeltaCapital — Weekly Reports</title>
+<meta name="description" content="Weekly stock reports: what's happening and how to read it. Educational, not financial advice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060809; --bg-1:#0B0F12; --bg-2:#12181D; --line:#1B2329; --line-2:#273139;
+  --fg:#EAF2F0; --fg-dim:#9FB0AE; --fg-mute:#5F6F6D;
+  --up:#2BD37F; --up-2:#19E6C3; --down:#E5573C;
+  --maxw:920px; --r:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+a{color:var(--up);text-decoration:none}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.1;margin:0}
+.mono{font-family:'JetBrains Mono',monospace}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-mute)}
+
+header.top{border-bottom:1px solid var(--line);padding:20px 0;position:sticky;top:0;background:rgba(6,8,9,.8);backdrop-filter:blur(10px);z-index:10}
+.top-in{display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:'Fraunces',serif;font-weight:600;font-size:19px}
+.top-nav a{color:var(--fg-dim);font-size:14px;margin-left:22px}
+.top-nav a:hover{color:var(--fg)}
+
+.hero{padding:56px 0 24px}
+.hero h1{font-size:clamp(32px,5vw,52px)}
+.hero p{color:var(--fg-dim);font-size:17px;margin:16px 0 0;max-width:40em}
+
+.reports{padding:24px 0 60px;display:grid;gap:20px}
+.report{background:linear-gradient(180deg,var(--bg-2),var(--bg-1));border:1px solid var(--line);border-radius:18px;padding:28px;transition:border-color .3s,transform .3s}
+.report:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.report-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ticker{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--up);
+  background:rgba(43,211,127,.08);border:1px solid var(--line-2);padding:5px 11px;border-radius:100px}
+.date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg-mute)}
+.report h2{font-size:24px;margin:0 0 12px}
+.report .body{color:var(--fg-dim);font-size:15.5px;line-height:1.75;white-space:pre-wrap}
+
+.empty{color:var(--fg-mute);text-align:center;padding:60px 20px;font-style:italic}
+.loading{color:var(--fg-mute);text-align:center;padding:60px 20px;font-family:'JetBrains Mono',monospace;font-size:13px}
+
+.disclaim{border-top:1px solid var(--line);padding:24px 0 60px;font-size:12px;color:var(--fg-mute);line-height:1.7}
+.disclaim strong{color:var(--fg-dim)}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap top-in">
+  <a class="brand" href="index.html">VeltaCapital</a>
+  <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="member.html">My account</a>
+  </nav>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <p class="eyebrow">Weekly Reports</p>
+  <h1>What's moving, and how to read it.</h1>
+  <p>Each week, a plain-English look at one stock — the news around it and the setup on the chart. Written to teach, not to tip.</p>
+</div></section>
+
+<section class="wrap"><div class="reports" id="reports">
+  <div class="loading" id="loading">Loading reports…</div>
+</div></section>
+
+<div class="disclaim"><div class="wrap">
+  <strong>Educational disclaimer.</strong>
+  These reports are educational commentary, not financial advice, investment recommendations, or guarantees of any outcome. They describe publicly reported events and how to read a chart. Nothing here is a recommendation to buy or sell any security. Markets carry risk; consult a licensed professional before making investment decisions.
+</div></div>
+
+<script>
+async function loadReports(){
+  const host = document.getElementById('reports');
+  const loading = document.getElementById('loading');
+  try{
+    const r = await fetch('/api/reports');
+    const data = await r.json();
+    loading.remove();
+    if(!data.ok || !data.reports || !data.reports.length){
+      host.innerHTML = '<div class="empty">No reports published yet — check back soon.</div>';
+      return;
+    }
+    host.innerHTML = data.reports.map(rep=>{
+      const d = new Date(rep.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+      return '<article class="report">'+
+        '<div class="report-top">'+
+          '<span class="ticker">'+esc(rep.ticker)+'</span>'+
+          '<span class="date">'+d+'</span>'+
+        '</div>'+
+        '<h2>'+esc(rep.title)+'</h2>'+
+        '<div class="body">'+esc(rep.body)+'</div>'+
+      '</article>';
+    }).join('');
+  }catch(err){
+    loading.textContent = 'Could not load reports. Please refresh.';
+  }
+}
+// escape user/admin text so report content can't inject HTML
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+loadReports();
+</script>
+</body>
+</html>
