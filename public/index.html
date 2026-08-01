@@ -525,12 +525,12 @@ main,header,footer{position:relative;z-index:1}
         '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
         '<p style="color:var(--fg-dim);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
         '<ul>'+p.features.map(f=>'<li><span class="ic">&check;</span><span>'+f+'</span></li>').join('')+'</ul>'+
-        '<a class="btn '+(feat?'solid':'ghost')+'" style="justify-content:center" href="#" data-buy="'+key+'">Choose '+p.name+'</a>';
+        '<a class="btn '+(feat?'solid':'ghost')+'" style="justify-content:center" href="'+(p.paymentLink||'#')+'" target="_blank" rel="noopener" data-buy="'+key+'">Choose '+p.name+'</a>';
       host.appendChild(card);
     });
     host.addEventListener('click',e=>{
-      const b=e.target.closest('[data-buy]'); if(!b)return; e.preventDefault();
-      openLogin();
+      const b=e.target.closest('[data-buy]'); if(!b)return;
+      // the button is now a real link to Stripe Checkout — let it navigate.
     });
   })();
 
