@@ -192,17 +192,9 @@ function el(tag, attrs={}, html){
 }
 function fmt(n){ return n.toLocaleString(); }
 
-/* ---- VeltaCapital wordmark / candle motif (inline SVG) ---- */
+
 function veltaMark(){
-  return `<svg class="mark" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-    <rect x="3"  y="9"  width="4" height="10" rx="1" fill="#16A36A"/>
-    <line x1="5"  y1="5"  x2="5"  y2="9"  stroke="#16A36A" stroke-width="1.4"/>
-    <line x1="5"  y1="19" x2="5"  y2="22" stroke="#16A36A" stroke-width="1.4"/>
-    <rect x="11" y="6"  width="4" height="8"  rx="1" fill="#D8503C"/>
-    <line x1="13" y1="3"  x2="13" y2="6"  stroke="#D8503C" stroke-width="1.4"/>
-    <line x1="13" y1="14" x2="13" y2="18" stroke="#D8503C" stroke-width="1.4"/>
-    <rect x="19" y="8"  width="4" height="11" rx="1" fill="#E0A21A"/>
-    <line x1="21" y1="4"  x2="21" y2="8"  stroke="#E0A21A" stroke-width="1.4"/>
-    <line x1="21" y1="19" x2="21" y2="23" stroke="#E0A21A" stroke-width="1.4"/>
-  </svg>`;
+  return '<img src="assets/img/logo-mark.png" alt="VeltaCapital" ' +
+         'style="height:36px;width:auto;display:block" />';
 }
+
