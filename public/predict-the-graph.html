@@ -227,13 +227,29 @@
     boot();
   }).catch(()=>boot());
 
-  function boot(){
+async function boot(){
     DATA.sourceShort = DATA.sourceShort || (DATA.source==='real market data' ? 'market data' : 'demo data');
     DATA.timeframe = DATA.timeframe || '1D';
     document.getElementById('m-source').textContent=DATA.source;
     histFrac=DATA.history_frac||0.6;
-    order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
-    ptr=0; seen=new Set(); scores=[]; elScore.textContent='\u2014';
+
+    // Try to restore saved progress (DB for member, localStorage for trial)
+    let restored = false;
+    try {
+      const saved = await loadProgress();
+      if (isValidSaved(saved)) {
+        order = saved.order;
+        ptr = saved.ptr;
+        sessionRounds = Array.isArray(saved.sessionRounds) ? saved.sessionRounds : [];
+        restored = true;
+      }
+    } catch(e){ /* fall through to fresh start */ }
+
+    if (!restored) {
+      order = DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
+      ptr = 0; sessionRounds = [];
+    }
+    seen = new Set(); scores=[]; elScore.textContent='\u2014';
     renderCredits();
     loadRound();
   }
@@ -338,6 +354,74 @@
   stage.addEventListener('click',function(e){placePoint(e);});
 
   function actualClose(x){const i=Math.round(x);return closes[Math.max(0,Math.min(closes.length-1,i))];}
+
+  /* ============================================================
+   GAME PROGRESS SAVE/RESTORE
+   Add these helpers inside the main IIFE in predict-the-graph.html,
+   near the other functions (e.g. right after actualClose()).
+   ============================================================ */
+
+  // Unique key so trial (localStorage) progress doesn't collide with anything.
+  const SAVE_KEY = 'velta_game_progress_v1';
+
+  // Collect the state needed to resume exactly where the player left off.
+  function snapshotState(){
+    return { order: order, ptr: ptr, sessionRounds: sessionRounds };
+  }
+
+  // Save progress. Tries the DB (logged-in member); falls back to
+  // localStorage (anonymous trial). Fire-and-forget — never blocks the game.
+  async function saveProgress(){
+    const state = snapshotState();
+    try {
+      const r = await fetch('/api/game/save', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ gameState: state }),
+      });
+      const data = await r.json();
+      if (data && data.anon) {
+        // not logged in → trial → save locally
+        try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e){}
+      }
+    } catch(e) {
+      // network/API failed → save locally as a fallback
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e2){}
+    }
+  }
+
+  // Load saved progress. Returns a state object or null.
+  async function loadProgress(){
+    // Try DB first (member)
+    try {
+      const r = await fetch('/api/game/save');   // GET
+      const data = await r.json();
+      if (data && data.ok && data.gameState) {
+        return data.gameState;
+      }
+      if (data && data.anon) {
+        // trial → read localStorage
+        const raw = localStorage.getItem(SAVE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      }
+    } catch(e) {
+      // API failed → try localStorage
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch(e2){ return null; }
+    }
+    return null;
+  }
+
+  // Validate a restored state against the current DATA so a stale/mismatched
+  // save (e.g. rounds.json changed) can't crash the game.
+  function isValidSaved(s){
+    if (!s || !Array.isArray(s.order) || typeof s.ptr !== 'number') return false;
+    if (s.ptr < 0 || s.ptr >= s.order.length) return false;
+    // every index in order must exist in DATA.rounds
+    return s.order.every(i => i >= 0 && i < DATA.rounds.length);
+  }
 
   // ===== options simulation (Black-Scholes, at-the-money) =====
   function normCDF(x){const t=1/(1+0.2316419*Math.abs(x));const d=0.3989422804014327*Math.exp(-x*x/2);
@@ -494,7 +578,7 @@
         }, '*');
       }
     }catch(e){}
-
+    saveProgress();
     elNext.style.display='inline-block';
   }
 
@@ -606,17 +690,19 @@
     elNext.style.display='none';
     document.getElementById('recap-continue').addEventListener('click',function(){
       sessionRounds=[];
+      saveProgress();
       const el=document.getElementById('why'); if(el) el.style.display='';
       advanceChart();
     });
     elVerdict.scrollIntoView({behavior:'smooth', block:'start'});
   }
-  function advanceChart(){
+function advanceChart(){
     ptr++;
     if(ptr>=order.length){
       order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
       ptr=0; seen=new Set();
     }
+    saveProgress();
     loadRound();
   }
   elNext.addEventListener('click',function(){

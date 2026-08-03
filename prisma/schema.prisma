@@ -16,6 +16,7 @@ datasource db {
 
 // ---- A person with an account ----
 model User {
+  gameState     Json?
   id            String   @id @default(cuid())   // unique id, auto-generated
   email         String   @unique                // their login email
   name          String?                         // display name (optional)
