@@ -166,12 +166,12 @@
 
   const CREDITS_PER_DOLLAR=1000;
   const REWARDS=[
-    {name:'Sticker / coupon',      credits:500,   value:0.50},
-    {name:'Small item',            credits:1000,  value:1.00},
-    {name:'$2–3 item',             credits:2500,  value:2.50},
-    {name:'$5 gift card / product',credits:5000,  value:5.00},
-    {name:'$10 gift card',         credits:10000, value:10.00},
-    {name:'$25 gift card / premium',credits:25000,value:25.00},
+    {name:'Dashboard theme change', credits:1500,  perk:'Cosmetic'},
+    {name:'Profile badge',          credits:3000,  perk:'Status'},
+    {name:'Hard-mode hint',         credits:4000,  perk:'Gameplay'},
+    {name:'Skip-stock button (1x)', credits:6000,  perk:'Gameplay'},
+    {name:'Certificate',            credits:12000, perk:'Achievement'},
+    {name:'1-on-1 mentorship',      credits:30000, perk:'Premium'},
   ];
   const BASE_EARN=40;
   const STREAK_STEP=0.15;
@@ -636,7 +636,7 @@ async function boot(){
     REWARDS.forEach(function(rw){
       const can=credits>=rw.credits;
       const tr=document.createElement('tr'); if(!can)tr.className='locked';
-      tr.innerHTML='<td>'+rw.name+'</td><td>'+rw.credits.toLocaleString()+'</td><td>$'+rw.value.toFixed(2)+'</td>'+
+      tr.innerHTML='<td>'+rw.name+'</td><td>'+rw.credits.toLocaleString()+'</td><td>'+rw.perk+'</td>'+
         '<td><button class="redeem"'+(can?'':' disabled')+'>Redeem</button></td>';
       tr.querySelector('.redeem').addEventListener('click',function(){
         if(credits>=rw.credits){credits-=rw.credits;renderCredits();
