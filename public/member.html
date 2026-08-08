@@ -548,12 +548,14 @@ function openLesson(n){
     document.body.style.overflow='';
   }
 
-  const REWARDS = [
-    { id:'extra_runs',      name:'+5 simulation runs',  credits:100, once:false },
-    { id:'advanced_module', name:'Advanced module',     credits:250, once:true, ownedField:'advancedUnlocked' },
-    { id:'badge',           name:'Leaderboard badge',   credits:50,  once:true, ownedField:'hasBadge' },
-    { id:'discount',        name:'$5 off next upgrade',  credits:500, once:false },
-    ];
+ const REWARDS = [
+  { id:'theme',       name:'Dashboard theme change', credits:1500 },
+  { id:'badge',       name:'Profile badge',          credits:3000, once:true, ownedField:'hasBadge' },
+  { id:'hint',        name:'Hard-mode hint',         credits:4000 },
+  { id:'skip',        name:'Skip-stock button (1x)', credits:6000 },
+  { id:'certificate', name:'Certificate',            credits:12000 },
+  { id:'mentorship',  name:'1-on-1 mentorship',      credits:30000 },
+];
 
 function buildRewards(){
     const grid=document.getElementById('reward-grid'); grid.innerHTML='';
