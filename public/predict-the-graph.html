@@ -49,6 +49,8 @@
   .credit-result{margin-top:10px;color:var(--guess);font-size:12px;font-weight:650}
   .provenance{font-size:11px;color:var(--muted)}.provenance strong{color:var(--ink)}
   .caution{color:#FFD27A}
+  body.trial-mode .reasoning,body.trial-mode .right,body.trial-mode .legend,body.trial-mode .provenance{display:none}
+  body.trial-mode .ptg{border:none}body.trial-mode .controls{justify-content:flex-start}body.trial-mode .keyboard p{display:none}
   @media(max-width:640px){.ptg{padding:14px;border-radius:0}.reasoning{grid-template-columns:1fr}.right{width:100%;margin-left:0;justify-content:space-between}.slider-row{grid-template-columns:68px 1fr 62px}.option-grid{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
@@ -126,6 +128,14 @@
 <script>
 (function(){
   'use strict';
+  const IS_TRIAL=new URLSearchParams(location.search).get('mode')==='trial';
+  if(IS_TRIAL){
+    document.body.classList.add('trial-mode');
+    document.querySelector('.ptg>h1').textContent='Make your chart estimate';
+    document.querySelector('.ptg>.sub').textContent='Place five estimates, reveal the historical candles, then review the result and explanation.';
+    document.getElementById('chart-instructions').textContent='Tap five points in the shaded area. A keyboard alternative is available below.';
+    document.querySelector('#keyboard-details summary').textContent='Keyboard alternative';
+  }
   const NS='http://www.w3.org/2000/svg';
   const W=760,H=420,PADL=10,PADR=54,PADT=12,PRICE_H=300,VOL_TOP=320,VOL_H=88,NEED=5;
   const svg=document.getElementById('svg'),stage=document.getElementById('stage'),hint=document.getElementById('hint');
@@ -236,12 +246,14 @@
     const result=VeltaLearning.calculatePredictionScore({guesses:sorted.map(p=>p.y),actuals,startValue:closes[splitIdx-1],bandFraction:Number(document.getElementById('diff').value)});
     scores.push(result.pathScore);scoreEl.textContent=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
     const confidence=document.getElementById('confidence').value,structure=document.getElementById('structure').value,evidence=document.getElementById('evidence').value;
+    const optionType=result.guessedDirection==='down'?'put':'call';
     verdict.style.display='block';
-    verdict.innerHTML='<h2>Path score: '+result.pathScore+'/100</h2><div class="detail">Average estimate error: <b>'+result.meanErrorPct.toFixed(1)+'%</b> · '+result.inBand+' of '+result.total+' estimates inside the selected tolerance · final direction '+(result.directionCorrect?'matched':'did not match')+'.</div><div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> '+escapeHtml(structure)+' · '+escapeHtml(evidence)+' · '+escapeHtml(confidence)+' confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>'+optionResult(result)+'<div class="credit-result" id="credit-result" aria-live="polite"></div>';
+    const reasoningSummary=IS_TRIAL?'':'<div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> '+escapeHtml(structure)+' · '+escapeHtml(evidence)+' · '+escapeHtml(confidence)+' confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>';
+    verdict.innerHTML='<h2>Path score: '+result.pathScore+'/100</h2><div class="detail">Average estimate error: <b>'+result.meanErrorPct.toFixed(1)+'%</b> · '+result.inBand+' of '+result.total+' estimates inside the selected tolerance · final direction '+(result.directionCorrect?'matched':'did not match')+'.</div>'+reasoningSummary+optionResult(result)+'<div class="credit-result" id="credit-result" aria-live="polite"></div>';
     showObservations(result);
     sessionRounds.push({symbol:DATA.rounds[order[ptr]].asset,pathScore:result.pathScore,meanErrorPct:result.meanErrorPct,directionCorrect:result.directionCorrect,confidence,structure,evidence});
     nextBtn.hidden=false;saveProgress();
-    try{if(parent&&parent!==window){parent.postMessage({type:'velta_round_done'},location.origin);parent.postMessage({type:'velta_result',symbol:DATA.rounds[order[ptr]].asset,accuracy:result.pathScore,direction:result.directionCorrect?1:0,meanErrPct:result.meanErrorPct,reasoning:{confidence,structure,evidence}},location.origin)}}catch(e){}
+    try{if(parent&&parent!==window){parent.postMessage({type:'velta_round_done'},location.origin);parent.postMessage({type:'velta_result',symbol:DATA.rounds[order[ptr]].asset,roundIndex:order[ptr],optionType,accuracy:result.pathScore,direction:result.directionCorrect?1:0,meanErrPct:result.meanErrorPct,reasoning:{confidence,structure,evidence}},location.origin)}}catch(e){}
   }
 
   function sma(values,end,length){let total=0,count=0;for(let i=Math.max(0,end-length);i<end;i++){total+=values[i];count++}return count?total/count:values[end-1]}
@@ -252,7 +264,10 @@
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin||!event.data||event.data.type!=='velta_earned')return;
     const creditResult=document.getElementById('credit-result');
-    if(creditResult)creditResult.textContent='+'+Number(event.data.earned||0).toLocaleString()+' learning credits · '+Number(event.data.total||0).toLocaleString()+' total';
+    if(creditResult){
+      const portfolio=event.data.portfolio;
+      creditResult.textContent='+'+Number(event.data.earned||0).toLocaleString()+' learning credits · '+Number(event.data.total||0).toLocaleString()+' total'+(portfolio?' · saved to portfolio (lifetime net '+money(portfolio.netProfitLoss)+')':'');
+    }
   });
 })();
 </script>

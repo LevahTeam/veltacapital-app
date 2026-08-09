@@ -80,11 +80,17 @@ const Velta = (() => {
     if(!data.ok) throw new Error(data.error || 'Could not redeem reward');
     return data;
   }
+  async function apiPortfolio(){
+    const r=await fetch('/api/portfolio');
+    const data=await r.json();
+    if(!data.ok)throw new Error(data.error||'Could not load simulation portfolio');
+    return data;
+  }
   return {
     get:()=>({...state}),
     fakeLogin, useTrialRound, reset,
     save:()=>save(state),
-    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiStats,
+    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiPortfolio, apiStats,
   };
 })();
 

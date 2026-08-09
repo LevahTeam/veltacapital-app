@@ -8,6 +8,11 @@
 // ============================================================
 import { prisma } from "@/lib/prisma";
 import { getUid } from "@/lib/getUid";
+import {
+  calculateVerifiedOptionOutcome,
+  summarizePortfolio,
+  type PortfolioRow,
+} from "@/lib/simulationPortfolio";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -30,15 +35,42 @@ export async function POST(req: Request) {
     const symbol    = String(body.symbol || "—").slice(0, 12);
     const accuracy  = Math.max(0, Math.min(100, Math.round(Number(body.accuracy) || 0)));
     const direction = body.direction ? 1 : 0;
+    const roundIndex = Number(body.roundIndex);
+    const optionType = body.optionType === "put" ? "put" : body.optionType === "call" ? "call" : null;
+    if (!optionType) {
+      return NextResponse.json({ ok: false, error: "Invalid option type" }, { status: 400 });
+    }
+
+    let optionOutcome;
+    try {
+      optionOutcome = calculateVerifiedOptionOutcome(roundIndex, optionType);
+    } catch {
+      return NextResponse.json({ ok: false, error: "Invalid simulation round" }, { status: 400 });
+    }
+    if (symbol !== optionOutcome.symbol) {
+      return NextResponse.json({ ok: false, error: "Round symbol mismatch" }, { status: 400 });
+    }
 
     const creditAward =
       accuracy >= 90 ? 100 :
       accuracy >= 75 ? 50 :
       accuracy >= 50 ? 20 : 5;
 
-    const [score, updated] = await prisma.$transaction([
-      prisma.score.create({ data: { userId: uid, symbol, accuracy, direction } }),
-      prisma.user.update({
+    const { score, updated } = await prisma.$transaction(async (tx) => {
+      const score = await tx.score.create({ data: { userId: uid, symbol, accuracy, direction } });
+      await tx.$executeRaw`
+        UPDATE "Score"
+        SET "roundIndex" = ${optionOutcome.roundIndex},
+            "optionType" = ${optionOutcome.optionType},
+            "optionBudget" = ${optionOutcome.budget},
+            "optionStrike" = ${optionOutcome.strike},
+            "optionPremium" = ${optionOutcome.premium},
+            "optionClosingPrice" = ${optionOutcome.closingPrice},
+            "optionFinalValue" = ${optionOutcome.finalValue},
+            "optionProfitLoss" = ${optionOutcome.profitLoss}
+        WHERE "id" = ${score.id}
+      `;
+      const updated = await tx.user.update({
         where: { id: uid },
         data: {
           credits: { increment: creditAward },
@@ -47,14 +79,23 @@ export async function POST(req: Request) {
             create: { amount: creditAward, reason: "learning_round" },
           },
         },
-      }),
-    ]);
+      });
+      return { score, updated };
+    });
+    const portfolioRows = await prisma.$queryRaw<PortfolioRow[]>`
+      SELECT "optionBudget", "optionFinalValue", "optionProfitLoss"
+      FROM "Score"
+      WHERE "userId" = ${uid} AND "optionProfitLoss" IS NOT NULL
+    `;
+    const portfolio = summarizePortfolio(portfolioRows);
 
     return NextResponse.json({
       ok: true,
       scoreId: score.id,
       credits: updated.credits,
       earned: creditAward,
+      optionOutcome,
+      portfolio,
       simRunsLeft: updated.simRunsLeft,
       unlimitedSims: updated.unlimitedSims,
     });

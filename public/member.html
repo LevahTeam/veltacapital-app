@@ -29,7 +29,7 @@
   .unlock-list .ic{color:var(--teal);flex:none;margin-top:2px}
 
   /* ---- tabs (post-purchase) ---- */
-  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:8px 0 0}
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:8px 0 0;overflow-x:auto}
   .tab{font-family:inherit;font-size:15px;font-weight:600;padding:14px 20px;border:none;background:none;
     color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
   .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amber)}
@@ -135,6 +135,19 @@
   .reward .btn:hover{background:#1B2329}
   .reward .btn:disabled{opacity:.4}
 
+  .portfolio-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
+  .portfolio-card{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .portfolio-card span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  .portfolio-card b{display:block;margin-top:5px;font-size:24px}.portfolio-card .positive{color:#0F8A54}.portfolio-card .negative{color:#C74242}
+  .portfolio-table{width:100%;border-collapse:collapse;font-size:13px}.portfolio-table th,.portfolio-table td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}.portfolio-table th:first-child,.portfolio-table td:first-child{text-align:left}
+  .certificate-status{border:1px solid var(--line);border-radius:12px;padding:20px;background:#fff;margin:22px 0}.certificate-progress{height:9px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0}.certificate-progress div{height:100%;background:var(--teal);border-radius:99px}
+  .simulation-certificate{display:none;border:8px double #B68A2C;padding:48px;max-width:900px;margin:20px auto;text-align:center;background:#FFFDF8;color:#172033}.simulation-certificate h1{font:44px Georgia,serif;margin:18px 0}.simulation-certificate .cert-amount{font:600 34px Georgia,serif;color:#0F7A47}.simulation-certificate p{line-height:1.65}.mobile-game-info{display:none}
+  @media(max-width:820px){.portfolio-grid{grid-template-columns:repeat(2,1fr)}.portfolio-table-wrap{overflow-x:auto}}
+  @media(max-width:640px){
+    #panel-game{padding-top:14px}.game-meter,.stats-strip,#credit-earned{display:none}.game-frame{width:calc(100vw - 12px);margin-left:calc(50% - 50vw + 6px);height:1200px;border-radius:0}.mobile-game-info{display:block;margin-top:10px;color:var(--muted);font-size:13px}.mobile-game-info summary{padding:10px 4px;cursor:pointer}.portfolio-grid{grid-template-columns:1fr 1fr}.portfolio-card{padding:13px}.portfolio-card b{font-size:18px}
+  }
+  @media print{body>*:not(.simulation-certificate){display:none!important}.simulation-certificate{display:block!important;position:fixed;inset:20px}.simulation-certificate *{display:block!important}}
+
   .fc-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   @media(max-width:780px){.fc-picker{grid-template-columns:1fr}}
   .fc-card-pick{background:#fff;border:1px solid var(--line,#E5DDD0);border-radius:12px;padding:18px;transition:transform .12s}
@@ -229,6 +242,7 @@
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true"  data-tab="videos">Course</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="game">Prediction game</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="portfolio">Portfolio</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="rewards">Redeem credits</button>
     </div>
 
@@ -269,6 +283,21 @@
         </div>
       </div>
       <iframe class="game-frame" id="game-frame" title="Predict the Graph" src="predict-the-graph.html"></iframe>
+      <details class="mobile-game-info"><summary>Account and round details</summary><p>Runs left: <b id="mobile-runs">—</b> · Plan: <b id="mobile-plan">—</b> · Credits: <b id="mobile-credits">0</b></p></details>
+    </section>
+
+    <!-- HISTORICAL SIMULATION PORTFOLIO -->
+    <section class="panel" id="panel-portfolio" role="tabpanel">
+      <h2 style="margin-bottom:6px">Historical Simulation Portfolio</h2>
+      <p class="lead">A lifetime log of the simplified $100 option comparisons from your completed authenticated rounds. These are hypothetical educational results—not real earnings, an account balance, or evidence of investment skill.</p>
+      <div class="portfolio-grid">
+        <div class="portfolio-card"><span>Rounds logged</span><b id="portfolio-rounds">0</b></div>
+        <div class="portfolio-card"><span>Total simulated capital</span><b id="portfolio-deployed">$0.00</b></div>
+        <div class="portfolio-card"><span>Combined ending value</span><b id="portfolio-ending">$0.00</b></div>
+        <div class="portfolio-card"><span>Lifetime simulated net P&amp;L</span><b id="portfolio-net">$0.00</b></div>
+      </div>
+      <div class="certificate-status" id="certificate-status"><h3>Simulation milestone certificate</h3><p id="certificate-copy">Complete rounds to begin certificate progress.</p><div class="certificate-progress"><div id="certificate-bar" style="width:0%"></div></div><button class="btn amber" id="certificate-button" hidden>View printable certificate</button></div>
+      <div class="portfolio-table-wrap"><table class="portfolio-table"><thead><tr><th>Round</th><th>Type</th><th>Strike</th><th>Close</th><th>$100 became</th><th>Net P&amp;L</th></tr></thead><tbody id="portfolio-body"></tbody></table></div>
     </section>
 
     <!-- LEARNING REWARDS -->
@@ -281,6 +310,10 @@
 
   </div>
 </main>
+
+<section class="simulation-certificate" id="simulation-certificate" aria-label="Historical simulation milestone certificate">
+  <p class="eyebrow">VeltaCapital Learning Lab</p><h1>Historical Simulation Milestone</h1><p>This certifies that</p><h2 id="certificate-name">VeltaCapital learner</h2><p>completed at least <b id="certificate-rounds">25</b> historical chart exercises and reached a cumulative net result of</p><div class="cert-amount" id="certificate-amount">$1,000.00</div><p>in VeltaCapital's simplified hypothetical $100 option comparisons.</p><p><strong>Educational simulation only.</strong> This certificate does not represent real earnings, investment performance, professional qualification, or a recommendation to trade.</p><p class="mono" id="certificate-date"></p>
+</section>
 
 <div class="disclaim"><div class="wrap">
   <strong style="color:var(--muted-d)">Educational disclaimer.</strong>
@@ -373,6 +406,9 @@
       user.unlimitedSims ? 'Unlimited' : fmt(user.simRunsLeft);
     document.getElementById('plan-name-game').textContent = p.name;
     document.getElementById('cred-game').textContent = fmt(user.credits || 0);
+    document.getElementById('mobile-runs').textContent = user.unlimitedSims ? 'Unlimited' : fmt(user.simRunsLeft);
+    document.getElementById('mobile-plan').textContent = p.name;
+    document.getElementById('mobile-credits').textContent = fmt(user.credits || 0);
     document.getElementById('cred-rewards').textContent = fmt(user.credits || 0);
     buildVideos(p); buildRewards(); setupCourseToggle();
     loadStats();
@@ -663,6 +699,46 @@ function buildFlashcards(){
 
 
 
+  const usd=value=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(value)||0);
+  const safe=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  let portfolioLoaded=false;
+
+  async function loadPortfolio(force=false){
+    if(portfolioLoaded&&!force)return;
+    const body=document.getElementById('portfolio-body');
+    body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted)">Loading portfolio…</td></tr>';
+    try{
+      const data=await Velta.apiPortfolio(),summary=data.summary;
+      portfolioLoaded=true;
+      document.getElementById('portfolio-rounds').textContent=fmt(summary.rounds);
+      document.getElementById('portfolio-deployed').textContent=usd(summary.deployed);
+      document.getElementById('portfolio-ending').textContent=usd(summary.endingValue);
+      const net=document.getElementById('portfolio-net');
+      net.textContent=(summary.netProfitLoss>0?'+':'')+usd(summary.netProfitLoss);
+      net.className=summary.netProfitLoss>=0?'positive':'negative';
+
+      const profitProgress=Math.max(0,Math.min(1,summary.netProfitLoss/summary.certificateThreshold));
+      const roundProgress=Math.min(1,summary.rounds/summary.certificateMinRounds);
+      document.getElementById('certificate-bar').style.width=Math.round(Math.min(profitProgress,roundProgress)*100)+'%';
+      const copy=document.getElementById('certificate-copy'),button=document.getElementById('certificate-button');
+      if(summary.certificateEligible){
+        copy.textContent='Milestone reached: '+fmt(summary.rounds)+' rounds and '+usd(summary.netProfitLoss)+' lifetime simulated net P&L.';
+        button.hidden=false;
+      }else{
+        copy.textContent='Reach at least '+fmt(summary.certificateMinRounds)+' logged rounds and '+usd(summary.certificateThreshold)+' lifetime simulated net P&L. Current: '+fmt(summary.rounds)+' rounds and '+usd(summary.netProfitLoss)+'.';
+        button.hidden=true;
+      }
+      document.getElementById('certificate-name').textContent=data.ownerName;
+      document.getElementById('certificate-rounds').textContent=fmt(summary.rounds);
+      document.getElementById('certificate-amount').textContent=usd(summary.netProfitLoss);
+      document.getElementById('certificate-date').textContent='Generated '+new Date().toLocaleDateString();
+      body.innerHTML=data.records.length?data.records.map(record=>'<tr><td>'+safe(record.symbol)+'<br><span class="mono" style="color:var(--muted);font-size:10px">'+new Date(record.createdAt).toLocaleDateString()+'</span></td><td>'+safe(record.optionType)+'</td><td>'+usd(record.optionStrike)+'</td><td>'+usd(record.optionClosingPrice)+'</td><td>'+usd(record.optionFinalValue)+'</td><td style="color:'+(record.optionProfitLoss>=0?'#0F8A54':'#C74242')+'">'+(record.optionProfitLoss>=0?'+':'')+usd(record.optionProfitLoss)+'</td></tr>').join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted)">Complete an authenticated round to start your simulation portfolio.</td></tr>';
+    }catch(error){
+      body.innerHTML='<tr><td colspan="6" style="text-align:center;color:#C74242">'+safe(error.message)+'</td></tr>';
+    }
+  }
+  document.getElementById('certificate-button').addEventListener('click',()=>window.print());
+
   /* ---------- tabs ---------- */
   document.querySelectorAll('.tab').forEach(t=>{
     t.addEventListener('click',()=>{
@@ -671,6 +747,7 @@ function buildFlashcards(){
       const name=t.getAttribute('data-tab');
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
       document.getElementById('panel-'+name).classList.add('active');
+      if(name==='portfolio')loadPortfolio();
     });
   });
 
@@ -681,6 +758,8 @@ function buildFlashcards(){
       try{
         const res = await Velta.apiSubmitScore({
           symbol: ev.data.symbol,
+          roundIndex: ev.data.roundIndex,
+          optionType: ev.data.optionType,
           accuracy: ev.data.accuracy,
           direction: ev.data.direction,
           meanErrPct: ev.data.meanErrPct,
@@ -690,8 +769,9 @@ function buildFlashcards(){
         user.unlimitedSims = res.unlimitedSims;
         document.getElementById('credit-earned').textContent = '+'+fmt(res.earned)+' learning credits · '+fmt(res.credits)+' total';
         document.getElementById('game-frame')?.contentWindow?.postMessage(
-          {type:'velta_earned',earned:res.earned,total:res.credits},location.origin
+          {type:'velta_earned',earned:res.earned,total:res.credits,portfolio:res.portfolio,optionOutcome:res.optionOutcome},location.origin
         );
+        portfolioLoaded=false;
         refresh();
 
 

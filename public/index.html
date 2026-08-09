@@ -204,7 +204,8 @@ main,header,footer{position:relative;z-index:1}
 .trial-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-wrap:wrap;gap:10px}
 .trial-head .t{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--fg)}
 .trial-head .s{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--up)}
-.trial-frame{width:100%;border:none;border-radius:10px;background:#0A0E11;height:1040px;display:block}
+.trial-frame{width:100%;border:none;border-radius:10px;background:#0A0E11;height:900px;display:block}
+@media(max-width:640px){#try .trial-wrap{margin-left:-18px;margin-right:-18px;padding:0;border-radius:0}.trial-head{padding:10px 14px}.trial-head .s{display:none}.trial-frame{height:840px;border-radius:0}}
 .trial-gate{padding:48px 24px;text-align:center;color:var(--fg-dim)}
 .trial-gate h3{font-size:26px;color:var(--fg)}
 .trial-gate .btn{margin-top:18px}
@@ -391,7 +392,7 @@ main,header,footer{position:relative;z-index:1}
   <div class="section-head reveal">
     <p class="eyebrow">Try it now</p>
     <h2>Three rounds, free. No sign-up to play.</h2>
-    <p class="lead">Interpret the visible chart, record your evidence and confidence, place five estimates, then reveal the historical candles. The path score and direction result are reported separately.</p>
+    <p class="lead">Place five estimates on the visible chart, reveal the historical candles, then review the result and plain-language explanation. The full course adds structured reasoning and portfolio tracking.</p>
   </div>
   <div class="trial-wrap reveal">
     <div class="trial-head">
@@ -399,7 +400,7 @@ main,header,footer{position:relative;z-index:1}
       <span class="s" id="trial-count">3 free rounds</span>
     </div>
     <div id="trial-host">
-      <iframe class="trial-frame" id="trial-frame" title="Predict the Graph trial" src="predict-the-graph.html"></iframe>
+      <iframe class="trial-frame" id="trial-frame" title="Predict the Graph trial" src="predict-the-graph.html?mode=trial"></iframe>
     </div>
     <div class="trial-gate" id="trial-gate" style="display:none">
       <h3>Nice reads. Want to keep going?</h3>

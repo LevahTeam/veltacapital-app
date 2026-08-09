@@ -52,6 +52,14 @@ model Score {
   symbol      String                            // e.g. "AAPL"
   accuracy    Int                               // 0–100 overall
   direction   Int                               // 1 = correct, 0 = wrong
+  roundIndex       Int?
+  optionType       String?
+  optionBudget     Float?
+  optionStrike     Float?
+  optionPremium    Float?
+  optionClosingPrice Float?
+  optionFinalValue Float?
+  optionProfitLoss Float?
   createdAt   DateTime @default(now())
 
   @@index([userId])
