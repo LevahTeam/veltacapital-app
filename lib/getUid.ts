@@ -8,5 +8,5 @@ import { authOptions } from "@/lib/authOptions";
 
 export async function getUid(): Promise<string | null> {
   const session = await getServerSession(authOptions);
-  return (session?.user as any)?.id ?? null;
+  return session?.user?.id ?? null;
 }

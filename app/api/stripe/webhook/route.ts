@@ -10,19 +10,17 @@
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import type Stripe from "stripe";
 
 // Stripe must read the RAW request body to verify the signature, so we
 // disable any body parsing/caching for this route.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Same plan config as the original plan/set route — the grant logic is
-// identical, it just runs here (after payment) instead of on direct call.
-const PLANS: Record<string, {credits:number; runs:number; unlimited:boolean; redeem:boolean; mult:number}> = {
-  trial:    { credits: 0, runs: 5,  unlimited: false, redeem: false, mult: 1.0 },
-  starter:  { credits: 0, runs: 15, unlimited: false, redeem: false, mult: 1.0 },
-  standard: { credits: 0, runs: 50, unlimited: false, redeem: true,  mult: 1.0 },
-  premium:  { credits: 0, runs: 0,  unlimited: true,  redeem: true,  mult: 1.5 },
+// The public offer is intentionally limited to one course. Learning activity
+// never earns cash-like credits, redemption access, or score multipliers.
+const PLANS: Record<string, { runs: number; unlimited: boolean }> = {
+  standard: { runs: 50, unlimited: false },
 };
 
 export async function POST(req: Request) {
@@ -59,7 +57,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, duplicate: event.id });
     }
 
-    const session = event.data.object as any;
+    const session = event.data.object as Stripe.Checkout.Session;
 
     // Defense in depth: only grant if Stripe says it's actually paid.
     if (session.payment_status && session.payment_status !== "paid") {
@@ -69,7 +67,7 @@ export async function POST(req: Request) {
     // --- Layer 3: read the buyer + plan from the metadata we stamped ---
     const uid  = session.metadata?.userId;
     const plan = session.metadata?.plan;
-    const cfg  = PLANS[plan];
+    const cfg = plan ? PLANS[plan] : undefined;
 
     if (!uid || !cfg) {
       // Nothing we can safely grant. 200 so Stripe doesn't keep retrying a
@@ -84,12 +82,8 @@ export async function POST(req: Request) {
         plan,
         simRunsLeft:   { increment: cfg.runs },
         unlimitedSims: cfg.unlimited,
-        canRedeem:     cfg.redeem,
-        earnMult:      cfg.mult,
-        credits:       { increment: cfg.credits },
-        creditEvents: cfg.credits
-          ? { create: { amount: cfg.credits, reason: "purchase_grant" } }
-          : undefined,
+        canRedeem: false,
+        earnMult: 1.0,
       },
     });
 

@@ -4,7 +4,7 @@
 
 const Velta = (() => {
   const KEY = 'velta_proto_v1';
-  const DEFAULTS = { loggedIn:false, name:'', email:'', plan:'none', credits:0, trialRoundsUsed:0 };
+  const DEFAULTS = { loggedIn:false, name:'', email:'', plan:'none', trialRoundsUsed:0 };
 
   function load(){
     try { return Object.assign({}, DEFAULTS, JSON.parse(sessionStorage.getItem(KEY)||'{}')); }
@@ -19,15 +19,6 @@ const Velta = (() => {
     state.email = email || 'you@example.com';
     save(state);
   }
-  function fakeBuy(plan){
-    state.plan = plan;
-    const grant = PLANS[plan]?.startCredits || 0;
-    state.credits += grant;
-    save(state);
-  }
-  function addCredits(n){ state.credits += n; save(state); }
-  function spendCredits(n){ if(state.credits>=n){ state.credits-=n; save(state); return true; } return false; }
-
   function useTrialRound(){ state.trialRoundsUsed++; save(state); return state.trialRoundsUsed; }
   function reset(){ state = Object.assign({}, DEFAULTS); save(state); }
 
@@ -69,17 +60,6 @@ const Velta = (() => {
     if(!data.ok) throw new Error(data.error || 'Could not load stats');
     return data;
   }
-  // ---- Stripe checkout: starts real payment; plan granted by webhook after payment ----
-  async function apiBuy(plan){
-    const r = await fetch('/api/checkout', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ plan }),
-    });
-    const data = await r.json();
-    if(!data.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
-    window.location.href = data.url; // go to Stripe's hosted checkout page
-  }
   async function apiSubmitScore(result){
     const r = await fetch('/api/score/submit', {
       method:'POST',
@@ -90,94 +70,63 @@ const Velta = (() => {
     if(!data.ok) throw new Error(data.error || 'Could not save score');
     return data;
   }
-  async function apiLeaderboard(){
-    const r = await fetch('/api/leaderboard');
-    const data = await r.json();
-    return data.ok ? data.rows : [];
-  }
-  async function apiRedeem(rewardId){
-    const r = await fetch('/api/rewards/redeem', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ rewardId }),
-    });
-    const data = await r.json();
-    if(!data.ok) throw new Error(data.error || 'Could not redeem');
-    return data;
-  }
-
   return {
     get:()=>({...state}),
-    fakeLogin, fakeBuy, addCredits, spendCredits, useTrialRound, reset,
+    fakeLogin, useTrialRound, reset,
     save:()=>save(state),
-    apiLogin, apiMe, apiLogout, apiBuy, apiSubmitScore, apiLeaderboard, apiRedeem, apiStats,
+    apiLogin, apiMe, apiLogout, apiSubmitScore, apiStats,
   };
 })();
 
 /* ---- Plan definitions (shared across pages) ---- */
 const PLANS = {
   trial: {
-    name:'Course Trial',
-    price:'$9', cadence:'one-time',
-    blurb:'Try the course and see how the simulator works.',
-    paymentLink:'https://buy.stripe.com/5kQ3cv06e2zEfSHfil5sA01',
-    simRuns:5, unlimited:false, canRedeem:false, earnMult:1.0,
-    startCredits:0,
-    creditsNote:'Earn credits by playing. Redemption unlocks at Standard.',
+    name:'Legacy Trial',
+    price:'Enrollment closed', cadence:'',
+    blurb:'A legacy access tier retained for existing accounts.',
+    paymentLink:'',
+    simRuns:5, unlimited:false,
     features:[
       'Full written course',
       '5 simulation runs',
-      'Full scoring & "why it moved" breakdowns',
-      'Earn credits from gameplay',
+      'Path scoring and descriptive chart observations',
     ],
   },
   starter: {
-    name:'Starter',
-    price:'$19', cadence:'one-time',
-    blurb:'Enough practice to build a real habit.',
-    paymentLink:'https://buy.stripe.com/bJeeVdg5cgqufSHb255sA03',
-    simRuns:15, unlimited:false, canRedeem:false, earnMult:1.0,
-    startCredits:0,
-    creditsNote:'Earn credits by playing. Redemption unlocks at Standard.',
+    name:'Legacy Starter',
+    price:'Enrollment closed', cadence:'',
+    blurb:'A legacy access tier retained for existing accounts.',
+    paymentLink:'',
+    simRuns:15, unlimited:false,
     features:[
       'Full written course',
       '15 simulation runs',
-      'Full scoring & "why it moved" breakdowns',
-      'Earn credits from gameplay',
-      'Community leaderboard access',
+      'Path scoring and descriptive chart observations',
     ],
   },
   standard: {
-    name:'Standard',
-    price:'$39', cadence:'one-time',
-    blurb:'The full experience \u2014 practice, rewards, and progress.',
-    paymentLink:'https://buy.stripe.com/aFadR9aKS2zEaynfil5sA04',
-    simRuns:50, unlimited:false, canRedeem:true, earnMult:1.0,
-    startCredits:0,
-    creditsNote:'Credit redemption unlocked \u2014 spend credits on extra runs, modules, and badges.',
+    name:'Complete Course',
+    price:'Price pending review', cadence:'',
+    blurb:'One complete learning path with written lessons, practice, and assessments.',
+    paymentLink:'',
+    simRuns:50, unlimited:false,
     features:[
       'Full written course',
       '50 simulation runs',
-      'Credit redemption unlocked',
       'Progress tracking by skill (trend, volume, support/resistance)',
-      'Community leaderboard access',
+      'Reflection history and assessments',
     ],
   },
   premium: {
-    name:'Premium',
-    price:'$69', cadence:'one-time',
-    blurb:'Unlimited practice and the fastest way to earn.',
-    paymentLink:'https://buy.stripe.com/28E5kD9GOdei8qfdad5sA05',
-    simRuns:0, unlimited:true, canRedeem:true, earnMult:1.5,
-    startCredits:0,
-    creditsNote:'Earn credits 1.5\u00d7 faster on every round.',
+    name:'Legacy Premium',
+    price:'Enrollment closed', cadence:'',
+    blurb:'A legacy unlimited-practice tier retained for existing accounts.',
+    paymentLink:'',
+    simRuns:0, unlimited:true,
     features:[
       'Full written course',
       'Unlimited simulation runs',
-      '1.5\u00d7 credit earning rate',
-      'Credit redemption unlocked',
       'Progress tracking by skill',
-      'Priority leaderboard placement',
       'Early access to new lessons',
     ],
   },
@@ -197,4 +146,3 @@ function veltaMark(){
   return '<img src="assets/img/logo-mark.png" alt="VeltaCapital" ' +
          'style="height:36px;width:auto;display:block" />';
 }
-

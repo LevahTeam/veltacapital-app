@@ -1,719 +1,224 @@
-<!-- Predict the Graph — candlestick trainer -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VeltaCapital — Historical chart reasoning lab</title>
 <style>
   :root{
-    --ink:#EAF2F0; --paper:#0B0F12; --paper-2:#0A0E11; --grid:#1B2329;
-    --up:#2BD37F; --down:#E5573C; --up-soft:#2BD37F55; --down-soft:#E5573C55;
-    --guess:#19E6C3; --band:#19E6C3; --muted:#7A8A88; --axis:#EAF2F0;
-    --surface:#12181D; --line:#1B2329;
+    --ink:#EAF2F0;--paper:#0B0F12;--paper-2:#0A0E11;--grid:#1B2329;
+    --up:#2BD37F;--down:#F06A54;--guess:#19E6C3;--band:#19E6C3;
+    --muted:#93A3A1;--axis:#EAF2F0;--surface:#12181D;--line:#273139;
   }
   *{box-sizing:border-box}
-  .ptg{background:var(--paper);color:var(--ink);
-    font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;
-    max-width:780px;margin:0 auto;padding:22px 22px 28px;
-    border:1px solid var(--line);border-radius:4px}
-  .ptg-eyebrow{font-family:'SF Mono','IBM Plex Mono',ui-monospace,monospace;
-    font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
-  .ptg-title{font-size:26px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
-  .ptg-sub{font-size:14px;color:var(--muted);margin:0 0 16px}
-  .ptg-meta{display:flex;gap:18px;flex-wrap:wrap;
-    font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--muted);margin:0 0 10px}
-  .ptg-meta b{color:var(--ink);font-weight:600}
-  .ptg-stage{position:relative;width:100%;background:var(--paper-2);border-radius:4px;touch-action:none;overflow:hidden}
-  .ptg-stage svg{display:block;width:100%;height:auto}
-  .ptg-ticker{position:absolute;left:12px;top:10px;font-family:'SF Mono',ui-monospace,monospace;
-    font-size:13px;color:#C7D2E0;letter-spacing:.04em}
-  .ptg-ticker b{color:#fff;font-size:15px}
-  .hypo{margin-top:14px;padding:14px;border:1px solid rgba(255,255,255,.14);border-radius:8px;background:#0E1621}
-  .hypo-head{font-size:12px;color:#8FA0B4;text-transform:uppercase;letter-spacing:.06em}
-  .hypo-num{font-size:26px;font-weight:600;margin:6px 0 2px;font-family:'SF Mono',ui-monospace,monospace;color:#F2F5F8}
-  .hypo-pl{font-size:16px;font-weight:500}
-  .hypo-rule{font-size:13px;color:#B6C2D0;margin-top:6px}
-  .hypo-disc{font-size:11px;color:#8FA0B4;margin-top:10px;line-height:1.45}
-  .recap-wrap{overflow-x:auto;margin-top:10px}
-  .recap{width:100%;border-collapse:collapse;font-size:13px}
-  .recap th{text-align:left;color:#B6C2D0;font-weight:600;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.14);font-family:'SF Mono',ui-monospace,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
-  .recap td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.06);font-family:'SF Mono',ui-monospace,monospace;color:#EAF2F0}
-  .ptg-ohlc{position:absolute;left:12px;top:30px;font-family:'SF Mono',ui-monospace,monospace;
-    font-size:11px;color:var(--muted)}
-  .ptg-hint{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
-    font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:#C7D2E0;
-    pointer-events:none;text-align:center;background:rgba(14,22,33,.85);
-    padding:8px 12px;border-radius:3px;transition:opacity .3s}
-  .ptg-controls{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
-  .ptg-btn{font-family:inherit;font-size:14px;font-weight:600;padding:9px 18px;border-radius:3px;
-    border:1px solid #273139;background:#12181D;color:#EAF2F0;cursor:pointer;transition:opacity .15s}
-  .ptg-btn:disabled{opacity:.35;cursor:not-allowed}
-  .ptg-btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
-  .ptg-right{margin-left:auto;display:flex;gap:14px;align-items:center}
-  .ptg-diff{font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--muted);
-    display:flex;gap:6px;align-items:center}
-  .ptg-diff select{font-family:inherit;font-size:12px;border:1px solid var(--line);
-    background:var(--surface);color:var(--ink);border-radius:3px;padding:3px 5px}
-  .ptg-score{font-family:'SF Mono',ui-monospace,monospace;font-size:13px;color:var(--muted)}
-  .ptg-score b{color:var(--ink);font-size:15px}
-  .ptg-verdict{margin-top:14px;padding:14px 16px;border-radius:3px;background:var(--surface);border:1px solid var(--line);
-    font-size:15px;line-height:1.5;display:none}
-  .ptg-verdict .grade{font-weight:600;font-size:17px}
-  .ptg-verdict .detail{color:var(--muted);font-size:13.5px;margin-top:4px}
-  .ptg-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;
-    font-family:'SF Mono',ui-monospace,monospace;font-size:11px;color:var(--muted)}
-  .ptg-legend span{display:flex;gap:6px;align-items:center}
-  .ptg-swatch{width:12px;height:12px;border-radius:2px;display:inline-block}
-  /* credits */
-  .ptg-credits{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:10px 14px;
-    background:var(--surface);border:1px solid var(--line);border-radius:4px;font-family:'SF Mono',ui-monospace,monospace}
-  .ptg-credits .bal{font-size:20px;font-weight:600;color:var(--up)}  .ptg-credits .bal small{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.1em}
-  .ptg-credits .streak{font-size:12px;color:var(--muted)}
-  .ptg-credits .streak b{color:var(--down)}
-  .ptg-credits .reward-btn{margin-left:auto;font-family:inherit}
-  .ptg-earn{display:inline-block;margin-left:8px;font-family:'SF Mono',ui-monospace,monospace;
-    font-size:13px;color:var(--up);font-weight:600;opacity:0;transition:opacity .3s}
-  .ptg-earn.show{opacity:1}
-  /* why-it-moved panel */
-  .ptg-why{margin-top:12px;padding:14px 16px;border-radius:3px;
-    background:var(--surface);border:1px solid var(--line);font-size:14px;line-height:1.55;display:none}
-  .ptg-why h4{margin:0 0 6px;font-size:13px;font-family:'SF Mono',ui-monospace,monospace;
-    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .ptg-why ul{margin:6px 0 0;padding-left:18px}
-  .ptg-why li{margin:3px 0;color:var(--ink)}
-  /* rewards modal */
-  .ptg-modal{position:fixed;inset:0;background:rgba(2,4,4,.7);display:none;
-    align-items:center;justify-content:center;z-index:50;padding:20px}
-  .ptg-modal.open{display:flex}
-  .ptg-sheet{background:var(--paper);border:1px solid var(--line);max-width:560px;width:100%;border-radius:6px;
-    padding:22px;max-height:86vh;overflow:auto}
-  .ptg-sheet h3{margin:0 0 4px;font-size:20px;color:#FFFFFF}
-  .ptg-sheet p.note{margin:0 0 16px;font-size:13px;color:#C7D2CE}
-  .ptg-ladder{width:100%;border-collapse:collapse;font-size:14px}
-  .ptg-ladder th,.ptg-ladder td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);color:#FFFFFF}  .ptg-ladder th{font-family:'SF Mono',ui-monospace,monospace;font-size:11px;
-    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .ptg-ladder tr.locked{opacity:.45}
-  .ptg-ladder .redeem{font-family:inherit;font-size:13px;font-weight:700;padding:7px 16px;
-    border-radius:100px;border:1px solid var(--up);background:var(--up);color:#04110B;cursor:pointer;
-    box-shadow:0 0 16px rgba(43,211,127,.5);transition:box-shadow .2s,transform .15s}
-  .ptg-ladder .redeem:hover:not(:disabled){box-shadow:0 0 26px rgba(43,211,127,.8);transform:translateY(-1px)}
-  .ptg-ladder .redeem:disabled{opacity:1;cursor:not-allowed;background:#12181D;border-color:#273139;color:#5F6F6D;box-shadow:none}
-  .ptg-close{float:right;font-family:inherit;font-size:14px;background:none;border:none;cursor:pointer;color:var(--muted)}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+  button,select,input{font:inherit}
+  button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--guess);outline-offset:3px}
+  .ptg{max-width:780px;margin:0 auto;padding:22px;border:1px solid var(--line);border-radius:8px}
+  .eyebrow,.meta,.score,.legend,.provenance{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+  h1{font-family:Georgia,serif;font-size:27px;margin:0 0 5px}
+  .sub{font-size:14px;line-height:1.55;color:var(--muted);margin:0 0 17px}
+  .meta{display:flex;gap:12px 20px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 10px}
+  .meta b{color:var(--ink)}
+  .stage{position:relative;background:var(--paper-2);border:1px solid var(--grid);border-radius:6px;overflow:hidden;touch-action:none}
+  .stage svg{display:block;width:100%;height:auto}
+  .ticker,.ohlc{position:absolute;left:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;z-index:2}
+  .ticker{top:10px;font-size:13px}.ticker b{font-size:15px}.ohlc{top:32px;font-size:11px;color:var(--muted)}
+  .hint{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);max-width:290px;text-align:center;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#D9E4E2;background:rgba(14,22,33,.94);padding:9px 12px;border-radius:4px;pointer-events:none}
+  .reasoning{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+  .reasoning label{font-size:12px;color:var(--muted);display:grid;gap:6px}
+  select{width:100%;padding:8px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink)}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .btn{font-size:14px;font-weight:650;padding:10px 17px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .btn.primary{background:var(--up);border-color:var(--up);color:#03110A}.btn:disabled{opacity:.38;cursor:not-allowed}
+  .right{margin-left:auto;display:flex;gap:14px;align-items:center}.score{font-size:12px;color:var(--muted)}.score b{color:var(--ink);font-size:15px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:11px;font-size:11px;color:var(--muted)}
+  .legend span{display:flex;gap:6px;align-items:center}.swatch{min-width:16px;height:16px;border-radius:3px;display:grid;place-items:center;color:#06100B;font-weight:900;font-style:normal}
+  .keyboard{margin-top:14px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--surface)}
+  .keyboard summary{cursor:pointer;font-weight:650}.keyboard p{font-size:12px;color:var(--muted);line-height:1.5}
+  .slider-grid{display:grid;gap:9px}.slider-row{display:grid;grid-template-columns:90px 1fr 74px;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+  input[type="range"]{width:100%;accent-color:var(--guess)}
+  .verdict,.observations,.provenance{margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:6px;background:var(--surface);line-height:1.55}
+  .verdict,.observations{display:none}.verdict h2,.observations h2{font-family:Georgia,serif;font-size:19px;margin:0 0 6px}
+  .detail{font-size:13px;color:var(--muted)}.observations ul{padding-left:18px;margin:8px 0}.observations li{margin:5px 0;font-size:14px}
+  .provenance{font-size:11px;color:var(--muted)}.provenance strong{color:var(--ink)}
+  .caution{color:#FFD27A}
+  @media(max-width:640px){.ptg{padding:14px;border-radius:0}.reasoning{grid-template-columns:1fr}.right{width:100%;margin-left:0;justify-content:space-between}.slider-row{grid-template-columns:68px 1fr 62px}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
+</head>
+<body>
+<main class="ptg">
+  <p class="eyebrow">Lesson lab · Historical chart reasoning</p>
+  <h1>Interpret the chart</h1>
+  <p class="sub">Place five closing-price estimates, record the evidence behind your view, then compare your reasoning with the historical outcome. A wrong outcome can still begin with reasonable evidence.</p>
 
-<div class="ptg" id="ptg">
-  <p class="ptg-eyebrow">Lesson Lab &middot; Candlestick Trainer</p>
-  <h1 class="ptg-title">Predict the Graph</h1>
-  <p class="ptg-sub">Read the candles. Tap to place <b id="need">5</b> points where you think price closes next &mdash; then watch the real candles reveal one by one.</p>
-
-  <div class="ptg-credits">
-    <span class="bal" id="bal">0 <small>CREDITS</small></span>
-    <span class="streak" id="streak"></span>
-    <button class="ptg-btn ghost reward-btn" id="open-rewards">Rewards</button>
+  <div class="meta">
+    <span>Window <b id="m-window">—</b></span>
+    <span>Round <b id="m-round">—</b></span>
+    <span>Dates <b id="m-dates">—</b></span>
+    <span>Source <b id="m-source">—</b></span>
   </div>
 
-  <div class="ptg-meta">
-    <span>Window <b id="m-window">&mdash;</b></span>
-    <span>Round <b id="m-round">&mdash;</b></span>
-    <span>Source <b id="m-source">&mdash;</b></span>
+  <div class="stage" id="stage" aria-describedby="chart-instructions">
+    <div class="ticker" id="ticker"></div>
+    <div class="ohlc" id="ohlc"></div>
+    <svg id="svg" viewBox="0 0 760 420" role="img" aria-label="Historical candlestick chart with a shaded prediction zone. Use pointer input or the keyboard controls below to place five estimates."></svg>
+    <div class="hint" id="hint" aria-live="polite">Place your first estimate in the shaded zone</div>
+  </div>
+  <p class="sub" id="chart-instructions" style="margin:9px 0 0">Pointer: select five points in the shaded area. Keyboard: open “Keyboard prediction controls” below.</p>
+
+  <div class="reasoning" aria-label="Pre-reveal reasoning">
+    <label>Current structure
+      <select id="structure">
+        <option value="uncertain">Uncertain</option><option value="uptrend">Uptrend</option><option value="downtrend">Downtrend</option><option value="range">Range / mixed</option>
+      </select>
+    </label>
+    <label>Primary evidence
+      <select id="evidence">
+        <option value="uncertain">Not enough evidence</option><option value="support">Support / resistance</option><option value="volume">Volume</option><option value="trend">Trend / moving average</option><option value="candles">Candle structure</option>
+      </select>
+    </label>
+    <label>Confidence
+      <select id="confidence">
+        <option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option>
+      </select>
+    </label>
   </div>
 
-  <div class="ptg-stage" id="stage">
-    <div class="ptg-ticker" id="ticker"></div>
-    <div class="ptg-ohlc" id="ohlc"></div>
-    <svg id="svg" viewBox="0 0 760 420" preserveAspectRatio="none" aria-label="Candlestick chart. Tap in the shaded zone to predict the closing path."></svg>
-    <div class="ptg-hint" id="hint">Tap in the shaded zone to place your first point</div>
-  </div>
-
-  <div class="ptg-controls">
-    <button class="ptg-btn" id="reveal" disabled>Reveal candles</button>
-    <button class="ptg-btn ghost" id="clear" disabled>Clear</button>
-    <button class="ptg-btn ghost" id="next" style="display:none">Next chart &rarr;</button>
-    <div class="ptg-right">
-      <label class="ptg-diff">Difficulty
-        <select id="diff">
-          <option value="0.08">Easy</option>
-          <option value="0.05" selected>Normal</option>
-          <option value="0.03">Hard</option>
-        </select>
+  <div class="controls">
+    <button class="btn primary" id="reveal" disabled>Reveal historical candles</button>
+    <button class="btn" id="clear" disabled>Clear</button>
+    <button class="btn" id="next" hidden>Next chart →</button>
+    <div class="right">
+      <label class="score">Tolerance
+        <select id="diff"><option value="0.08">Wide</option><option value="0.05" selected>Standard</option><option value="0.03">Narrow</option></select>
       </label>
-      <span class="ptg-score">Avg <b id="score">&mdash;</b></span>
+      <span class="score">Average path score <b id="score">—</b></span>
     </div>
   </div>
 
-  <div class="ptg-legend">
-    <span><i class="ptg-swatch" style="background:var(--up)"></i>Up candle</span>
-    <span><i class="ptg-swatch" style="background:var(--down)"></i>Down candle</span>
-    <span><i class="ptg-swatch" style="background:var(--guess);height:3px"></i>Your prediction</span>
-    <span><i class="ptg-swatch" style="background:var(--band);opacity:.4"></i>Tolerance</span>
+  <div class="legend" aria-label="Chart legend">
+    <span><i class="swatch" style="background:var(--up)">▲</i>Up candle</span>
+    <span><i class="swatch" style="background:var(--down)">▼</i>Down candle</span>
+    <span><i class="swatch" style="background:var(--guess)">●</i>Your path</span>
+    <span><i class="swatch" style="background:#376B64">±</i>Tolerance</span>
   </div>
 
-  <div class="ptg-verdict" id="verdict"></div>
-  <div class="ptg-why" id="why"></div>
-</div>
+  <details class="keyboard" id="keyboard-details">
+    <summary>Keyboard prediction controls</summary>
+    <p>Adjust each future closing estimate with the arrow keys. Using any slider creates all five prediction points.</p>
+    <div class="slider-grid" id="slider-grid"></div>
+  </details>
 
-<div class="ptg-modal" id="modal">
-  <div class="ptg-sheet">
-    <button class="ptg-close" id="close-rewards">Close</button>
-    <h3>Rewards</h3>
-    <p class="note">Earn credits by playing well. Redeem them for real rewards. Conversion is fixed and shown up front &mdash; the better you predict, the faster you climb.</p>
-    <table class="ptg-ladder">
-      <thead><tr><th>Reward</th><th>Cost</th><th>Value</th><th></th></tr></thead>
-      <tbody id="ladder-body"></tbody>
-    </table>
-  </div>
-</div>
+  <section class="verdict" id="verdict" aria-live="polite"></section>
+  <section class="observations" id="observations"></section>
+  <aside class="provenance" id="provenance"></aside>
+</main>
 
+<script src="assets/learning-score.js"></script>
 <script>
 (function(){
-  const NS="http://www.w3.org/2000/svg";
-  const W=760,H=420,PADL=10,PADR=54,PADT=12;
-  const PRICE_H=300, VOL_TOP=320, VOL_H=88; // price panel + volume panel
+  'use strict';
+  const NS='http://www.w3.org/2000/svg';
+  const W=760,H=420,PADL=10,PADR=54,PADT=12,PRICE_H=300,VOL_TOP=320,VOL_H=88,NEED=5;
+  const svg=document.getElementById('svg'),stage=document.getElementById('stage'),hint=document.getElementById('hint');
+  const revealBtn=document.getElementById('reveal'),clearBtn=document.getElementById('clear'),nextBtn=document.getElementById('next');
+  const verdict=document.getElementById('verdict'),observations=document.getElementById('observations'),scoreEl=document.getElementById('score');
+  let DATA,order=[],ptr=0,candles=[],closes=[],splitIdx=0,yMin=0,yMax=1,vMax=1,guessPts=[],scores=[],revealed=false,sessionRounds=[];
+  const SAVE_KEY='velta_game_progress_v2';
 
-  const CREDITS_PER_DOLLAR=1000;
-  const REWARDS=[
-    {name:'Dashboard theme change', credits:1500,  perk:'Cosmetic'},
-    {name:'Profile badge',          credits:3000,  perk:'Status'},
-    {name:'Hard-mode hint',         credits:4000,  perk:'Gameplay'},
-    {name:'Skip-stock button (1x)', credits:6000,  perk:'Gameplay'},
-    {name:'Certificate',            credits:12000, perk:'Achievement'},
-    {name:'1-on-1 mentorship',      credits:30000, perk:'Premium'},
-  ];
-  const BASE_EARN=40;
-  const STREAK_STEP=0.15;
-  const STREAK_CAP=2.0;
-  let credits=0, streak=0;
-  const svg=document.getElementById('svg'), stage=document.getElementById('stage'), hint=document.getElementById('hint');
-  const elReveal=document.getElementById('reveal'), elClear=document.getElementById('clear'),
-        elNext=document.getElementById('next'), elVerdict=document.getElementById('verdict'),
-        elScore=document.getElementById('score'), elDiff=document.getElementById('diff'),
-        elTicker=document.getElementById('ticker'), elOhlc=document.getElementById('ohlc');
-  const elBal=document.getElementById('bal'), elStreak=document.getElementById('streak'),
-        elWhy=document.getElementById('why'), elModal=document.getElementById('modal'),
-        elLadder=document.getElementById('ladder-body');
+  function fakeWindow(seed,n,start,drift,vol){let s=seed;const r=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff};const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.283*r());let price=start,out=[];for(let i=0;i<n;i++){const o=price,c=Math.max(.5,o*Math.exp(drift+vol*g()));const hi=Math.max(o,c)*(1+Math.abs(g())*vol*.5),lo=Math.min(o,c)*(1-Math.abs(g())*vol*.5);out.push([o,hi,lo,c,Math.floor(Math.abs(g())*8e6)+1e6]);price=c}return out}
+  function fallbackRound(asset,seed,start,drift,vol){const c=fakeWindow(seed,60,start,drift,vol);return{asset,window:'60 synthetic sessions',candles:c,series:c.map(k=>k[3]),startDate:'synthetic',endDate:'synthetic'}}
+  const FALLBACK={history_frac:.6,source:'Synthetic fallback — not market data',provider:'VeltaCapital deterministic generator',timeframe:'1D',generatedAt:'runtime',limitations:'Used only when the historical dataset cannot load.',rounds:[fallbackRound('DEMO',7,100,.0005,.018)]};
 
-  function fakeWindow(seed,n,start,drift,vol){
-    let s=seed; const r=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
-    const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.2831853*r());
-    let price=start; const out=[];
-    for(let i=0;i<n;i++){const o=price,c=Math.max(.5,o*Math.exp(drift+vol*g()));
-      const hi=Math.max(o,c)*(1+Math.abs(g())*vol*0.5), lo=Math.min(o,c)*(1-Math.abs(g())*vol*0.5);
-      out.push([o,hi,lo,c,Math.floor(Math.abs(g())*8e6)+1e6]); price=c;}
-    return out;
-  }
-  function fbRound(asset,seed,start,drift,vol){const c=fakeWindow(seed,60,start,drift,vol);
-    return{asset:asset,window:'60 sessions',candles:c,series:c.map(k=>k[3])};}
-  const FALLBACK={history_frac:0.6,source:'demo (synthetic)',rounds:[
-    fbRound('AAPL',7,180,0.0009,0.018), fbRound('TSLA',42,240,0.0015,0.035),
-    fbRound('NVDA',99,450,0.0021,0.030), fbRound('KO',13,60,0.0003,0.011),
-    fbRound('SPY',256,420,0.0006,0.010),
-  ]};
+  const n=()=>candles.length,xCenter=i=>PADL+(i+.5)*((W-PADL-PADR)/n()),cw=()=>(W-PADL-PADR)/n()*.64;
+  const yToPx=v=>PADT+(1-(v-yMin)/(yMax-yMin))*PRICE_H,pxToVal=py=>yMin+(1-(py-PADT)/PRICE_H)*(yMax-yMin);
+  const xToIdx=px=>(px-PADL)/((W-PADL-PADR)/n())-.5,volY=v=>VOL_TOP+(1-v/vMax)*VOL_H;
+  const el=(tag,attrs)=>{const node=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,v));return node};
+  const path=pts=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  let DATA=FALLBACK, order=[], ptr=0, seen=new Set();
-  let candles=[], closes=[], splitIdx=0, histFrac=0.6, yMin=0, yMax=1, vMax=1;
-  let guessPts=[], scores=[], revealed=false, revealCount=0; let sessionRounds=[];
-  const NEED=5;
+  fetch('rounds.json').then(r=>r.ok?r.json():Promise.reject(new Error('dataset unavailable'))).then(data=>{
+    DATA=data&&Array.isArray(data.rounds)&&data.rounds.length?data:FALLBACK;boot();
+  }).catch(()=>{DATA=FALLBACK;boot()});
 
-  const n=()=>candles.length;
-  const xCenter=i=> PADL + (i+0.5)*((W-PADL-PADR)/n());
-  const cw=()=> (W-PADL-PADR)/n() * 0.64;
-  const yToPx=v=> PADT + (1-(v-yMin)/(yMax-yMin))*PRICE_H;
-  const pxToVal=py=> yMin + (1-(py-PADT)/PRICE_H)*(yMax-yMin);
-  const xToIdx=px=> (px-PADL)/((W-PADL-PADR)/n()) - 0.5;
-  const volY=v=> VOL_TOP + (1-v/vMax)*VOL_H;
-  const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
-  const path=p=>p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
-
-  fetch('rounds.json').then(r=>r.ok?r.json():Promise.reject()).then(j=>{
-    if(j&&j.rounds&&j.rounds.length&&j.rounds[0].candles){
-      DATA={history_frac:j.history_frac||0.6,source:'real market data',
-            timeframe:j.timeframe||'1D', sourceShort:(j.source||'market data'),
-            rounds:j.rounds};
-    }
-    boot();
-  }).catch(()=>boot());
-
-async function boot(){
-    DATA.sourceShort = DATA.sourceShort || (DATA.source==='real market data' ? 'market data' : 'demo data');
-    DATA.timeframe = DATA.timeframe || '1D';
-    document.getElementById('m-source').textContent=DATA.source;
-    histFrac=DATA.history_frac||0.6;
-
-    // Try to restore saved progress (DB for member, localStorage for trial)
-    let restored = false;
-    try {
-      const saved = await loadProgress();
-      if (isValidSaved(saved)) {
-        order = saved.order;
-        ptr = saved.ptr;
-        sessionRounds = Array.isArray(saved.sessionRounds) ? saved.sessionRounds : [];
-        restored = true;
-      }
-    } catch(e){ /* fall through to fresh start */ }
-
-    if (!restored) {
-      order = DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
-      ptr = 0; sessionRounds = [];
-    }
-    seen = new Set(); scores=[]; elScore.textContent='\u2014';
-    renderCredits();
+  async function boot(){
+    const saved=await loadProgress();
+    if(saved&&validSaved(saved)){order=saved.order;ptr=saved.ptr;sessionRounds=Array.isArray(saved.sessionRounds)?saved.sessionRounds:[]}
+    else{order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-.5);ptr=0}
     loadRound();
   }
+
+  function validSaved(saved){return saved&&Array.isArray(saved.order)&&saved.order.length===DATA.rounds.length&&saved.order.every(i=>Number.isInteger(i)&&i>=0&&i<DATA.rounds.length)&&Number.isInteger(saved.ptr)&&saved.ptr>=0&&saved.ptr<saved.order.length}
+  function snapshot(){return{order,ptr,sessionRounds:sessionRounds.slice(-20)}}
+  async function saveProgress(){const state=snapshot();try{const r=await fetch('/api/game/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({gameState:state})});const d=await r.json();if(d.anon)localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(_){}}}
+  async function loadProgress(){try{const r=await fetch('/api/game/save');const d=await r.json();if(d.ok&&d.gameState)return d.gameState;if(d.anon){const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw):null}}catch(e){try{const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw):null}catch(_){}}return null}
 
   function loadRound(){
-    seen.add(order[ptr]);
-    const r=DATA.rounds[order[ptr]];
-    candles=r.candles.map(c=>c.slice());
-    closes=r.series?r.series.slice():candles.map(c=>c[3]);
-    splitIdx=Math.floor(candles.length*histFrac);
-    let lo=Infinity,hi=-Infinity,vm=0;
-    candles.forEach(c=>{lo=Math.min(lo,c[2]);hi=Math.max(hi,c[1]);vm=Math.max(vm,c[4]);});
-    const pad=(hi-lo)*0.08; yMin=lo-pad; yMax=hi+pad; vMax=vm*1.05;
-    const tf=DATA.timeframe||'1D';
-    elTicker.innerHTML='<b>'+r.asset+'</b> &middot; '+tf+' &middot; <span style="color:#6A7585">'+DATA.sourceShort+'</span>';
-    document.getElementById('m-window').textContent=r.window||'';
-    document.getElementById('m-round').textContent=(ptr+1)+' / '+order.length;
-    guessPts=[]; revealed=false; revealCount=0;
-    elReveal.disabled=true; elClear.disabled=true; elNext.style.display='none'; elVerdict.style.display='none';
-    elWhy.style.display='none';
-    hint.textContent='Tap in the shaded zone to place your first point'; hint.style.opacity='1';
-    elOhlc.textContent='';
-    render();
-  }
-  function band(){return parseFloat(elDiff.value);}
-
-  function drawCandle(c,i,ghost){
-    const x=xCenter(i), w=cw(), up=c[3]>=c[0];
-    const col=up?'var(--up)':'var(--down)';
-    const o=yToPx(c[0]),cl=yToPx(c[3]),hi=yToPx(c[1]),lo=yToPx(c[2]);
-    const op=ghost?0.0:1;
-    svg.appendChild(el('line',{x1:x,y1:hi,x2:x,y2:lo,stroke:col,'stroke-width':1.2,opacity:op}));
-    const top=Math.min(o,cl), bh=Math.max(1.2,Math.abs(cl-o));
-    svg.appendChild(el('rect',{x:x-w/2,y:top,width:w,height:bh,fill:col,opacity:op,rx:0.5}));
-    svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:(VOL_TOP+VOL_H)-volY(c[4]),
-      fill:col,opacity:(ghost?0:0.45)}));
+    const round=DATA.rounds[order[ptr]];candles=round.candles.map(c=>c.slice());closes=round.series?round.series.slice():candles.map(c=>c[3]);splitIdx=Math.floor(candles.length*(DATA.history_frac||.6));
+    let lo=Infinity,hi=-Infinity,vm=0;candles.forEach(c=>{lo=Math.min(lo,c[2]);hi=Math.max(hi,c[1]);vm=Math.max(vm,c[4])});const pad=(hi-lo)*.08;yMin=lo-pad;yMax=hi+pad;vMax=vm*1.05;
+    document.getElementById('ticker').innerHTML='<b>'+escapeHtml(round.asset)+'</b> · '+escapeHtml(DATA.timeframe||'1D')+' · historical exercise';
+    document.getElementById('m-window').textContent=round.window||candles.length+' sessions';document.getElementById('m-round').textContent=(ptr+1)+' / '+order.length;
+    document.getElementById('m-dates').textContent=round.startDate&&round.endDate?round.startDate+' – '+round.endDate:'not preserved in legacy dataset';
+    document.getElementById('m-source').textContent=DATA.provider||DATA.source||'not documented';
+    document.getElementById('provenance').innerHTML='<strong>Data note.</strong> '+escapeHtml(DATA.source||'Historical OHLCV')+'. '+escapeHtml(DATA.limitations||'Charts are selected for practice, not as representative evidence of predictive performance.')+(round.startDate?'':' <span class="caution">This legacy export lacks dates; regenerate it with the updated build script before production.</span>');
+    guessPts=[];revealed=false;revealBtn.disabled=true;clearBtn.disabled=true;nextBtn.hidden=true;verdict.style.display='none';observations.style.display='none';document.getElementById('ohlc').textContent='';
+    hint.textContent='Place your first estimate in the shaded zone';hint.style.opacity='1';buildSliders();render();
   }
 
-  function render(upTo){
-    svg.innerHTML='';
-    const shown = (upTo===undefined)? splitIdx : upTo;
-    for(let g=0;g<=4;g++){const y=PADT+g*PRICE_H/4;
-      svg.appendChild(el('line',{x1:PADL,y1:y,x2:W-PADR,y2:y,stroke:'var(--grid)','stroke-width':1}));
-      const val=yMax-(yMax-yMin)*g/4;
-      svg.appendChild(el('text',{x:W-PADR+4,y:y+3,fill:'var(--axis)','font-size':10,'font-family':'monospace'})).textContent=val.toFixed(val>50?0:2);
-    }
-    svg.appendChild(el('line',{x1:PADL,y1:VOL_TOP+VOL_H,x2:W-PADR,y2:VOL_TOP+VOL_H,stroke:'var(--grid)','stroke-width':1}));
-    svg.appendChild(el('text',{x:PADL+2,y:VOL_TOP-3,fill:'var(--axis)','font-size':9,'font-family':'monospace'})).textContent='Volume';
-    const zx=xCenter(splitIdx)-cw()/2-2;
-    svg.appendChild(el('rect',{x:zx,y:PADT,width:(W-PADR)-zx,height:PRICE_H,fill:'#1b2736','fill-opacity':0.5}));
-    svg.appendChild(el('line',{x1:zx,y1:PADT,x2:zx,y2:VOL_TOP+VOL_H,stroke:'var(--muted)','stroke-width':1,'stroke-dasharray':'4 4'}));
+  function drawCandle(c,i){const x=xCenter(i),w=cw(),up=c[3]>=c[0],col=up?'var(--up)':'var(--down)',o=yToPx(c[0]),cl=yToPx(c[3]),hi=yToPx(c[1]),lo=yToPx(c[2]);svg.appendChild(el('line',{x1:x,y1:hi,x2:x,y2:lo,stroke:col,'stroke-width':1.3}));svg.appendChild(el('rect',{x:x-w/2,y:Math.min(o,cl),width:w,height:Math.max(1.4,Math.abs(cl-o)),fill:col,rx:.5}));svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:VOL_TOP+VOL_H-volY(c[4]),fill:col,opacity:.48}))}
+  function render(upTo){svg.innerHTML='';const shown=upTo===undefined?splitIdx:upTo;for(let g=0;g<=4;g++){const y=PADT+g*PRICE_H/4;svg.appendChild(el('line',{x1:PADL,y1:y,x2:W-PADR,y2:y,stroke:'var(--grid)','stroke-width':1}));const value=yMax-(yMax-yMin)*g/4;const label=el('text',{x:W-PADR+4,y:y+3,fill:'var(--axis)','font-size':10,'font-family':'monospace'});label.textContent=value.toFixed(value>50?0:2);svg.appendChild(label)}const zx=xCenter(splitIdx)-cw()/2-2;svg.appendChild(el('rect',{x:zx,y:PADT,width:W-PADR-zx,height:PRICE_H,fill:'#1b2736','fill-opacity':.58}));svg.appendChild(el('line',{x1:zx,y1:PADT,x2:zx,y2:VOL_TOP+VOL_H,stroke:'var(--muted)','stroke-width':1,'stroke-dasharray':'4 4'}));for(let i=0;i<shown;i++)drawCandle(candles[i],i);for(let i=shown;i<candles.length;i++){const c=candles[i],x=xCenter(i),w=cw();svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:VOL_TOP+VOL_H-volY(c[4]),fill:'#7c8696',opacity:.4}))}if(guessPts.length){const sorted=guessPts.slice().sort((a,b)=>a.x-b.x),bf=Number(document.getElementById('diff').value);sorted.forEach(p=>{const b=p.y*bf;svg.appendChild(el('rect',{x:xCenter(p.x)-6,y:yToPx(p.y+b),width:12,height:Math.abs(yToPx(p.y-b)-yToPx(p.y+b)),fill:'var(--band)','fill-opacity':.2,rx:2}))});const anchored=[{x:splitIdx-1,y:closes[splitIdx-1]}].concat(sorted).map(p=>[xCenter(p.x),yToPx(p.y)]);svg.appendChild(el('path',{d:path(anchored),fill:'none',stroke:'var(--guess)','stroke-width':2.4,'stroke-dasharray':'3 4','stroke-linecap':'round'}));sorted.forEach(p=>svg.appendChild(el('circle',{cx:xCenter(p.x),cy:yToPx(p.y),r:5,fill:'var(--guess)',stroke:'#06100B','stroke-width':1.5})))} }
 
-    for(let i=0;i<shown;i++) drawCandle(candles[i],i,false);
-
-    for(let i=shown;i<candles.length;i++){
-      const c=candles[i], x=xCenter(i), w=cw();
-      svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:(VOL_TOP+VOL_H)-volY(c[4]),
-        fill:'#7c8696',opacity:0.40}));
-    }
-
-    if(guessPts.length>=1){
-      const sorted=guessPts.slice().sort((a,b)=>a.x-b.x);
-      const bf=band();
-      sorted.forEach(p=>{const b=p.y*bf;
-        svg.appendChild(el('rect',{x:xCenter(p.x)-6,y:yToPx(p.y+b),width:12,height:Math.abs(yToPx(p.y-b)-yToPx(p.y+b)),fill:'var(--band)','fill-opacity':0.18,rx:2}));});
-      const anchor={x:splitIdx-1,y:closes[splitIdx-1]};
-      const lp=[anchor].concat(sorted).map(p=>[xCenter(p.x),yToPx(p.y)]);
-      svg.appendChild(el('path',{d:path(lp),fill:'none',stroke:'var(--guess)','stroke-width':2,'stroke-dasharray':'3 4','stroke-linecap':'round'}));
-      sorted.forEach(p=>svg.appendChild(el('circle',{cx:xCenter(p.x),cy:yToPx(p.y),r:4.5,fill:'var(--guess)',stroke:'#0E1621','stroke-width':1.5})));
-    }
-  }
-
-  function evtX(e){const r=stage.getBoundingClientRect();return((e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX)-r.left)/r.width*W;}
-  function evtY(e){const r=stage.getBoundingClientRect();return((e.touches&&e.touches[0]?e.touches[0].clientY:e.clientY)-r.top)/r.height*H;}
-  function placePoint(e){
-    if(revealed)return;
-    const px=evtX(e), py=evtY(e);
-    let xi=Math.round(xToIdx(px));
-    if(xi<splitIdx)return;
-    xi=Math.max(splitIdx,Math.min(candles.length-1,xi));
-    if(py<PADT||py>PADT+PRICE_H)return;
-    const v=Math.max(yMin,Math.min(yMax,pxToVal(py)));
-    const hitR=16;
-    const hit=guessPts.findIndex(p=>Math.abs(xCenter(p.x)-px)<hitR&&Math.abs(yToPx(p.y)-py)<hitR);
-    if(hit>=0){guessPts.splice(hit,1);}
-    else{
-      const exists=guessPts.findIndex(p=>p.x===xi);
-      if(exists>=0)guessPts[exists].y=v;
-      else if(guessPts.length<NEED)guessPts.push({x:xi,y:v});
-      else return;
-    }
-    updateState(); render(); e.preventDefault();
-  }
-  function updateState(){
-    const left=NEED-guessPts.length;
-    elClear.disabled=guessPts.length===0;
-    elReveal.disabled=guessPts.length<NEED;
-    if(guessPts.length===0)hint.textContent='Tap in the shaded zone to place your first point',hint.style.opacity='1';
-    else if(left>0)hint.textContent=left+' more point'+(left>1?'s':'')+' to place',hint.style.opacity='1';
-    else hint.style.opacity='0';
-  }
-  stage.addEventListener('click',function(e){placePoint(e);});
-
-  function actualClose(x){const i=Math.round(x);return closes[Math.max(0,Math.min(closes.length-1,i))];}
-
-  /* ============================================================
-   GAME PROGRESS SAVE/RESTORE
-   Add these helpers inside the main IIFE in predict-the-graph.html,
-   near the other functions (e.g. right after actualClose()).
-   ============================================================ */
-
-  // Unique key so trial (localStorage) progress doesn't collide with anything.
-  const SAVE_KEY = 'velta_game_progress_v1';
-
-  // Collect the state needed to resume exactly where the player left off.
-  function snapshotState(){
-    return { order: order, ptr: ptr, sessionRounds: sessionRounds };
-  }
-
-  // Save progress. Tries the DB (logged-in member); falls back to
-  // localStorage (anonymous trial). Fire-and-forget — never blocks the game.
-  async function saveProgress(){
-    const state = snapshotState();
-    try {
-      const r = await fetch('/api/game/save', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ gameState: state }),
+  function pointerCoordinates(event){const rect=stage.getBoundingClientRect();return{x:(event.clientX-rect.left)/rect.width*W,y:(event.clientY-rect.top)/rect.height*H}}
+  function placePoint(event){if(revealed)return;const p=pointerCoordinates(event);let x=Math.round(xToIdx(p.x));if(x<splitIdx||p.y<PADT||p.y>PADT+PRICE_H)return;x=Math.max(splitIdx,Math.min(candles.length-1,x));const value=Math.max(yMin,Math.min(yMax,pxToVal(p.y)));const existing=guessPts.findIndex(item=>item.x===x);if(existing>=0)guessPts[existing].y=value;else if(guessPts.length<NEED)guessPts.push({x,y:value});updateState();syncSliders();render()}
+  stage.addEventListener('click',placePoint);
+  function futureIndexes(){const count=candles.length-splitIdx;return Array.from({length:NEED},(_,i)=>splitIdx+Math.round(i*(count-1)/(NEED-1)))}
+  function buildSliders(){
+    const host=document.getElementById('slider-grid');
+    host.innerHTML='';
+    futureIndexes().forEach((x,i)=>{
+      const row=document.createElement('label');
+      row.className='slider-row';
+      const value=closes[splitIdx-1];
+      row.innerHTML='<span>Point '+(i+1)+'</span><input type="range" min="'+yMin+'" max="'+yMax+'" step="'+Math.max(.01,(yMax-yMin)/500)+'" value="'+value+'" data-x="'+x+'" aria-label="Future closing estimate '+(i+1)+'"><output>'+value.toFixed(2)+'</output>';
+      const input=row.querySelector('input'),output=row.querySelector('output');
+      const syncPrediction=()=>{
+        if(revealed)return;
+        const indexes=futureIndexes();
+        if(guessPts.length!==NEED)guessPts=indexes.map((idx,j)=>({x:idx,y:Number(host.querySelectorAll('input')[j].value)}));
+        const point=guessPts.find(item=>item.x===Number(input.dataset.x));
+        if(point)point.y=Number(input.value);
+        output.textContent=Number(input.value).toFixed(2);
+        updateState();
+        render();
+      };
+      input.addEventListener('input',syncPrediction);
+      input.addEventListener('change',syncPrediction);
+      input.addEventListener('keyup',event=>{
+        if(event.key.startsWith('Arrow')||event.key==='Home'||event.key==='End')syncPrediction();
       });
-      const data = await r.json();
-      if (data && data.anon) {
-        // not logged in → trial → save locally
-        try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e){}
-      }
-    } catch(e) {
-      // network/API failed → save locally as a fallback
-      try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e2){}
-    }
-  }
-
-  // Load saved progress. Returns a state object or null.
-  async function loadProgress(){
-    // Try DB first (member)
-    try {
-      const r = await fetch('/api/game/save');   // GET
-      const data = await r.json();
-      if (data && data.ok && data.gameState) {
-        return data.gameState;
-      }
-      if (data && data.anon) {
-        // trial → read localStorage
-        const raw = localStorage.getItem(SAVE_KEY);
-        return raw ? JSON.parse(raw) : null;
-      }
-    } catch(e) {
-      // API failed → try localStorage
-      try {
-        const raw = localStorage.getItem(SAVE_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch(e2){ return null; }
-    }
-    return null;
-  }
-
-  // Validate a restored state against the current DATA so a stale/mismatched
-  // save (e.g. rounds.json changed) can't crash the game.
-  function isValidSaved(s){
-    if (!s || !Array.isArray(s.order) || typeof s.ptr !== 'number') return false;
-    if (s.ptr < 0 || s.ptr >= s.order.length) return false;
-    // every index in order must exist in DATA.rounds
-    return s.order.every(i => i >= 0 && i < DATA.rounds.length);
-  }
-
-  // ===== options simulation (Black-Scholes, at-the-money) =====
-  function normCDF(x){const t=1/(1+0.2316419*Math.abs(x));const d=0.3989422804014327*Math.exp(-x*x/2);
-    let p=d*t*(0.31938153+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));return x>0?1-p:p;}
-  function bsPrice(type,S,K,T,r,sigma){
-    if(T<=0||sigma<=0){return type==='call'?Math.max(0,S-K):Math.max(0,K-S);}
-    const d1=(Math.log(S/K)+(r+sigma*sigma/2)*T)/(sigma*Math.sqrt(T));const d2=d1-sigma*Math.sqrt(T);
-    if(type==='call')return S*normCDF(d1)-K*Math.exp(-r*T)*normCDF(d2);
-    return K*Math.exp(-r*T)*normCDF(-d2)-S*normCDF(-d1);}
-  function realizedVol(cl){const rets=[];for(let i=1;i<cl.length;i++)rets.push(Math.log(cl[i]/cl[i-1]));
-    if(rets.length<2)return 0.3;
-    const mean=rets.reduce((a,b)=>a+b,0)/rets.length;
-    const varc=rets.reduce((a,b)=>a+(b-mean)*(b-mean),0)/Math.max(1,rets.length-1);
-    return Math.sqrt(varc)*Math.sqrt(252);}
-  function simulateOptions(guessedUp){
-    const S=closes[splitIdx-1], endV=closes[closes.length-1];
-    const daysToExp=(closes.length-1)-(splitIdx-1);
-    const T=Math.max(1/252,daysToExp/252), r=0.04;
-    let sigma=realizedVol(closes.slice(0,splitIdx));
-    if(!isFinite(sigma)||sigma<0.10)sigma=0.10;
-    if(sigma>2)sigma=2;
-    const type=guessedUp?'call':'put';
-    const K=S; // at-the-money
-    let premium=bsPrice(type,S,K,T,r,sigma);
-    if(premium<0.05)premium=0.05;
-    const contracts=100/premium;
-    const payoff=type==='call'?Math.max(0,endV-K):Math.max(0,K-endV);
-    const finalValue=contracts*payoff;
-    const movePct=((endV-S)/S*100);
-    return {type,S,K,endV,daysToExp,sigma,premium,finalValue,pl:finalValue-100,movePct};
-  }
-
-  function scoreGuess(){
-    const sorted=guessPts.slice().sort((a,b)=>a.x-b.x); const bf=band();
-    let ptSum=0, inBand=0, errSum=0;
-    sorted.forEach(p=>{
-      const a=actualClose(p.x);
-      const tol=a*bf;
-      const dist=Math.abs(p.y-a);
-      if(dist<=tol)inBand++;
-      const credit=Math.max(0, 1 - dist/(tol*3));
-      ptSum+=credit;
-      errSum += Math.abs(p.y - a) / a;
-    });
-    const shape=ptSum/sorted.length;
-    const startV=closes[splitIdx-1], endV=closes[closes.length-1];
-    const actualUp=endV>=startV, guessUp=sorted[sorted.length-1].y>=startV;
-    const dir=actualUp===guessUp?1:0;
-    const guessedUp = guessUp;
-    const opt = simulateOptions(guessedUp);   // options sim replaces buy-and-hold
-    const meanErrPct = (errSum / sorted.length) * 100;
-    return {
-      pct: Math.round((0.4*dir+0.6*shape)*100),
-      dir, inBand, total: sorted.length, actualUp,
-      guessedUp, startV, endV, opt, meanErrPct,
-    };
-  }
-  function doReveal(){
-    revealed=true; elReveal.disabled=true; elClear.disabled=true;
-    hint.style.opacity='0';
-    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-    let i=splitIdx;
-    function step(){
-      i++; render(i);
-      const last=candles[i-1];
-      elOhlc.textContent='O '+last[0].toFixed(2)+'  H '+last[1].toFixed(2)+'  L '+last[2].toFixed(2)+'  C '+last[3].toFixed(2);
-      if(i<candles.length){ setTimeout(step, reduce?0:90); }
-      else finishReveal();
-    }
-    if(reduce){ render(candles.length); finishReveal(); } else step();
-  }
-  function finishReveal(){
-    const s=scoreGuess(); scores.push(s.pct);
-    const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-    elScore.textContent=avg;
-    const grade=s.pct>=80?'Sharp read.':s.pct>=60?'Good read.':s.pct>=40?'Partly there.':'Market disagreed.';
-
-    function creditsFor(errPct){
-      if(errPct <= 2)  return 100;
-      if(errPct <= 5)  return 50;
-      if(errPct <= 10) return 20;
-      if(errPct <= 20) return 5;
-      return 0;
-    }
-    const earned = creditsFor(s.meanErrPct);
-    credits += earned;
-    renderCredits();
-    flashEarn(earned);
-    elVerdict.style.display='block';
-    elVerdict.innerHTML='<div class="grade">'+grade+' &mdash; accuracy '+s.pct+'/100'+
-      '<span class="ptg-earn show" id="earn">+'+earned+' credits earned</span></div>'+
-      '<div class="detail">Average read was <b>'+s.meanErrPct.toFixed(1)+'%</b> off &middot; direction '+
-      (s.dir?'correct':'missed')+' &middot; '+s.inBand+' of '+s.total+
-      ' points inside the band &middot; actual move was '+(s.actualUp?'up':'down')+'.</div>';
-
-    // ---- options hypothetical ----
-    const o = s.opt;
-    const won = o.finalValue > 100;
-    const plColor = o.pl>=0 ? '#3FB950' : '#F0616D';
-    const sign = o.pl>=0 ? '+' : '';
-    const typeLabel = o.type==='call' ? 'call option' : 'put option';
-    const dirWord = o.type==='call' ? 'rise above' : 'fall below';
-    // plain-English explanation of the result
-    let explain;
-    if(won){
-      explain = 'You predicted '+(o.type==='call'?'up':'down')+', so this buys a '+typeLabel+
-        ' at the $'+o.S.toFixed(2)+' strike. The stock '+(o.movePct>=0?'rose':'fell')+' '+
-        Math.abs(o.movePct).toFixed(1)+'% to $'+o.endV.toFixed(2)+' by expiry — '+
-        (o.type==='call'?'above':'below')+' the strike — so the option finished in the money.';
-    } else {
-      explain = 'You predicted '+(o.type==='call'?'up':'down')+', so this buys a '+typeLabel+
-        ' at the $'+o.S.toFixed(2)+' strike. For it to pay off, the stock needed to '+dirWord+
-        ' $'+o.K.toFixed(2)+' by expiry. It closed at $'+o.endV.toFixed(2)+' ('+
-        (o.movePct>=0?'+':'')+o.movePct.toFixed(1)+'%), so the option expired worthless.';
-    }
-    elVerdict.innerHTML +=
-      '<div class="hypo">' +
-        '<div class="hypo-head">If you had put $100 into a '+o.daysToExp+'-day '+typeLabel+' at the split</div>' +
-        '<div class="hypo-num">$' + o.finalValue.toFixed(2) +
-          ' <span class="hypo-pl" style="color:' + plColor + '">' +
-          sign + '$' + o.pl.toFixed(2) + '</span></div>' +
-        '<div class="hypo-rule">' + explain + '</div>' +
-        '<div class="hypo-disc">Simulated at-the-money option using Black-Scholes with volatility (' +
-          (o.sigma*100).toFixed(0) + '% annualized) estimated from the chart\'s own history; ' +
-          'expiry set to the end of the reveal window, ~4% risk-free rate. ' +
-          'A model, not a live quote. Ignores commissions, spreads, slippage, early exercise, and taxes. ' +
-          'Hypothetical result on historical data — not a prediction and not investment advice.</div>' +
-      '</div>';
-    showWhy();
-
-    const _r = DATA.rounds[order[ptr]];
-    const _marketHypo = 100 * (s.endV / s.startV);
-    sessionRounds.push({
-      symbol: (_r && _r.asset) ? _r.asset : '—',
-      guessedUp: s.guessedUp,
-      actualUp: s.actualUp,
-      optValue: o.finalValue,
-      optType: o.type,
-      marketHypo: _marketHypo,
-      meanErrPct: s.meanErrPct,
-      dirCorrect: s.dir === 1,
-    });
-    try{
-      if(window.parent && window.parent!==window){
-        const r = DATA.rounds[order[ptr]];
-        window.parent.postMessage({type:'velta_round_done'}, '*');
-        window.parent.postMessage({
-          type:'velta_result',
-          symbol: (r && r.asset) ? r.asset : '—',
-          accuracy: s.pct,
-          direction: s.dir,
-          meanErrPct: s.meanErrPct,
-          credits: earned,
-        }, '*');
-      }
-    }catch(e){}
-    saveProgress();
-    elNext.style.display='inline-block';
-  }
-
-  function sma(arr,end,len){let s=0,k=0;for(let i=Math.max(0,end-len);i<end;i++){s+=arr[i];k++;}return k?s/k:arr[end-1];}
-  function showWhy(){
-    const fut=candles.slice(splitIdx);
-    const startV=closes[splitIdx-1], endV=closes[closes.length-1];
-    const pct=((endV-startV)/startV*100);
-    const up=endV>=startV;
-    const histHi=Math.max.apply(null,closes.slice(0,splitIdx));
-    const histLo=Math.min.apply(null,closes.slice(0,splitIdx));
-    const ma20prev=sma(closes,splitIdx,20), ma20now=sma(closes,closes.length,20);
-    let bigI=0,bigRange=0; fut.forEach((c,i)=>{const r=c[1]-c[2];if(r>bigRange){bigRange=r;bigI=i;}});
-    const vols=candles.map(c=>c[4]).slice().sort((a,b)=>a-b);
-    const medVol=vols[Math.floor(vols.length/2)];
-    const bigVol=fut[bigI][4];
-    const greens=fut.filter(c=>c[3]>=c[0]).length, reds=fut.length-greens;
-
-    const pts=[];
-    pts.push('Price '+(up?'rose':'fell')+' about '+Math.abs(pct).toFixed(1)+'% over the predicted stretch ('+
-      greens+' up candles vs '+reds+' down).');
-    if(endV>histHi*0.995 && up)
-      pts.push('It pushed through the prior high near '+histHi.toFixed(2)+' — a <b>breakout</b> above resistance, which often invites more buyers (Ch. 7).');
-    else if(endV<histLo*1.005 && !up)
-      pts.push('It broke below the prior low near '+histLo.toFixed(2)+' — a <b>breakdown</b> through support, where stops can accelerate selling (Ch. 7).');
-    else if(up)
-      pts.push('The move stayed inside the prior range — buyers led, but it never cleared resistance at '+histHi.toFixed(2)+'.');
-    else
-      pts.push('The move stayed inside the prior range — sellers led, but it held above support at '+histLo.toFixed(2)+'.');
-    if(bigVol>medVol*1.4)
-      pts.push('The largest candle (day '+(bigI+1)+' of the reveal) came on <b>volume ~'+(bigVol/medVol).toFixed(1)+'× the median</b> — high volume confirms conviction behind the move (Ch. 7 & 10).');
-    else
-      pts.push('Volume stayed near average throughout — no single session showed a strong conviction spike, so the move was steadier than it was explosive.');
-    if((ma20now-ma20prev)/ma20prev>0.01)
-      pts.push('The 20-day average turned up over the window — a short-term <b>uptrend</b> forming (Ch. 7, moving averages).');
-    else if((ma20now-ma20prev)/ma20prev<-0.01)
-      pts.push('The 20-day average rolled over — a short-term <b>downtrend</b> (Ch. 7, moving averages).');
-
-    elWhy.style.display='block';
-    elWhy.innerHTML='<h4>Why it moved like that</h4><ul>'+pts.map(p=>'<li>'+p+'</li>').join('')+
-      '</ul><div class="detail" style="color:var(--muted);font-size:12px;margin-top:8px">'+
-      'Note: short-horizon moves are partly noise — these are the readable structural reasons, not a guarantee any single signal caused it.</div>';
-  }
-
-  function renderCredits(){
-    elBal.innerHTML=credits.toLocaleString()+' <small>CREDITS</small>';
-    elStreak.innerHTML=streak>=2?('🔥 streak <b>'+streak+'</b>'):'';
-    renderLadder();
-  }
-  function flashEarn(n){
-    elBal.animate?elBal.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:420}):0;
-  }
-  function renderLadder(){
-    elLadder.innerHTML='';
-    REWARDS.forEach(function(rw){
-      const can=credits>=rw.credits;
-      const tr=document.createElement('tr'); if(!can)tr.className='locked';
-      tr.innerHTML='<td>'+rw.name+'</td><td>'+rw.credits.toLocaleString()+'</td><td>'+rw.perk+'</td>'+
-        '<td><button class="redeem"'+(can?'':' disabled')+'>Redeem</button></td>';
-      tr.querySelector('.redeem').addEventListener('click',function(){
-        if(credits>=rw.credits){credits-=rw.credits;renderCredits();
-          tr.querySelector('td:last-child').textContent='✓ redeemed';}
-      });
-      elLadder.appendChild(tr);
+      host.appendChild(row);
     });
   }
-  document.getElementById('open-rewards').addEventListener('click',function(){renderLadder();elModal.classList.add('open');});
-  document.getElementById('close-rewards').addEventListener('click',function(){elModal.classList.remove('open');});
-  elModal.addEventListener('click',function(e){if(e.target===elModal)elModal.classList.remove('open');});
+  function syncSliders(){document.querySelectorAll('#slider-grid input').forEach(input=>{const point=guessPts.find(item=>item.x===Number(input.dataset.x));if(point){input.value=point.y;input.nextElementSibling.textContent=point.y.toFixed(2)}})}
+  function updateState(){const left=NEED-guessPts.length;clearBtn.disabled=guessPts.length===0;revealBtn.disabled=left>0;if(revealed){hint.textContent='Round complete';hint.style.opacity='0'}else if(left===NEED){hint.textContent='Place your first estimate in the shaded zone';hint.style.opacity='1'}else if(left>0){hint.textContent=left+' more estimate'+(left===1?'':'s')+' needed';hint.style.opacity='1'}else{hint.textContent='Prediction ready — record your reasoning, then reveal';hint.style.opacity='1'}}
+  clearBtn.addEventListener('click',()=>{guessPts=[];buildSliders();updateState();render()});
 
-  elReveal.addEventListener('click',doReveal);
-  elClear.addEventListener('click',function(){guessPts=[];updateState();render();});
-  function renderRecap(){
-    const rounds = sessionRounds.slice(-5);
-    const dirHits = rounds.filter(r=>r.dirCorrect).length;
-    const avgErr = rounds.reduce((a,r)=>a+r.meanErrPct,0)/rounds.length;
-    const optWins = rounds.filter(r=>r.optValue > 100).length;
+  function actualAt(x){return closes[Math.max(0,Math.min(closes.length-1,Math.round(x)))]}
+  function reveal(){revealed=true;updateState();revealBtn.disabled=true;clearBtn.disabled=true;let i=splitIdx;const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;function step(){i++;render(i);const c=candles[i-1];document.getElementById('ohlc').textContent='O '+c[0].toFixed(2)+' H '+c[1].toFixed(2)+' L '+c[2].toFixed(2)+' C '+c[3].toFixed(2);if(i<candles.length)setTimeout(step,reduce?0:80);else finish()}if(reduce){render(candles.length);finish()}else step()}
+  revealBtn.addEventListener('click',reveal);
 
-    let rows = rounds.map((r,i)=>{
-      const optPl = r.optValue - 100;
-      const col = v => v>=0 ? '#3FB950' : '#F0616D';
-      return '<tr>'+
-        '<td>'+(i+1)+'</td>'+
-        '<td>'+r.symbol+'</td>'+
-        '<td>'+(r.guessedUp?'Up (call)':'Down (put)')+'</td>'+
-        '<td>'+(r.actualUp?'Up':'Down')+(r.dirCorrect?' ✓':' ✗')+'</td>'+
-        '<td style="color:'+col(optPl)+'">$'+r.optValue.toFixed(2)+'</td>'+
-        '</tr>';
-    }).join('');
+  function finish(){const sorted=guessPts.slice().sort((a,b)=>a.x-b.x),actuals=sorted.map(p=>actualAt(p.x));const result=VeltaLearning.calculatePredictionScore({guesses:sorted.map(p=>p.y),actuals,startValue:closes[splitIdx-1],bandFraction:Number(document.getElementById('diff').value)});scores.push(result.pathScore);scoreEl.textContent=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);const confidence=document.getElementById('confidence').value,structure=document.getElementById('structure').value,evidence=document.getElementById('evidence').value;verdict.style.display='block';verdict.innerHTML='<h2>Path score: '+result.pathScore+'/100</h2><div class="detail">Average estimate error: <b>'+result.meanErrorPct.toFixed(1)+'%</b> · '+result.inBand+' of '+result.total+' estimates inside the selected tolerance · final direction '+(result.directionCorrect?'matched':'did not match')+'.</div><div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> '+escapeHtml(structure)+' · '+escapeHtml(evidence)+' · '+escapeHtml(confidence)+' confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>';showObservations(result);sessionRounds.push({symbol:DATA.rounds[order[ptr]].asset,pathScore:result.pathScore,meanErrorPct:result.meanErrorPct,directionCorrect:result.directionCorrect,confidence,structure,evidence});nextBtn.hidden=false;saveProgress();try{if(parent&&parent!==window){parent.postMessage({type:'velta_round_done'},location.origin);parent.postMessage({type:'velta_result',symbol:DATA.rounds[order[ptr]].asset,accuracy:result.pathScore,direction:result.directionCorrect?1:0,meanErrPct:result.meanErrorPct,reasoning:{confidence,structure,evidence}},location.origin)}}catch(e){}}
 
-    elVerdict.style.display='block';
-    elVerdict.innerHTML =
-      '<div class="grade">Session recap &mdash; 5 charts</div>'+
-      '<div class="recap-wrap"><table class="recap">'+
-        '<thead><tr><th>#</th><th>Chart</th><th>Your call</th><th>Actual</th>'+
-        '<th>Your $100 option</th></tr></thead>'+
-        '<tbody>'+rows+'</tbody>'+
-      '</table></div>'+
-      '<div class="detail" style="margin-top:10px">'+
-        'Direction called correctly: <b>'+dirHits+' of '+rounds.length+'</b> &middot; '+
-        'average read <b>'+avgErr.toFixed(1)+'%</b> off &middot; '+
-        'options finished in the money in <b>'+optWins+' of '+rounds.length+'</b>.'+
-      '</div>'+
-      '<div class="hypo-disc" style="margin-top:10px">Hypothetical results on historical data. '+
-        'Not a prediction and not investment advice. Skill here does not indicate real trading results.</div>'+
-      '<button class="ptg-btn" id="recap-continue" style="margin-top:14px">Start a new session &rarr;</button>';
+  function sma(values,end,length){let total=0,count=0;for(let i=Math.max(0,end-length);i<end;i++){total+=values[i];count++}return count?total/count:values[end-1]}
+  function showObservations(result){const future=candles.slice(splitIdx),start=closes[splitIdx-1],end=closes[closes.length-1],change=(end-start)/start*100,historicalHigh=Math.max(...closes.slice(0,splitIdx)),historicalLow=Math.min(...closes.slice(0,splitIdx)),medianVolume=candles.map(c=>c[4]).sort((a,b)=>a-b)[Math.floor(candles.length/2)],largest=future.reduce((best,c,i)=>c[1]-c[2]>best.range?{range:c[1]-c[2],c,i}:best,{range:-1}),points=[];points.push('Price '+(change>=0?'rose':'fell')+' '+Math.abs(change).toFixed(1)+'% across the hidden window. This describes the outcome; it does not identify a cause.');if(end>historicalHigh)points.push('The final close finished above the earlier visible high near '+historicalHigh.toFixed(2)+'. That is a breakout observation, not proof that the breakout caused later buying.');else if(end<historicalLow)points.push('The final close finished below the earlier visible low near '+historicalLow.toFixed(2)+'. That is a breakdown observation, not proof that the level caused later selling.');else points.push('The final close remained inside the earlier visible range between approximately '+historicalLow.toFixed(2)+' and '+historicalHigh.toFixed(2)+'.');if(largest.c[4]>medianVolume*1.4)points.push('The widest future candle occurred with about '+(largest.c[4]/medianVolume).toFixed(1)+'× median volume. Higher volume indicates more activity, but does not by itself reveal investor intent or guarantee continuation.');else points.push('No widest-range session exceeded 1.4× the dataset median volume; the chart does not show an obvious volume spike under this simple rule.');const before=sma(closes,splitIdx,20),after=sma(closes,closes.length,20);points.push('The 20-session average '+(after>before?'increased':'decreased')+' across the window. Moving averages summarize past prices and are lagging indicators.');observations.style.display='block';observations.innerHTML='<h2>What the chart showed</h2><ul>'+points.map(p=>'<li>'+p+'</li>').join('')+'</ul><div class="detail">Short-horizon outcomes contain substantial noise. These observations are descriptive, not investment recommendations or evidence that a pattern will repeat.</div>'}
 
-    document.getElementById('why') && (document.getElementById('why').style.display='none');
-    elNext.style.display='none';
-    document.getElementById('recap-continue').addEventListener('click',function(){
-      sessionRounds=[];
-      saveProgress();
-      const el=document.getElementById('why'); if(el) el.style.display='';
-      advanceChart();
-    });
-    elVerdict.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-function advanceChart(){
-    ptr++;
-    if(ptr>=order.length){
-      order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-0.5);
-      ptr=0; seen=new Set();
-    }
-    saveProgress();
-    loadRound();
-  }
-  elNext.addEventListener('click',function(){
-    if(sessionRounds.length>0 && sessionRounds.length % 5 === 0){
-      renderRecap();
-      return;
-    }
-    advanceChart();
-  });
-  elDiff.addEventListener('change',function(){if(guessPts.length>=1&&!revealed)render();});
+  nextBtn.addEventListener('click',()=>{ptr++;if(ptr>=order.length){order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-.5);ptr=0}saveProgress();loadRound()});
+  document.getElementById('diff').addEventListener('change',()=>{if(guessPts.length&&!revealed)render()});
 })();
 </script>
+</body>
+</html>

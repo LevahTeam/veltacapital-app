@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""build_rounds.py — VeltaCapital rounds (Alpha Vantage free tier, compact)."""
+"""Build an auditable historical exercise dataset from Alpha Vantage.
+
+The output preserves dates and provenance so a learner can independently
+verify each chart. It deliberately labels the selection procedure and does not
+claim that the chosen windows are representative of predictive performance.
+"""
 
 import json, os, random, sys, time, urllib.request
 
@@ -47,7 +52,11 @@ def classify(w):
 def to_round(t,w):
     candles=[[o,h,l,c,v] for (_d,o,h,l,c,v) in w]
     return {"asset":t,"window":f"{WINDOW} sessions","candles":candles,
-            "series":[c[3] for c in candles]}
+            "series":[c[3] for c in candles],
+            "dates":[d for (d,_o,_h,_l,_c,_v) in w],
+            "startDate":w[0][0],
+            "splitDate":w[max(0, int(len(w)*HISTORY_FRAC)-1)][0],
+            "endDate":w[-1][0]}
 
 def main():
     if not API_KEY:
@@ -67,8 +76,24 @@ def main():
     if not rounds:
         print("No rounds. If rate-limited, wait and rerun.", file=sys.stderr); sys.exit(1)
     random.shuffle(rounds)
-    payload={"history_frac":HISTORY_FRAC,"source":"real market data",
-             "timeframe":"1D","rounds":rounds}
+    payload={
+        "history_frac":HISTORY_FRAC,
+        "source":"Historical daily OHLCV data; unadjusted Alpha Vantage TIME_SERIES_DAILY export",
+        "provider":"Alpha Vantage",
+        "timeframe":"1D",
+        "adjusted":False,
+        "generatedAt":time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "selectionMethod":(
+            f"For each listed ticker, use the most recent {WINDOW} available daily sessions, "
+            "then shuffle with random seed 42. No windows are selected based on later performance."
+        ),
+        "limitations":(
+            "Unadjusted data may contain apparent gaps around splits or distributions. "
+            "The fixed ticker list and recent-window selection are not representative samples "
+            "of all securities or market regimes."
+        ),
+        "rounds":rounds,
+    }
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH,"w") as f: json.dump(payload,f)
     print(f"\nWrote {len(rounds)} rounds to {OUT_PATH}")

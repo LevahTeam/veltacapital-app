@@ -1,5 +1,5 @@
 // ============================================================
-//  POST /api/checkout   body: { plan: "trial"|"starter"|"standard"|"premium" }
+//  POST /api/checkout   body: { plan: "standard" }
 //  Creates a Stripe Checkout session for the given plan and returns its URL.
 //  Grants NOTHING here — the plan is only granted in the webhook AFTER Stripe
 //  confirms payment. This route just starts the payment.
@@ -12,6 +12,17 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  if (process.env.CHECKOUT_ENABLED !== "true") {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Enrollment is not open yet. Checkout will remain disabled until pricing, policies, and fulfillment have completed review.",
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     // Must be a logged-in user — getUid works here because this call comes
     // from the browser (with the session cookie), unlike the webhook.
@@ -21,6 +32,9 @@ export async function POST(req: Request) {
     }
 
     const { plan } = await req.json();
+    if (plan !== "standard") {
+      return NextResponse.json({ ok: false, error: "Unknown plan" }, { status: 400 });
+    }
     const priceId = PRICE_IDS[plan];
     if (!priceId) {
       return NextResponse.json({ ok: false, error: "Unknown or unconfigured plan" }, { status: 400 });

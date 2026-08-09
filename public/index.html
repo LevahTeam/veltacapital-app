@@ -3,8 +3,15 @@
 <head> <link rel="icon" type="image/png" href="assets/img/logo.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VeltaCapital — Practice reading stock charts</title>
-<meta name="description" content="VeltaCapital turns real historical charts into hands-on practice. Learn to read candlesticks through guided prediction rounds and a structured course — risk-free.">
+<title>VeltaCapital — Financial reasoning practice with historical charts</title>
+<meta name="description" content="Practice interpreting historical stock charts, record your reasoning, and review what the data showed — without trading real money.">
+<link rel="canonical" href="https://www.veltacapital.net/">
+<meta property="og:type" content="website"><meta property="og:url" content="https://www.veltacapital.net/">
+<meta property="og:site_name" content="VeltaCapital"><meta property="og:title" content="VeltaCapital — Financial reasoning practice">
+<meta property="og:description" content="A financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="VeltaCapital — Financial reasoning practice">
+<meta name="twitter:description" content="A financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"EducationalOrganization","name":"VeltaCapital","url":"https://www.veltacapital.net/","description":"Historical-chart reasoning practice and risk-first financial education.","sameAs":["https://www.instagram.com/veltacapital"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -40,6 +47,7 @@ body{
 }
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
 a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:3px solid var(--up-2);outline-offset:4px}
 h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.05;letter-spacing:-.02em;margin:0}
 .mono{font-family:'JetBrains Mono',monospace}
 .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;
@@ -73,6 +81,12 @@ main,header,footer{position:relative;z-index:1}
 .nav-links{display:flex;align-items:center;gap:30px;font-size:14px;color:var(--fg-dim)}
 .nav-links a:hover{color:var(--fg)}
 .nav-links .btn{margin-left:6px}
+.nav-toggle{display:none;background:transparent;border:1px solid var(--line-2);color:var(--fg);border-radius:8px;padding:8px 11px;font-weight:600}
+@media(max-width:760px){
+  .wrap{padding-left:18px;padding-right:18px}.nav-in{height:64px;position:relative}.nav-toggle{display:block}
+  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;margin:0 -18px;padding:18px;background:#0B0F12;border-bottom:1px solid var(--line-2);flex-direction:column;align-items:stretch;gap:8px}
+  .nav-links.open{display:flex}.nav-links a{padding:10px 12px}.nav-links .btn{margin:0;justify-content:center}
+}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;
@@ -139,6 +153,9 @@ main,header,footer{position:relative;z-index:1}
 .step .num{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.15em;color:var(--up)}
 .step h3{font-size:22px;margin:16px 0 8px}
 .step p{color:var(--fg-dim);font-size:15px;margin:0}
+.curriculum{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:34px}
+.unit{background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:18px}.unit .num{font:11px 'JetBrains Mono',monospace;color:var(--up);letter-spacing:.1em}.unit h3{font-size:18px;margin:9px 0 6px}.unit p{font-size:13px;color:var(--fg-dim);margin:0}
+@media(max-width:820px){.curriculum{grid-template-columns:1fr 1fr}}@media(max-width:560px){.curriculum{grid-template-columns:1fr}}
 
 /* ---------- FOUNDERS (the signature redesign) ---------- */
 .people{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
@@ -187,14 +204,14 @@ main,header,footer{position:relative;z-index:1}
 .trial-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-wrap:wrap;gap:10px}
 .trial-head .t{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--fg)}
 .trial-head .s{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--up)}
-.trial-frame{width:100%;border:none;border-radius:10px;background:#0A0E11;height:760px;display:block}
+.trial-frame{width:100%;border:none;border-radius:10px;background:#0A0E11;height:1040px;display:block}
 .trial-gate{padding:48px 24px;text-align:center;color:var(--fg-dim)}
 .trial-gate h3{font-size:26px;color:var(--fg)}
 .trial-gate .btn{margin-top:18px}
 
 /* ---------- PRICING ---------- */
-.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
-@media(max-width:920px){.tiers{grid-template-columns:1fr 1fr}}
+.tiers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:48px;max-width:820px}
+@media(max-width:760px){.tiers{grid-template-columns:1fr}}
 @media(max-width:560px){.tiers{grid-template-columns:1fr}}
 .tier{position:relative;background:linear-gradient(180deg,var(--bg-1),var(--bg));
   border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:border-color .3s,transform .3s}
@@ -246,12 +263,13 @@ main,header,footer{position:relative;z-index:1}
 
 <header class="nav"><div class="wrap nav-in">
   <a class="brand" href="#top" id="brand"></a>
-  <nav class="nav-links">
+  <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+  <nav class="nav-links" id="primary-nav" aria-label="Primary navigation">
     <a href="#how">How it works</a>
     <a href="#course">Course</a>
     <a href="#try">Try it</a>
     <a href="#pricing">Pricing</a>
-     <a href="reports.html">Reports</a>
+    <a href="methodology.html">Methodology</a>
     <a class="btn ghost" href="#" id="login-top">Log in</a>
   </nav>
 </div></header>
@@ -261,26 +279,26 @@ main,header,footer{position:relative;z-index:1}
 <!-- HERO -->
 <section class="hero"><div class="wrap hero-grid">
   <div class="reveal">
-    <p class="eyebrow">Chart-reading practice</p>
-    <h1 style="margin-top:18px">Learn to <span class="am">read</span> the chart before you risk a cent.</h1>
-    <p class="lead">VeltaCapital turns real historical charts into hands-on practice. Watch Saechan's lessons, then test what you've learned in a prediction game that scores how you read trend, volume, and support — all risk-free.</p>
+    <p class="eyebrow">Financial reasoning practice</p>
+    <h1 style="margin-top:18px">Learn to <span class="am">reason</span> from a chart before risking a cent.</h1>
+    <p class="lead">VeltaCapital pairs a written beginner curriculum with historical-chart exercises. Record the evidence behind your interpretation, reveal the actual candles, and review what the data showed—without placing a trade.</p>
     <div class="hero-cta">
       <a class="btn solid lg" href="#try">Try 3 free rounds</a>
       <a class="btn ghost lg" href="#how">See how it works</a>
     </div>
-    <p class="hero-note">No account needed to try. No trading, no real money — just practice.</p>
+    <p class="hero-note">No account needed to try. No trading, no profit promises, no real money at risk.</p>
   </div>
 
   <div class="chart-card reveal" aria-hidden="true">
     <svg id="heroChart" viewBox="0 0 420 240" preserveAspectRatio="none"></svg>
-    <div class="chart-cap"><span>Read the setup →</span><b>Predict the next move</b></div>
+    <div class="chart-cap"><span>Record the evidence →</span><b>Compare with history</b></div>
   </div>
 </div></section>
 
 <!-- KPIS -->
 <div class="wrap"><div class="kpis reveal">
-  <div class="kpi"><div class="n accent mono">Real</div><div class="l">historical market charts</div></div>
-  <div class="kpi"><div class="n mono">Skill</div><div class="l">scored on how you read, not luck</div></div>
+  <div class="kpi"><div class="n accent mono">Historical</div><div class="l">OHLCV exercises with public methodology</div></div>
+  <div class="kpi"><div class="n mono">Separate</div><div class="l">path accuracy, direction, confidence, and reasoning</div></div>
   <div class="kpi"><div class="n mono">0</div><div class="l">real money at risk, ever</div></div>
 </div></div>
 
@@ -288,15 +306,15 @@ main,header,footer{position:relative;z-index:1}
 <section class="section" id="how"><div class="wrap">
   <div class="section-head reveal">
     <p class="eyebrow">How it works</p>
-    <h2>Watch, predict, understand.</h2>
+    <h2>Learn, interpret, reflect.</h2>
   </div>
   <div class="how">
     <div class="step reveal"><div class="num">STEP 01</div><h3>Learn the concept</h3>
-      <p>Short lessons from Saechan cover candlesticks, trend, support &amp; resistance, volume, and moving averages — the real toolkit for reading a chart.</p></div>
-    <div class="step reveal"><div class="num">STEP 02</div><h3>Predict the graph</h3>
-      <p>You're shown the first half of a real chart. Place your prediction, then watch the actual candles reveal one by one and see how you did.</p></div>
-    <div class="step reveal"><div class="num">STEP 03</div><h3>See what it showed</h3>
-      <p>Every round breaks down the readable clues behind the move — breakouts, volume confirmation, trend shifts — and ties them back to the lesson.</p></div>
+      <p>Written lessons cover market structure, chart mechanics, risk, uncertainty, and the limitations of technical signals.</p></div>
+    <div class="step reveal"><div class="num">STEP 02</div><h3>Record your interpretation</h3>
+      <p>Estimate a future path and record the structure, evidence, and confidence behind your view before seeing the outcome.</p></div>
+    <div class="step reveal"><div class="num">STEP 03</div><h3>Reflect on the result</h3>
+      <p>Compare path accuracy separately from direction and review descriptive observations—without claiming a chart caused the move.</p></div>
   </div>
 </div></section>
 
@@ -304,9 +322,22 @@ main,header,footer{position:relative;z-index:1}
 <section class="section" id="course"><div class="wrap">
   <div class="section-head reveal">
     <p class="eyebrow">The course</p>
-    <h2>Taught by people who actually read charts.</h2>
-    <p class="lead">A focused curriculum built for beginners — from "what is a candlestick" to spotting breakouts and managing risk. Paired with practice so the concepts stick.</p>
+    <h2>A visible, risk-first beginner curriculum.</h2>
+    <p class="lead">Every unit has a clear objective and practice focus. Before paid launch, the complete course and calculations require documented independent professional review.</p>
   </div>
+
+  <div class="curriculum reveal" aria-label="Curriculum outline">
+    <article class="unit"><div class="num">UNIT 01</div><h3>Markets &amp; ownership</h3><p>Explain what a share represents and distinguish a company from its stock price.</p></article>
+    <article class="unit"><div class="num">UNIT 02</div><h3>OHLCV &amp; candles</h3><p>Read open, high, low, close, and volume without inferring unsupported causes.</p></article>
+    <article class="unit"><div class="num">UNIT 03</div><h3>Trend &amp; range</h3><p>Describe structure across timeframes and recognize ambiguity.</p></article>
+    <article class="unit"><div class="num">UNIT 04</div><h3>Levels &amp; false breaks</h3><p>Treat support and resistance as zones, not guaranteed turning points.</p></article>
+    <article class="unit"><div class="num">UNIT 05</div><h3>Volume &amp; volatility</h3><p>Measure activity and dispersion while avoiding claims about investor intent.</p></article>
+    <article class="unit"><div class="num">UNIT 06</div><h3>Risk &amp; probability</h3><p>Separate possible outcomes from expected value and personal suitability.</p></article>
+    <article class="unit"><div class="num">UNIT 07</div><h3>Fundamentals &amp; sources</h3><p>Use filings and primary sources to evaluate a business separately from its chart.</p></article>
+    <article class="unit"><div class="num">UNIT 08</div><h3>Bias &amp; limitations</h3><p>Recognize hindsight, selection, overfitting, and the weak causal power of charts.</p></article>
+    <article class="unit"><div class="num">UNIT 09</div><h3>Reflection &amp; calibration</h3><p>Review errors, confidence, and evidence rather than simulated profit.</p></article>
+  </div>
+  <p class="hero-note"><a href="methodology.html" style="color:var(--up)">Read the scoring and data methodology →</a></p>
 
   <div class="people">
     <!-- Saechan -->
@@ -319,17 +350,12 @@ main,header,footer{position:relative;z-index:1}
         </div>
       </div>
       <div class="tags">
-        <span class="tag">Stock-sim top 9%</span>
-        <span class="tag">Options educator</span>
+        <span class="tag">Student educator</span>
+        <span class="tag">Simulation experience</span>
         <span class="tag">Finance club president</span>
       </div>
-      <p class="bio">Led a year-long macro trading simulation from $100K to $236K, and placed 22nd of 251 in Ithaca College's stock sim with a 7.46% return. Runs a live options-trading channel chasing $10K from a $500 start.</p>
-      <div class="pstats">
-        <div class="pstat"><div class="v">22nd</div><div class="k">of 251</div></div>
-        <div class="pstat"><div class="v">+7.46%</div><div class="k">return</div></div>
-        <div class="pstat"><div class="v">$236K</div><div class="k">sim peak</div></div>
-      </div>
-      <div class="bio full" id="bio-s">Saechan has completed Forage job simulations in investment banking, risk analysis, and quantitative research affiliated with Bank of America, Goldman Sachs, and JPMorgan Chase respectively. He writes on Medium across economics and political topics, and serves as president of his high school's finance club and DECA co-president.</div>
+      <p class="bio">Designs the written lessons and historical-chart exercises from a student educator's perspective. His background includes school finance leadership and educational market simulations; it is not professional investment-advisory experience.</p>
+      <div class="bio full" id="bio-s">Saechan has completed educational Forage job simulations based on investment banking, risk analysis, and quantitative research tasks. These programs are learning experiences and do not represent employment by their affiliated companies. Course material requires independent professional review before paid launch.</div>
       <button class="more" data-target="bio-s">Read more <span>↓</span></button>
     </div>
 
@@ -347,13 +373,13 @@ main,header,footer{position:relative;z-index:1}
         <span class="tag">Next.js · Prisma · Postgres</span>
         <span class="tag">Accessibility tech</span>
        </div>
-      <p class="bio">Built and coded the whole platform — prediction game, course system, real-time market data, auth, credits and leaderboards. Interested in making financial literacy more accessible.</p>
+      <p class="bio">Builds the platform, historical-data exercises, authentication, and accessibility features. Focused on making financial concepts easier to examine and question.</p>
       <div class="pstats">
         <div class="pstat"><div class="v">3</div><div class="k">countries</div></div>
         <div class="pstat"><div class="v">Full</div><div class="k">stack</div></div>
         <div class="pstat"><div class="v">a11y</div><div class="k">focus</div></div>
       </div>
-      <div class="bio full" id="bio-h">Having lived in Australia, Korea, and the United States, Samuel brings a global perspective to technology and entrepreneurship. As president of the Healthtech Club, he develops accessibility-focused technologies, including a navigation system for visually impaired students. His work spans financial education, award-winning robotics, AI, and social impact. Follow his Healthtech initiatives at **@hlthtech**.
+      <div class="bio full" id="bio-h">Having lived in Australia, Korea, and the United States, Samuel brings a global perspective to technology and entrepreneurship. His accessibility work includes navigation technology for visually impaired students. VeltaCapital's core chart exercise now includes a complete keyboard alternative.
 </div>
       <button class="more" data-target="bio-h">Read more <span>↓</span></button>
     </div>
@@ -365,11 +391,11 @@ main,header,footer{position:relative;z-index:1}
   <div class="section-head reveal">
     <p class="eyebrow">Try it now</p>
     <h2>Three rounds, free. No sign-up to play.</h2>
-    <p class="lead">Read the chart, place your prediction, watch it reveal. After three rounds, log in with Google to save your score and unlock the full course.</p>
+    <p class="lead">Interpret the visible chart, record your evidence and confidence, place five estimates, then reveal the historical candles. The path score and direction result are reported separately.</p>
   </div>
   <div class="trial-wrap reveal">
     <div class="trial-head">
-      <span class="t">Predict the Graph — Trial</span>
+      <span class="t">Historical Chart Reasoning — Trial</span>
       <span class="s" id="trial-count">3 free rounds</span>
     </div>
     <div id="trial-host">
@@ -377,7 +403,7 @@ main,header,footer{position:relative;z-index:1}
     </div>
     <div class="trial-gate" id="trial-gate" style="display:none">
       <h3>Nice reads. Want to keep going?</h3>
-      <p>Log in with Google to save your trial score, claim your credits, and unlock the full course.</p>
+      <p>Log in with Google to save your trial reflections and continue when enrollment opens.</p>
       <button class="btn solid lg" id="trial-login">Continue with Google</button>
     </div>
   </div>
@@ -386,12 +412,15 @@ main,header,footer{position:relative;z-index:1}
 <!-- PRICING -->
 <section class="section" id="pricing"><div class="wrap">
   <div class="section-head reveal">
-    <p class="eyebrow">Plans</p>
-    <h2>Pick how deep you want to go.</h2>
-    <p class="lead">Every plan includes the course and the prediction game. Higher tiers add more practice, more lessons, and credits toward rewards.</p>
+    <p class="eyebrow">Enrollment</p>
+    <h2>One clear learning path.</h2>
+    <p class="lead">The product is being simplified to a free practice experience and one complete course. Paid enrollment remains closed until policy, fulfillment, curriculum, and independent educational review are complete.</p>
   </div>
-  <div class="tiers" id="tiers"></div>
-  <p class="hero-note" style="margin-top:22px">Prices shown are placeholders for preview. Plan details are illustrative and editable.</p>
+  <div class="tiers" id="tiers">
+    <article class="tier"><div class="ribbon">Available now</div><h3>Free Practice</h3><div class="price">$0</div><p style="color:var(--fg-dim);font-size:14px">Three historical-chart exercises with the public scoring methodology.</p><ul><li><span class="ic">✓</span><span>No account required</span></li><li><span class="ic">✓</span><span>Keyboard-accessible predictions</span></li><li><span class="ic">✓</span><span>Path, direction, and confidence shown separately</span></li></ul><a class="btn ghost" href="#try">Start free practice</a></article>
+    <article class="tier feature"><div class="ribbon">Enrollment closed</div><h3>Complete Course</h3><div class="price">Price pending review</div><p style="color:var(--fg-dim);font-size:14px">Written curriculum, 50 historical-chart exercises, assessments, and progress review.</p><ul><li><span class="ic">✓</span><span>Visible curriculum and learning objectives</span></li><li><span class="ic">✓</span><span>No paid leaderboard placement or credit multipliers</span></li><li><span class="ic">✓</span><span>Final terms and refunds shown before payment</span></li></ul><a class="btn solid" href="mailto:veltacapitalhq@gmail.com?subject=VeltaCapital%20course%20updates">Request launch updates</a></article>
+  </div>
+  <p class="hero-note" style="margin-top:22px"><a href="refunds.html" style="color:var(--up)">View current enrollment and refund status →</a></p>
 </div></section>
 
 <!-- CONTACT -->
@@ -420,14 +449,15 @@ main,header,footer{position:relative;z-index:1}
       <p style="margin:8px 0"><a href="#how">How it works</a></p>
       <p style="margin:8px 0"><a href="#course">Course</a></p>
       <p style="margin:8px 0"><a href="#try">Try the game</a></p>
-      <p style="margin:8px 0"><a href="reports.html">Reports</a></p>
+      <p style="margin:8px 0"><a href="methodology.html">Methodology</a></p>
       <p style="margin:8px 0"><a href="#pricing">Pricing</a></p>
     </div>
     <div>
       <p class="lbl">Contact</p>
-      <p style="margin:8px 0"><a href="#" id="f-ig">Instagram</a></p>
-      <p style="margin:8px 0"><a href="#" id="f-mail">Email</a></p>
-      <p style="margin:8px 0"><a href="#" id="f-phone">Phone</a></p>
+      <p style="margin:8px 0"><a href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener">Instagram</a></p>
+      <p style="margin:8px 0"><a href="mailto:veltacapitalhq@gmail.com">Email</a></p>
+      <p style="margin:8px 0"><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a></p>
+      <p style="margin:8px 0"><a href="refunds.html">Enrollment &amp; refunds</a></p>
     </div>
   </div>
   <div class="disclaim" style="margin-top:40px">
@@ -442,7 +472,7 @@ main,header,footer{position:relative;z-index:1}
     <button class="x" id="login-x">Close</button>
     <p class="eyebrow">Sign in</p>
     <h2>Continue to VeltaCapital</h2>
-    <p style="color:var(--fg-dim);font-size:15px;margin:12px 0 22px">Sign in with your Google account to save your progress, credits, and leaderboard position.</p>
+    <p style="color:var(--fg-dim);font-size:15px;margin:12px 0 22px">Sign in with your Google account to save lesson progress, chart reflections, and assessment results.</p>
     <p id="login-err" style="color:var(--down);font-size:13px;min-height:18px;margin:4px 0"></p>
     <button class="btn solid lg" id="google-btn" style="width:100%;justify-content:center">Continue with Google</button>
     <p style="font-size:12px;color:var(--fg-mute);margin-top:16px;text-align:center;line-height:1.6">
@@ -511,36 +541,20 @@ main,header,footer{position:relative;z-index:1}
     });
   });
 
-  // ---- pricing tiers (real PLANS + el() from velta.js) ----
-  (function(){
-    const host=document.getElementById('tiers');
-    const order=['trial','starter','standard','premium'];
-    order.forEach(key=>{
-      const p=PLANS[key];
-      const feat = key==='standard';
-      const card=el('div',{class:'tier'+(feat?' feature':'')});
-      card.innerHTML =
-        '<div class="ribbon">'+(feat?'Most popular':'')+'</div>'+
-        '<h3>'+p.name+'</h3>'+
-        '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
-        '<p style="color:var(--fg-dim);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
-        '<ul>'+p.features.map(f=>'<li><span class="ic">&check;</span><span>'+f+'</span></li>').join('')+'</ul>'+
-        '<a class="btn '+(feat?'solid':'ghost')+'" style="justify-content:center" href="'+(p.paymentLink||'#')+'" target="_blank" rel="noopener" data-buy="'+key+'">Choose '+p.name+'</a>';
-      host.appendChild(card);
-    });
-    host.addEventListener('click',e=>{
-      const b=e.target.closest('[data-buy]'); if(!b)return;
-      // the button is now a real link to Stripe Checkout — let it navigate.
-    });
-  })();
+  // ---- responsive navigation ----
+  const navToggle=document.getElementById('nav-toggle');
+  const primaryNav=document.getElementById('primary-nav');
+  navToggle.addEventListener('click',()=>{const open=primaryNav.classList.toggle('open');navToggle.setAttribute('aria-expanded',String(open));});
+  primaryNav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{primaryNav.classList.remove('open');navToggle.setAttribute('aria-expanded','false');}));
 
   // ---- login modal (real Velta.apiLogin) ----
   const modal=document.getElementById('login-modal');
-  function openLogin(){ modal.classList.add('open'); }
-  function closeLogin(){ modal.classList.remove('open'); }
+  function openLogin(){ modal.classList.add('open'); document.getElementById('login-x').focus(); }
+  function closeLogin(){ modal.classList.remove('open'); document.getElementById('login-top').focus(); }
   document.getElementById('login-top').addEventListener('click',e=>{e.preventDefault();openLogin();});
   document.getElementById('login-x').addEventListener('click',closeLogin);
   modal.addEventListener('click',e=>{ if(e.target===modal)closeLogin(); });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeLogin();});
 
   function doLogin(){ Velta.apiLogin(); }
   document.getElementById('google-btn').addEventListener('click',doLogin);
@@ -549,6 +563,7 @@ main,header,footer{position:relative;z-index:1}
   let trialRounds = Velta.get().trialRoundsUsed;
   updateTrialCount();
   window.addEventListener('message',(ev)=>{
+    if(ev.origin!==location.origin)return;
     if(ev.data && ev.data.type==='velta_round_done'){
       trialRounds++; Velta.useTrialRound(); updateTrialCount();
       if(trialRounds>=3){

@@ -12,8 +12,5 @@ export const stripe = new Stripe(key || "sk_test_placeholder_not_configured", {}
 
 // Maps your plan keys to the Stripe Price IDs you create in the dashboard.
 export const PRICE_IDS: Record<string, string | undefined> = {
-  trial:    process.env.STRIPE_PRICE_TRIAL,
-  starter:  process.env.STRIPE_PRICE_STARTER,
   standard: process.env.STRIPE_PRICE_STANDARD,
-  premium:  process.env.STRIPE_PRICE_PREMIUM,
 };
