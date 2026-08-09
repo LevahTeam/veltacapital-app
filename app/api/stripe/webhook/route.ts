@@ -17,8 +17,8 @@ import type Stripe from "stripe";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// The public offer is intentionally limited to one course. Learning activity
-// never earns cash-like credits, redemption access, or score multipliers.
+// The public offer is intentionally limited to one course. Course access can
+// earn non-cash learning credits, but it never receives a paid score multiplier.
 const PLANS: Record<string, { runs: number; unlimited: boolean }> = {
   standard: { runs: 50, unlimited: false },
 };
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
         plan,
         simRunsLeft:   { increment: cfg.runs },
         unlimitedSims: cfg.unlimited,
-        canRedeem: false,
+        canRedeem: true,
         earnMult: 1.0,
       },
     });

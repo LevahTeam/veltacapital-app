@@ -125,6 +125,13 @@
   .stat-bar-track{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
   .stat-bar-fill{height:100%;background:#16A36A;border-radius:99px;transition:width .4s ease}
 
+  .reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:780px){.reward-grid{grid-template-columns:1fr}}
+  .reward{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px}
+  .reward h3{font-size:16px}
+  .reward .cost{font-family:'SF Mono',ui-monospace,monospace;font-size:13px;color:var(--muted)}
+  .reward .cost b{color:var(--amber)}
+  .reward.locked{opacity:.62}
   .reward .btn:hover{background:#1B2329}
   .reward .btn:disabled{opacity:.4}
 
@@ -156,7 +163,7 @@
 </head>
 <body>
 
-<div class="proto-flag">REVIEW BUILD — paid enrollment, rewards, and public rankings are disabled.</div>
+<div class="proto-flag">REVIEW BUILD — learning credits have no cash value. Paid enrollment and public rankings remain disabled.</div>
 
 <header class="nav"><div class="wrap nav-in">
   <a class="brand" href="index.html" id="brand"></a>
@@ -171,7 +178,8 @@
 <div class="wrap">
   <div class="acct-bar">
     <span>Signed in as <span class="who" id="who">—</span></span>
-    <span class="credits">Private learning record</span>
+    <span class="mono" id="profile-badge" hidden style="color:var(--teal)">◆ Learning badge</span>
+    <span class="credits">Learning credits: <span class="mono" id="cred">0</span></span>
   </div>
 </div>
 
@@ -187,7 +195,7 @@
         <div class="lab">free historical-chart exercises</div>
         <div class="row"><span>Trial rounds played</span><span class="v" id="earned-rounds">0 / 3</span></div>
         <div class="row"><span>Public ranking</span><span class="v">Disabled</span></div>
-        <div class="row"><span>Prize credits</span><span class="v">Disabled</span></div>
+        <div class="row"><span>Learning credits</span><span class="v" id="earned-banked">0</span></div>
         <p class="locked-tag" style="margin-top:18px">Scores are private learning feedback, not evidence of real-world investment performance.</p>
       </div>
 
@@ -196,7 +204,7 @@
         <ul class="unlock-list">
           <li><span class="ic">✓</span><span>Review a visible, risk-first written curriculum.</span></li>
           <li><span class="ic">✓</span><span>Track path accuracy separately from directional outcomes.</span></li>
-          <li><span class="ic">✓</span><span>Compare confidence with outcomes instead of chasing prizes.</span></li>
+          <li><span class="ic">✓</span><span>Earn non-cash credits for additional learning tools and practice.</span></li>
           <li><span class="ic">✓</span><span>Use the public scoring and data methodology.</span></li>
         </ul>
         <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap">
@@ -221,6 +229,7 @@
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true"  data-tab="videos">Course</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="game">Prediction game</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="rewards">Redeem credits</button>
     </div>
 
 
@@ -245,10 +254,12 @@
     <!-- GAME -->
     <section class="panel" id="panel-game" role="tabpanel">
       <h2 style="margin-bottom:6px">Historical chart reasoning</h2>
-    <div class="game-meter">
+      <div class="game-meter">
         <span class="pill">Runs left: <b id="rounds-allowance">—</b></span>
         <span class="pill">Plan: <b id="plan-name-game">—</b></span>
+        <span class="pill">Credits: <b id="cred-game">0</b></span>
       </div>
+      <p class="mono" id="credit-earned" aria-live="polite" style="font-size:12px;color:var(--teal);min-height:18px"></p>
       <div class="stats-strip" id="stats-strip">
         <span class="stat" id="stat-best"></span>
         <span class="stat" id="stat-streak"></span>
@@ -258,6 +269,14 @@
         </div>
       </div>
       <iframe class="game-frame" id="game-frame" title="Predict the Graph" src="predict-the-graph.html"></iframe>
+    </section>
+
+    <!-- LEARNING REWARDS -->
+    <section class="panel" id="panel-rewards" role="tabpanel">
+      <h2 style="margin-bottom:6px">Redeem learning credits</h2>
+      <p class="lead" style="margin-bottom:8px">Credits unlock in-product practice and learning features. They cannot be purchased, transferred, redeemed for cash, or used as evidence of investing performance.</p>
+      <p class="acct-bar" style="border:none">Balance: <span class="credits" style="margin-left:8px"><span class="mono" id="cred-rewards">0</span> credits</span></p>
+      <div class="reward-grid" id="reward-grid" style="margin-top:14px"></div>
     </section>
 
   </div>
@@ -297,6 +316,8 @@
 
   function refresh(){
     document.getElementById('who').textContent = user.name || 'you';
+    document.getElementById('profile-badge').hidden = !user.hasBadge;
+    document.getElementById('cred').textContent = fmt(user.credits || 0);
     const planCfg = PLANS[user.plan];
     const planLabel = (!planCfg || user.plan==='none') ? 'No plan yet' : planCfg.name+' plan';
 
@@ -309,6 +330,7 @@
     document.getElementById('member').style.display='none';
     document.getElementById('exercise-count').textContent = '3';
     document.getElementById('earned-rounds').textContent = Math.min(3,s.trialRoundsUsed)+' / 3';
+    document.getElementById('earned-banked').textContent = fmt(user.credits || 0);
   }
   document.getElementById('see-plans').addEventListener('click',()=>{
     document.getElementById('plans2').scrollIntoView({behavior:'smooth'});
@@ -350,7 +372,9 @@
     document.getElementById('rounds-allowance').textContent =
       user.unlimitedSims ? 'Unlimited' : fmt(user.simRunsLeft);
     document.getElementById('plan-name-game').textContent = p.name;
-    buildVideos(p); setupCourseToggle();
+    document.getElementById('cred-game').textContent = fmt(user.credits || 0);
+    document.getElementById('cred-rewards').textContent = fmt(user.credits || 0);
+    buildVideos(p); buildRewards(); setupCourseToggle();
     loadStats();
   }
   async function loadStats(){
@@ -368,8 +392,12 @@
       // streak — encouragement only, shown at 2+ days
       elStreak.textContent = st.streakDays>=2 ? ('🔥 '+st.streakDays+'-day streak') : '';
 
-      elBarLabel.textContent = st.totalRounds+' private practice round'+(st.totalRounds===1?'':'s')+' saved';
-      elBarFill.style.width = Math.min(100,st.totalRounds*10)+'%';
+      const nextReward=REWARDS.filter(r=>!(r.once&&r.ownedField&&user[r.ownedField]))
+        .filter(r=>(user.credits||0)<r.credits).sort((a,b)=>a.credits-b.credits)[0];
+      elBarLabel.textContent = nextReward
+        ? fmt(user.credits||0)+' / '+fmt(nextReward.credits)+' credits → '+nextReward.name
+        : st.totalRounds+' practice round'+(st.totalRounds===1?'':'s')+' saved';
+      elBarFill.style.width = nextReward ? Math.min(100,(user.credits||0)/nextReward.credits*100)+'%' : '100%';
       elBarWrap.style.display='block';
     }catch(err){
       // stats are non-critical; fail quietly
@@ -383,7 +411,7 @@ const CHAPTER_LIMITS = { trial:5, starter:10, standard:15, premium:15 };
 
   async function buildVideos(p){
     const grid=document.getElementById('video-grid'); grid.innerHTML='';
-    const limit = CHAPTER_LIMITS[user.plan] || 0;
+    const limit = user.advancedUnlocked ? 15 : (CHAPTER_LIMITS[user.plan] || 0);
 
     if(!COURSE){
       try{ COURSE = await fetch('course.json').then(r=>r.json()); }
@@ -411,7 +439,7 @@ function openLesson(n){
     const ch = COURSE.chapters.find(c=>c.n===n);
     if(!ch) return;
     const total = COURSE.chapters.length;
-    const limit = CHAPTER_LIMITS[user.plan] || 0;
+    const limit = user.advancedUnlocked ? COURSE.chapters.length : (CHAPTER_LIMITS[user.plan] || 0);
     closeLesson();
 
     const sections = ch.sections.map(s=>
@@ -480,6 +508,41 @@ function openLesson(n){
     document.body.style.overflow='';
   }
 
+const REWARDS = [
+  {id:'extra_runs',name:'+5 historical-chart exercises',credits:100},
+  {id:'badge',name:'Learning profile badge',credits:300,once:true,ownedField:'hasBadge'},
+  {id:'advanced_module',name:'Advanced learning module',credits:500,once:true,ownedField:'advancedUnlocked'},
+];
+
+function buildRewards(){
+  const grid=document.getElementById('reward-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  REWARDS.forEach(reward=>{
+    const owned=reward.once&&reward.ownedField&&user[reward.ownedField];
+    const affordable=(user.credits||0)>=reward.credits;
+    const usable=user.plan!=='none'&&affordable&&!owned;
+    const card=el('div',{class:'reward'+(usable?'':' locked')});
+    const label=owned?'✓ Owned':!affordable?'Need '+fmt(reward.credits-(user.credits||0))+' more':'Redeem';
+    card.innerHTML='<h3>'+reward.name+'</h3><div class="cost">Cost: <b>'+fmt(reward.credits)+'</b> credits</div><button class="btn'+(usable?' amber':'')+'" '+(usable?'':'disabled')+' style="justify-content:center">'+label+'</button>';
+    if(usable)card.querySelector('button').addEventListener('click',async event=>{
+      const button=event.currentTarget;
+      button.disabled=true;button.textContent='Redeeming…';
+      try{
+        const result=await Velta.apiRedeem(reward.id);
+        user.credits=result.credits;
+        user.simRunsLeft=result.simRunsLeft;
+        user.advancedUnlocked=result.advancedUnlocked;
+        user.hasBadge=result.hasBadge;
+        refresh();
+      }catch(error){
+        button.disabled=false;button.textContent='Redeem';alert(error.message);
+      }
+    });
+    grid.appendChild(card);
+  });
+}
+
 function setupCourseToggle(){
     const btnL=document.getElementById('ct-lessons');
     const btnF=document.getElementById('ct-flashcards');
@@ -515,7 +578,7 @@ function buildFlashcards(){
     const host=document.getElementById('fc-picker'); if(!host) return;
     host.innerHTML='';
     if(!COURSE){ host.innerHTML='<p style="color:var(--muted)">Loading…</p>'; return; }
-    const limit = CHAPTER_LIMITS[user.plan] || 0;
+    const limit = user.advancedUnlocked ? COURSE.chapters.length : (CHAPTER_LIMITS[user.plan] || 0);
 
     COURSE.chapters.forEach(ch=>{
       const locked = ch.n>limit;
@@ -622,8 +685,13 @@ function buildFlashcards(){
           direction: ev.data.direction,
           meanErrPct: ev.data.meanErrPct,
         });
+        user.credits = res.credits;
         user.simRunsLeft = res.simRunsLeft;
         user.unlimitedSims = res.unlimitedSims;
+        document.getElementById('credit-earned').textContent = '+'+fmt(res.earned)+' learning credits · '+fmt(res.credits)+' total';
+        document.getElementById('game-frame')?.contentWindow?.postMessage(
+          {type:'velta_earned',earned:res.earned,total:res.credits},location.origin
+        );
         refresh();
 
 

@@ -55,3 +55,18 @@ test("in the money and profitable are not treated as synonyms", () => {
   assert.equal(result.finalValue, 20);
   assert.equal(result.profitLoss, -80);
 });
+
+test("the simplified $100 comparison reports ending value and profit separately", () => {
+  const result = calculateOptionOutcome({
+    type: "call",
+    strike: 100,
+    closingPrice: 110,
+    premium: 5,
+    budget: 100,
+  });
+  assert.equal(result.intrinsicPerShare, 10);
+  assert.equal(result.finalValue, 200);
+  assert.equal(result.profitLoss, 100);
+  assert.equal(result.isInTheMoney, true);
+  assert.equal(result.isProfitable, true);
+});

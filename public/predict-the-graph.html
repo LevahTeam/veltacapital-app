@@ -43,9 +43,13 @@
   .verdict,.observations,.provenance{margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:6px;background:var(--surface);line-height:1.55}
   .verdict,.observations{display:none}.verdict h2,.observations h2{font-family:Georgia,serif;font-size:19px;margin:0 0 6px}
   .detail{font-size:13px;color:var(--muted)}.observations ul{padding-left:18px;margin:8px 0}.observations li{margin:5px 0;font-size:14px}
+  .option-card{margin-top:14px;padding:14px;border:1px solid #2B4B3D;border-radius:6px;background:#0C1914}
+  .option-card h3{font-size:15px;margin:0 0 8px}.option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .option-metric{padding:9px;background:#111A1F;border-radius:5px}.option-metric span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}.option-metric b{display:block;margin-top:2px;font-size:15px}
+  .credit-result{margin-top:10px;color:var(--guess);font-size:12px;font-weight:650}
   .provenance{font-size:11px;color:var(--muted)}.provenance strong{color:var(--ink)}
   .caution{color:#FFD27A}
-  @media(max-width:640px){.ptg{padding:14px;border-radius:0}.reasoning{grid-template-columns:1fr}.right{width:100%;margin-left:0;justify-content:space-between}.slider-row{grid-template-columns:68px 1fr 62px}}
+  @media(max-width:640px){.ptg{padding:14px;border-radius:0}.reasoning{grid-template-columns:1fr}.right{width:100%;margin-left:0;justify-content:space-between}.slider-row{grid-template-columns:68px 1fr 62px}.option-grid{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
@@ -211,13 +215,45 @@
   function reveal(){revealed=true;updateState();revealBtn.disabled=true;clearBtn.disabled=true;let i=splitIdx;const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;function step(){i++;render(i);const c=candles[i-1];document.getElementById('ohlc').textContent='O '+c[0].toFixed(2)+' H '+c[1].toFixed(2)+' L '+c[2].toFixed(2)+' C '+c[3].toFixed(2);if(i<candles.length)setTimeout(step,reduce?0:80);else finish()}if(reduce){render(candles.length);finish()}else step()}
   revealBtn.addEventListener('click',reveal);
 
-  function finish(){const sorted=guessPts.slice().sort((a,b)=>a.x-b.x),actuals=sorted.map(p=>actualAt(p.x));const result=VeltaLearning.calculatePredictionScore({guesses:sorted.map(p=>p.y),actuals,startValue:closes[splitIdx-1],bandFraction:Number(document.getElementById('diff').value)});scores.push(result.pathScore);scoreEl.textContent=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);const confidence=document.getElementById('confidence').value,structure=document.getElementById('structure').value,evidence=document.getElementById('evidence').value;verdict.style.display='block';verdict.innerHTML='<h2>Path score: '+result.pathScore+'/100</h2><div class="detail">Average estimate error: <b>'+result.meanErrorPct.toFixed(1)+'%</b> · '+result.inBand+' of '+result.total+' estimates inside the selected tolerance · final direction '+(result.directionCorrect?'matched':'did not match')+'.</div><div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> '+escapeHtml(structure)+' · '+escapeHtml(evidence)+' · '+escapeHtml(confidence)+' confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>';showObservations(result);sessionRounds.push({symbol:DATA.rounds[order[ptr]].asset,pathScore:result.pathScore,meanErrorPct:result.meanErrorPct,directionCorrect:result.directionCorrect,confidence,structure,evidence});nextBtn.hidden=false;saveProgress();try{if(parent&&parent!==window){parent.postMessage({type:'velta_round_done'},location.origin);parent.postMessage({type:'velta_result',symbol:DATA.rounds[order[ptr]].asset,accuracy:result.pathScore,direction:result.directionCorrect?1:0,meanErrPct:result.meanErrorPct,reasoning:{confidence,structure,evidence}},location.origin)}}catch(e){}}
+  function money(value){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value)}
+
+  function optionResult(result){
+    const budget=100,start=closes[splitIdx-1],closingPrice=closes[closes.length-1];
+    const type=result.guessedDirection==='down'?'put':'call';
+    const premium=Math.max(.01,start*.05);
+    const outcome=VeltaLearning.calculateOptionOutcome({type,strike:start,closingPrice,premium,budget});
+    const contractCost=premium*100,wholeContracts=Math.floor(budget/contractCost);
+    const status=outcome.isProfitable?'hypothetical gain':outcome.isInTheMoney?'in the money, but a hypothetical loss':'out of the money';
+    return '<div class="option-card"><h3>Hypothetical $100 '+type+' comparison</h3><div class="option-grid">'+
+      '<div class="option-metric"><span>$100 becomes</span><b>'+money(outcome.finalValue)+'</b></div>'+
+      '<div class="option-metric"><span>Hypothetical P/L</span><b>'+(outcome.profitLoss>=0?'+':'')+money(outcome.profitLoss)+'</b></div>'+
+      '<div class="option-metric"><span>Outcome</span><b>'+status+'</b></div></div>'+
+      '<div class="detail" style="margin-top:10px">Simplified intrinsic-value model: '+type+', strike '+money(start)+', ending price '+money(closingPrice)+', and an assumed premium of 5% of the strike ('+money(premium)+' per share). It models a fractional equivalent so the starting amount stays at $100. Standard listed options usually represent 100 shares; at this assumed premium one contract would cost '+money(contractCost)+', so $100 could purchase '+wholeContracts+' whole contract'+(wholeContracts===1?'':'s')+'. Real option prices also reflect time, volatility, spreads, fees, liquidity, and exercise rules.</div></div>';
+  }
+
+  function finish(){
+    const sorted=guessPts.slice().sort((a,b)=>a.x-b.x),actuals=sorted.map(p=>actualAt(p.x));
+    const result=VeltaLearning.calculatePredictionScore({guesses:sorted.map(p=>p.y),actuals,startValue:closes[splitIdx-1],bandFraction:Number(document.getElementById('diff').value)});
+    scores.push(result.pathScore);scoreEl.textContent=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    const confidence=document.getElementById('confidence').value,structure=document.getElementById('structure').value,evidence=document.getElementById('evidence').value;
+    verdict.style.display='block';
+    verdict.innerHTML='<h2>Path score: '+result.pathScore+'/100</h2><div class="detail">Average estimate error: <b>'+result.meanErrorPct.toFixed(1)+'%</b> · '+result.inBand+' of '+result.total+' estimates inside the selected tolerance · final direction '+(result.directionCorrect?'matched':'did not match')+'.</div><div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> '+escapeHtml(structure)+' · '+escapeHtml(evidence)+' · '+escapeHtml(confidence)+' confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>'+optionResult(result)+'<div class="credit-result" id="credit-result" aria-live="polite"></div>';
+    showObservations(result);
+    sessionRounds.push({symbol:DATA.rounds[order[ptr]].asset,pathScore:result.pathScore,meanErrorPct:result.meanErrorPct,directionCorrect:result.directionCorrect,confidence,structure,evidence});
+    nextBtn.hidden=false;saveProgress();
+    try{if(parent&&parent!==window){parent.postMessage({type:'velta_round_done'},location.origin);parent.postMessage({type:'velta_result',symbol:DATA.rounds[order[ptr]].asset,accuracy:result.pathScore,direction:result.directionCorrect?1:0,meanErrPct:result.meanErrorPct,reasoning:{confidence,structure,evidence}},location.origin)}}catch(e){}
+  }
 
   function sma(values,end,length){let total=0,count=0;for(let i=Math.max(0,end-length);i<end;i++){total+=values[i];count++}return count?total/count:values[end-1]}
   function showObservations(result){const future=candles.slice(splitIdx),start=closes[splitIdx-1],end=closes[closes.length-1],change=(end-start)/start*100,historicalHigh=Math.max(...closes.slice(0,splitIdx)),historicalLow=Math.min(...closes.slice(0,splitIdx)),medianVolume=candles.map(c=>c[4]).sort((a,b)=>a-b)[Math.floor(candles.length/2)],largest=future.reduce((best,c,i)=>c[1]-c[2]>best.range?{range:c[1]-c[2],c,i}:best,{range:-1}),points=[];points.push('Price '+(change>=0?'rose':'fell')+' '+Math.abs(change).toFixed(1)+'% across the hidden window. This describes the outcome; it does not identify a cause.');if(end>historicalHigh)points.push('The final close finished above the earlier visible high near '+historicalHigh.toFixed(2)+'. That is a breakout observation, not proof that the breakout caused later buying.');else if(end<historicalLow)points.push('The final close finished below the earlier visible low near '+historicalLow.toFixed(2)+'. That is a breakdown observation, not proof that the level caused later selling.');else points.push('The final close remained inside the earlier visible range between approximately '+historicalLow.toFixed(2)+' and '+historicalHigh.toFixed(2)+'.');if(largest.c[4]>medianVolume*1.4)points.push('The widest future candle occurred with about '+(largest.c[4]/medianVolume).toFixed(1)+'× median volume. Higher volume indicates more activity, but does not by itself reveal investor intent or guarantee continuation.');else points.push('No widest-range session exceeded 1.4× the dataset median volume; the chart does not show an obvious volume spike under this simple rule.');const before=sma(closes,splitIdx,20),after=sma(closes,closes.length,20);points.push('The 20-session average '+(after>before?'increased':'decreased')+' across the window. Moving averages summarize past prices and are lagging indicators.');observations.style.display='block';observations.innerHTML='<h2>What the chart showed</h2><ul>'+points.map(p=>'<li>'+p+'</li>').join('')+'</ul><div class="detail">Short-horizon outcomes contain substantial noise. These observations are descriptive, not investment recommendations or evidence that a pattern will repeat.</div>'}
 
   nextBtn.addEventListener('click',()=>{ptr++;if(ptr>=order.length){order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-.5);ptr=0}saveProgress();loadRound()});
   document.getElementById('diff').addEventListener('change',()=>{if(guessPts.length&&!revealed)render()});
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||!event.data||event.data.type!=='velta_earned')return;
+    const creditResult=document.getElementById('credit-result');
+    if(creditResult)creditResult.textContent='+'+Number(event.data.earned||0).toLocaleString()+' learning credits · '+Number(event.data.total||0).toLocaleString()+' total';
+  });
 })();
 </script>
 </body>

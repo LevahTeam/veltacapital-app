@@ -70,11 +70,21 @@ const Velta = (() => {
     if(!data.ok) throw new Error(data.error || 'Could not save score');
     return data;
   }
+  async function apiRedeem(rewardId){
+    const r = await fetch('/api/rewards/redeem', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ rewardId }),
+    });
+    const data = await r.json();
+    if(!data.ok) throw new Error(data.error || 'Could not redeem reward');
+    return data;
+  }
   return {
     get:()=>({...state}),
     fakeLogin, useTrialRound, reset,
     save:()=>save(state),
-    apiLogin, apiMe, apiLogout, apiSubmitScore, apiStats,
+    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiStats,
   };
 })();
 
