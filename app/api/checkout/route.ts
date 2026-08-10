@@ -1,5 +1,5 @@
 // ============================================================
-//  POST /api/checkout   body: { plan: "standard" }
+//  POST /api/checkout   body: { plan: "trial" | "starter" | "standard" | "premium" }
 //  Creates a Stripe Checkout session for the given plan and returns its URL.
 //  Grants NOTHING here — the plan is only granted in the webhook AFTER Stripe
 //  confirms payment. This route just starts the payment.
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       {
         ok: false,
         error:
-          "Enrollment is not open yet. Checkout will remain disabled until pricing, policies, and fulfillment have completed review.",
+          "Secure checkout is not enabled for this deployment yet.",
       },
       { status: 503 }
     );
@@ -31,8 +31,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Not logged in" }, { status: 401 });
     }
 
-    const { plan } = await req.json();
-    if (plan !== "standard") {
+    const { plan } = (await req.json()) as { plan?: unknown };
+    const validPlans = new Set(["trial", "starter", "standard", "premium"]);
+    if (typeof plan !== "string" || !validPlans.has(plan)) {
       return NextResponse.json({ ok: false, error: "Unknown plan" }, { status: 400 });
     }
     const priceId = PRICE_IDS[plan];
@@ -44,8 +45,17 @@ export async function POST(req: Request) {
     // helps Stripe with receipts). Not required, but cheap and helpful.
     const user = await prisma.user.findUnique({
       where: { id: uid },
-      select: { email: true },
+      select: { email: true, plan: true },
     });
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "Account not found" }, { status: 404 });
+    }
+    if (user.plan !== "none") {
+      return NextResponse.json(
+        { ok: false, error: "This account already has course access. Contact support before purchasing another plan." },
+        { status: 409 }
+      );
+    }
 
     // Where Stripe sends the user back to after paying / cancelling.
     // Uses your live domain in production, localhost in dev.
@@ -62,6 +72,7 @@ export async function POST(req: Request) {
       // THIS is the crucial part: we stamp who is buying and what, so the
       // webhook can grant the right plan to the right user with no session.
       metadata: { userId: uid, plan },
+      client_reference_id: uid,
 
       success_url: `${origin}/member.html?paid=1`,
       cancel_url: `${origin}/member.html?canceled=1`,

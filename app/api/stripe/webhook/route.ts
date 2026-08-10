@@ -17,10 +17,13 @@ import type Stripe from "stripe";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// The public offer is intentionally limited to one course. Course access can
-// earn non-cash learning credits, but it never receives a paid score multiplier.
+// Every public tier can earn non-cash learning credits. No tier receives a
+// score multiplier or ranking advantage for paying more.
 const PLANS: Record<string, { runs: number; unlimited: boolean }> = {
+  trial: { runs: 5, unlimited: false },
+  starter: { runs: 15, unlimited: false },
   standard: { runs: 50, unlimited: false },
+  premium: { runs: 0, unlimited: true },
 };
 
 export async function POST(req: Request) {
@@ -80,7 +83,7 @@ export async function POST(req: Request) {
       where: { id: uid },
       data: {
         plan,
-        simRunsLeft:   { increment: cfg.runs },
+        simRunsLeft: cfg.runs,
         unlimitedSims: cfg.unlimited,
         canRedeem: true,
         earnMult: 1.0,

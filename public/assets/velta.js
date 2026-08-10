@@ -23,7 +23,7 @@ const Velta = (() => {
   function reset(){ state = Object.assign({}, DEFAULTS); save(state); }
 
   // ---- REAL backend methods (talk to the database via API routes) ----
-  async function apiLogin(){
+  async function apiLogin(callbackUrl){
     const r = await fetch('/api/auth/csrf');
     const { csrfToken } = await r.json();
 
@@ -40,7 +40,9 @@ const Velta = (() => {
     const cb = document.createElement('input');
     cb.type = 'hidden';
     cb.name = 'callbackUrl';
-    cb.value = '/member.html';
+    cb.value = typeof callbackUrl === 'string' && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')
+      ? callbackUrl
+      : '/member.html';
     form.appendChild(cb);
 
     document.body.appendChild(form);
@@ -80,6 +82,16 @@ const Velta = (() => {
     if(!data.ok) throw new Error(data.error || 'Could not redeem reward');
     return data;
   }
+  async function apiBuy(plan){
+    const r = await fetch('/api/checkout', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ plan }),
+    });
+    const data = await r.json();
+    if(!data.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
+    window.location.assign(data.url);
+  }
   async function apiPortfolio(){
     const r=await fetch('/api/portfolio');
     const data=await r.json();
@@ -90,60 +102,58 @@ const Velta = (() => {
     get:()=>({...state}),
     fakeLogin, useTrialRound, reset,
     save:()=>save(state),
-    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiPortfolio, apiStats,
+    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiBuy, apiPortfolio, apiStats,
   };
 })();
 
 /* ---- Plan definitions (shared across pages) ---- */
 const PLANS = {
   trial: {
-    name:'Legacy Trial',
-    price:'Enrollment closed', cadence:'',
-    blurb:'A legacy access tier retained for existing accounts.',
-    paymentLink:'',
+    name:'Course Trial',
+    price:'$9', cadence:'one-time',
+    blurb:'A low-cost introduction to the written course and historical chart practice.',
     simRuns:5, unlimited:false,
     features:[
-      'Full written course',
-      '5 simulation runs',
-      'Path scoring and descriptive chart observations',
+      'First 5 course chapters',
+      '5 historical chart exercises',
+      '$100 option comparisons and portfolio history',
+      'Earn and redeem non-cash learning credits',
     ],
   },
   starter: {
-    name:'Legacy Starter',
-    price:'Enrollment closed', cadence:'',
-    blurb:'A legacy access tier retained for existing accounts.',
-    paymentLink:'',
+    name:'Starter',
+    price:'$19', cadence:'one-time',
+    blurb:'More lessons and practice for learners building their foundation.',
     simRuns:15, unlimited:false,
     features:[
-      'Full written course',
-      '15 simulation runs',
-      'Path scoring and descriptive chart observations',
+      'First 10 course chapters',
+      '15 historical chart exercises',
+      '$100 option comparisons and portfolio history',
+      'Earn and redeem non-cash learning credits',
     ],
   },
   standard: {
-    name:'Complete Course',
-    price:'Price pending review', cadence:'',
-    blurb:'One complete learning path with written lessons, practice, and assessments.',
-    paymentLink:'',
+    name:'Standard',
+    price:'$39', cadence:'one-time',
+    blurb:'The full written curriculum with enough practice for structured repetition.',
     simRuns:50, unlimited:false,
     features:[
-      'Full written course',
-      '50 simulation runs',
-      'Progress tracking by skill (trend, volume, support/resistance)',
-      'Reflection history and assessments',
+      'All 15 course chapters',
+      '50 historical chart exercises',
+      '$100 option comparisons and lifetime portfolio',
+      'Certificate eligibility and learning rewards',
     ],
   },
   premium: {
-    name:'Legacy Premium',
-    price:'Enrollment closed', cadence:'',
-    blurb:'A legacy unlimited-practice tier retained for existing accounts.',
-    paymentLink:'',
+    name:'Premium',
+    price:'$69', cadence:'one-time',
+    blurb:'Full curriculum access with unlimited historical chart practice.',
     simRuns:0, unlimited:true,
     features:[
-      'Full written course',
-      'Unlimited simulation runs',
-      'Progress tracking by skill',
-      'Early access to new lessons',
+      'All 15 course chapters',
+      'Unlimited historical chart exercises',
+      '$100 option comparisons and lifetime portfolio',
+      'Certificate eligibility and learning rewards',
     ],
   },
 };

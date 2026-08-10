@@ -97,8 +97,9 @@ h3{font-size:21px}
 .x{float:right;background:none;border:none;font-size:15px;color:var(--muted);cursor:pointer;font-family:inherit}
 
 /* ---- pricing ---- */
-.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-@media(max-width:860px){.tiers{grid-template-columns:1fr}}
+.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+@media(max-width:1100px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.tiers{grid-template-columns:1fr}}
 .tier{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column}
 .tier.feature{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .tier .price{font-size:40px;font-weight:600;margin:8px 0 2px;letter-spacing:-.02em}

@@ -211,9 +211,9 @@ main,header,footer{position:relative;z-index:1}
 .trial-gate .btn{margin-top:18px}
 
 /* ---------- PRICING ---------- */
-.tiers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:48px;max-width:820px}
-@media(max-width:760px){.tiers{grid-template-columns:1fr}}
-@media(max-width:560px){.tiers{grid-template-columns:1fr}}
+.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:48px}
+@media(max-width:1080px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.tiers{grid-template-columns:1fr}}
 .tier{position:relative;background:linear-gradient(180deg,var(--bg-1),var(--bg));
   border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:border-color .3s,transform .3s}
 .tier:hover{border-color:var(--line-2);transform:translateY(-4px)}
@@ -413,15 +413,12 @@ main,header,footer{position:relative;z-index:1}
 <!-- PRICING -->
 <section class="section" id="pricing"><div class="wrap">
   <div class="section-head reveal">
-    <p class="eyebrow">Enrollment</p>
-    <h2>One clear learning path.</h2>
-    <p class="lead">The product is being simplified to a free practice experience and one complete course. Paid enrollment remains closed until policy, fulfillment, curriculum, and independent educational review are complete.</p>
+    <p class="eyebrow">Course access</p>
+    <h2>Choose the amount of practice you need.</h2>
+    <p class="lead">All four options are one-time purchases. Higher tiers add chapters and historical chart exercises—not better scores, cash rewards, or claims of investment performance.</p>
   </div>
-  <div class="tiers" id="tiers">
-    <article class="tier"><div class="ribbon">Available now</div><h3>Free Practice</h3><div class="price">$0</div><p style="color:var(--fg-dim);font-size:14px">Three historical-chart exercises with the public scoring methodology.</p><ul><li><span class="ic">✓</span><span>No account required</span></li><li><span class="ic">✓</span><span>Keyboard-accessible predictions</span></li><li><span class="ic">✓</span><span>Path, direction, and confidence shown separately</span></li></ul><a class="btn ghost" href="#try">Start free practice</a></article>
-    <article class="tier feature"><div class="ribbon">Enrollment closed</div><h3>Complete Course</h3><div class="price">Price pending review</div><p style="color:var(--fg-dim);font-size:14px">Written curriculum, 50 historical-chart exercises, assessments, and progress review.</p><ul><li><span class="ic">✓</span><span>Visible curriculum and learning objectives</span></li><li><span class="ic">✓</span><span>Non-cash learning credits unlock practice features</span></li><li><span class="ic">✓</span><span>Final terms and refunds shown before payment</span></li></ul><a class="btn solid" href="mailto:veltacapitalhq@gmail.com?subject=VeltaCapital%20course%20updates">Request launch updates</a></article>
-  </div>
-  <p class="hero-note" style="margin-top:22px"><a href="refunds.html" style="color:var(--up)">View current enrollment and refund status →</a></p>
+  <div class="tiers" id="tiers" aria-label="Course access options"></div>
+  <p class="hero-note" style="margin-top:22px">Prices are in USD. Checkout is processed securely by Stripe when enabled for this deployment. <a href="refunds.html" style="color:var(--up)">Read purchase and refund details →</a></p>
 </div></section>
 
 <!-- CONTACT -->
@@ -559,6 +556,39 @@ main,header,footer{position:relative;z-index:1}
 
   function doLogin(){ Velta.apiLogin(); }
   document.getElementById('google-btn').addEventListener('click',doLogin);
+
+  // ---- one-time course price options ----
+  (function(){
+    const host=document.getElementById('tiers');
+    ['trial','starter','standard','premium'].forEach(key=>{
+      const p=PLANS[key];
+      const featured=key==='standard';
+      const card=el('article',{class:'tier'+(featured?' feature':'')});
+      card.innerHTML=
+        '<div class="ribbon">'+(featured?'Most popular':'One-time access')+'</div>'+
+        '<h3>'+p.name+'</h3>'+
+        '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
+        '<p style="color:var(--fg-dim);font-size:14px">'+p.blurb+'</p>'+
+        '<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>'+
+        '<button class="btn '+(featured?'solid':'ghost')+'" type="button">Choose '+p.name+'</button>';
+      const button=card.querySelector('button');
+      button.addEventListener('click',async()=>{
+        const original=button.textContent;
+        button.disabled=true;
+        button.textContent='Preparing checkout…';
+        try{
+          const me=await Velta.apiMe();
+          if(!me){ Velta.apiLogin('/member.html?plan='+encodeURIComponent(key)); return; }
+          await Velta.apiBuy(key);
+        }catch(err){
+          window.alert(err instanceof Error ? err.message : 'Could not start checkout');
+          button.disabled=false;
+          button.textContent=original;
+        }
+      });
+      host.appendChild(card);
+    });
+  })();
 
   // ---- trial gating: after 3 rounds, swap iframe for the login gate ----
   let trialRounds = Velta.get().trialRoundsUsed;

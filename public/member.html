@@ -176,7 +176,7 @@
 </head>
 <body>
 
-<div class="proto-flag">REVIEW BUILD — learning credits have no cash value. Paid enrollment and public rankings remain disabled.</div>
+<div class="proto-flag">LEARNING BUILD — credits and simulated outcomes have no cash value. Public rankings remain disabled.</div>
 
 <header class="nav"><div class="wrap nav-in">
   <a class="brand" href="index.html" id="brand"></a>
@@ -221,7 +221,7 @@
           <li><span class="ic">✓</span><span>Use the public scoring and data methodology.</span></li>
         </ul>
         <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn amber lg" id="see-plans">View enrollment status</button>
+          <button class="btn amber lg" id="see-plans">View price options</button>
           <a class="btn ghost lg" href="index.html#try">Back to trial</a>
         </div>
       </div>
@@ -229,10 +229,11 @@
   </div></section>
 
   <section class="section" id="plans2" style="background:var(--paper-2)"><div class="wrap">
-    <p class="eyebrow">Enrollment</p>
-    <h2>Paid enrollment is closed.</h2>
-    <p class="lead" style="margin:14px 0 30px">The complete course will open only after pricing, fulfillment, policies, and independent educational review are finalized.</p>
-    <div class="tiers" id="tiers"></div>
+    <p class="eyebrow">Course access</p>
+    <h2>Choose your one-time plan.</h2>
+    <p class="lead" style="margin:14px 0 30px">Choose by the number of chapters and historical chart exercises you want. Every tier uses the same scoring and earns the same rate of non-cash learning credits.</p>
+    <div class="tiers" id="tiers" aria-label="Course access options"></div>
+    <p class="mono" style="font-size:12px;color:var(--muted);margin-top:20px">Prices are in USD. Checkout is securely processed by Stripe when enabled. <a href="refunds.html">Purchase and refund details</a>.</p>
   </div></section>
 </main>
 
@@ -320,18 +321,6 @@
   VeltaCapital is an educational simulation. It does not provide financial advice or guarantees of profit. Charts are historical and for practice only. Past performance does not predict future results.
 </div></div>
 
-<!-- PAYMENT MODAL (simulated) -->
-<div class="modal" id="pay-modal">
-  <div class="sheet"><div class="sheet-pad">
-    <button class="x" id="pay-x">Maybe later</button>
-    <p class="eyebrow">Enrollment status</p>
-    <h2 style="font-size:26px" id="pay-title">Paid enrollment is closed</h2>
-    <p style="color:var(--muted);font-size:15px;margin:10px 0 20px" id="pay-sub">Checkout is disabled until the curriculum, pricing, policies, and fulfillment process complete review.</p>
-    <p><a class="btn amber" href="mailto:veltacapitalhq@gmail.com?subject=VeltaCapital%20course%20updates">Request launch updates</a></p>
-    <p class="mono" style="font-size:12px;color:var(--muted);margin-top:18px;text-align:center"><a href="refunds.html">Enrollment and refund status</a></p>
-  </div></div>
-</div>
-
 <script src="assets/velta.js"></script>
 <script>
   document.getElementById('brand').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
@@ -364,6 +353,13 @@
     document.getElementById('exercise-count').textContent = '3';
     document.getElementById('earned-rounds').textContent = Math.min(3,s.trialRoundsUsed)+' / 3';
     document.getElementById('earned-banked').textContent = fmt(user.credits || 0);
+    const requestedPlan=new URLSearchParams(location.search).get('plan');
+    const requestedCard=requestedPlan&&document.getElementById('plan-'+requestedPlan);
+    if(requestedCard){
+      requestedCard.scrollIntoView({behavior:'smooth',block:'center'});
+      const requestedButton=requestedCard.querySelector('button');
+      if(requestedButton)requestedButton.focus({preventScroll:true});
+    }
   }
   document.getElementById('see-plans').addEventListener('click',()=>{
     document.getElementById('plans2').scrollIntoView({behavior:'smooth'});
@@ -372,28 +368,33 @@
   /* ---------- pricing tiers (conversion page + pay modal) ---------- */
   function tierCard(key,compact){
     const p=PLANS[key], feat=key==='standard';
-    const c=el('div',{class:'tier'+(feat?' feature':'')});
+    const c=el('div',{class:'tier'+(feat?' feature':''),id:'plan-'+key});
     c.innerHTML =
-      (compact?'':'<div class="ribbon">Enrollment closed</div>')+
+      (compact?'':'<div class="ribbon">'+(feat?'Most popular':'One-time access')+'</div>')+
       '<h3>'+p.name+'</h3>'+
       '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
       '<p style="color:var(--muted);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
       (compact?''
         :'<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>')+
-      '<a class="btn '+(feat?'amber':'')+'" style="justify-content:center;margin-top:'+(compact?'14px':'0')+'" href="mailto:veltacapitalhq@gmail.com?subject=VeltaCapital%20course%20updates">Request updates</a>';
+      '<button class="btn '+(feat?'amber':'')+'" type="button" style="justify-content:center;margin-top:'+(compact?'14px':'0')+'">Choose '+p.name+'</button>';
+    const button=c.querySelector('button');
+    button.addEventListener('click',async()=>{
+      const original=button.textContent;
+      button.disabled=true;
+      button.textContent='Preparing checkout…';
+      try{ await Velta.apiBuy(key); }
+      catch(err){
+        window.alert(err instanceof Error ? err.message : 'Could not start checkout');
+        button.disabled=false;
+        button.textContent=original;
+      }
+    });
     return c;
   }
   ['tiers'].forEach(id=>{
     const host=document.getElementById(id); if(!host)return;
-    ['standard'].forEach(k=>host.appendChild(tierCard(k,false)));
+    ['trial','starter','standard','premium'].forEach(k=>host.appendChild(tierCard(k,false)));
   });
-
-  /* ---------- payment modal ---------- */
-  const payModal=document.getElementById('pay-modal');
-  function openPay(){ payModal.classList.add('open'); }
-  function closePay(){ payModal.classList.remove('open'); }
-  document.getElementById('pay-x').addEventListener('click',closePay);
-  payModal.addEventListener('click',e=>{ if(e.target===payModal)closePay(); });
 
   /* ---------- MEMBER VIEW ---------- */
   function showMember(){
