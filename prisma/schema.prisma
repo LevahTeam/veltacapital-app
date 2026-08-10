@@ -1,7 +1,7 @@
 // ============================================================
-//  VeltaCapital — database schema (Prisma)
+//  VeltaCapital: database schema (Prisma)
 //  This file describes the "shape" of your data. Each `model`
-//  becomes a table in your Neon database. You don't write SQL —
+//  becomes a table in your Neon database. You do not need to write SQL.
 //  Prisma turns this into the database for you.
 // ============================================================
 

@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const symbol    = String(body.symbol || "—").slice(0, 12);
+    const symbol    = String(body.symbol || "Unknown").slice(0, 12);
     const accuracy  = Math.max(0, Math.min(100, Math.round(Number(body.accuracy) || 0)));
     const direction = body.direction ? 1 : 0;
     const roundIndex = Number(body.roundIndex);

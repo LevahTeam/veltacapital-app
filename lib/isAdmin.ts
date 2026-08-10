@@ -2,7 +2,7 @@
 // Server-side admin check. Returns true ONLY if the logged-in user's email
 // (read from the session via getUid, never from the client) matches the
 // ADMIN_EMAIL environment variable. This is how "only Samuel can publish"
-// is enforced — a normal logged-in user will not match.
+// is enforced: a normal logged-in user will not match.
 import { prisma } from "@/lib/prisma";
 import { getUid } from "@/lib/getUid";
 

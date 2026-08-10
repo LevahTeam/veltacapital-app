@@ -3,7 +3,7 @@
 <head> <link rel="icon" type="image/png" href="assets/img/logo.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VeltaCapital — Your account</title>
+<title>VeltaCapital: Your account</title>
 <meta name="description" content="Your VeltaCapital member area.">
 <link rel="stylesheet" href="assets/site.css">
 <style>
@@ -45,7 +45,7 @@
   .video:not(.locked){cursor:pointer;transition:transform .12s}
   .video:not(.locked):hover{transform:translateY(-2px)}
 
-/* full-screen lesson reader — LumiSource-style structure, Velta palette */
+/* full-screen lesson reader: LumiSource-style structure, Velta palette */
   .lesson-fs{position:fixed;inset:0;background:var(--paper,#F7F3EC);z-index:1000;display:flex;flex-direction:column}
   .lesson-fs-top{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--line,#E5DDD0);background:#fff;flex-shrink:0}
   .lesson-fs-top .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
@@ -176,7 +176,7 @@
 </head>
 <body>
 
-<div class="proto-flag">LEARNING BUILD — credits and simulated outcomes have no cash value. Public rankings remain disabled.</div>
+<div class="proto-flag">LEARNING BUILD: credits and simulated outcomes have no cash value. Public rankings remain disabled.</div>
 
 <header class="nav"><div class="wrap nav-in">
   <a class="brand" href="index.html" id="brand"></a>
@@ -184,13 +184,13 @@
     <a href="index.html#how">How it works</a>
     <a href="methodology.html">Methodology</a>
     <a href="#" id="reset-link" class="mono" style="font-size:12px">Reset preview</a>
-    <span class="btn ghost" id="plan-badge" style="cursor:default">—</span>
+    <span class="btn ghost" id="plan-badge" style="cursor:default">Not available</span>
   </nav>
 </div></header>
 
 <div class="wrap">
   <div class="acct-bar">
-    <span>Signed in as <span class="who" id="who">—</span></span>
+    <span>Signed in as <span class="who" id="who">Not available</span></span>
     <span class="mono" id="profile-badge" hidden style="color:var(--teal)">◆ Learning badge</span>
     <span class="credits">Learning credits: <span class="mono" id="cred">0</span></span>
   </div>
@@ -270,8 +270,8 @@
     <section class="panel" id="panel-game" role="tabpanel">
       <h2 style="margin-bottom:6px">Historical chart reasoning</h2>
       <div class="game-meter">
-        <span class="pill">Runs left: <b id="rounds-allowance">—</b></span>
-        <span class="pill">Plan: <b id="plan-name-game">—</b></span>
+        <span class="pill">Runs left: <b id="rounds-allowance">Not available</b></span>
+        <span class="pill">Plan: <b id="plan-name-game">Not available</b></span>
         <span class="pill">Credits: <b id="cred-game">0</b></span>
       </div>
       <p class="mono" id="credit-earned" aria-live="polite" style="font-size:12px;color:var(--teal);min-height:18px"></p>
@@ -284,13 +284,13 @@
         </div>
       </div>
       <iframe class="game-frame" id="game-frame" title="Predict the Graph" src="predict-the-graph.html"></iframe>
-      <details class="mobile-game-info"><summary>Account and round details</summary><p>Runs left: <b id="mobile-runs">—</b> · Plan: <b id="mobile-plan">—</b> · Credits: <b id="mobile-credits">0</b></p></details>
+      <details class="mobile-game-info"><summary>Account and round details</summary><p>Runs left: <b id="mobile-runs">Not available</b> · Plan: <b id="mobile-plan">Not available</b> · Credits: <b id="mobile-credits">0</b></p></details>
     </section>
 
     <!-- HISTORICAL SIMULATION PORTFOLIO -->
     <section class="panel" id="panel-portfolio" role="tabpanel">
       <h2 style="margin-bottom:6px">Historical Simulation Portfolio</h2>
-      <p class="lead">A lifetime log of the simplified $100 option comparisons from your completed authenticated rounds. These are hypothetical educational results—not real earnings, an account balance, or evidence of investment skill.</p>
+      <p class="lead">A lifetime log of the simplified $100 option comparisons from your completed authenticated rounds. These are hypothetical educational results, not real earnings, an account balance, or evidence of investment skill.</p>
       <div class="portfolio-grid">
         <div class="portfolio-card"><span>Rounds logged</span><b id="portfolio-rounds">0</b></div>
         <div class="portfolio-card"><span>Total simulated capital</span><b id="portfolio-deployed">$0.00</b></div>
@@ -426,7 +426,7 @@
       // personal best
       elBest.textContent = st.totalRounds>0 ? ('Best read: '+st.bestAccuracy+'/100') : '';
 
-      // streak — encouragement only, shown at 2+ days
+      // streak: encouragement only, shown at 2+ days
       elStreak.textContent = st.streakDays>=2 ? ('🔥 '+st.streakDays+'-day streak') : '';
 
       const nextReward=REWARDS.filter(r=>!(r.once&&r.ownedField&&user[r.ownedField]))
@@ -452,7 +452,7 @@ const CHAPTER_LIMITS = { trial:5, starter:10, standard:15, premium:15 };
 
     if(!COURSE){
       try{ COURSE = await fetch('course.json').then(r=>r.json()); }
-      catch(e){ grid.innerHTML='<p style="color:var(--muted)">Course is loading — refresh in a moment.</p>'; return; }
+      catch(e){ grid.innerHTML='<p style="color:var(--muted)">Course is loading. Refresh in a moment.</p>'; return; }
     }
 
     COURSE.chapters.forEach(ch=>{

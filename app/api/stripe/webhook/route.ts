@@ -2,9 +2,9 @@
 //  POST /api/stripe/webhook
 //  Stripe calls this after a payment. This is the ONLY place a plan is
 //  granted. Three safety layers:
-//   1) Signature check  — proves the request is really from Stripe.
-//   2) Idempotency      — a repeated event can't grant a plan twice.
-//   3) Metadata lookup  — identifies the buyer without a browser session.
+//   1) Signature check: proves the request is really from Stripe.
+//   2) Idempotency: a repeated event cannot grant a plan twice.
+//   3) Metadata lookup: identifies the buyer without a browser session.
 //  File location: app/api/stripe/webhook/route.ts
 // ============================================================
 import { stripe } from "@/lib/stripe";

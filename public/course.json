@@ -10,7 +10,7 @@
       "sections": [
         {
           "h": "The basic concept",
-          "p": "A stock (also called a share or equity) is a small piece of ownership in a company. When you buy one share of Apple (AAPL), you literally own a tiny fraction of Apple Inc. — including a claim on its assets and earnings. Companies sell stocks to raise money. Instead of taking a bank loan, a company can go public through an IPO (Initial Public Offering) and sell shares to the public. In exchange for your money, you get ownership."
+          "p": "A stock (also called a share or equity) is a small piece of ownership in a company. When you buy one share of Apple (AAPL), you literally own a tiny fraction of Apple Inc., including a claim on its assets and earnings. Companies sell stocks to raise money. Instead of taking a bank loan, a company can go public through an IPO (Initial Public Offering) and sell shares to the public. In exchange for your money, you get ownership."
         },
         {
           "h": "Why do stocks go up and down?",
@@ -18,11 +18,11 @@
         },
         {
           "h": "How do you make money?",
-          "p": "Two main ways. Capital gains: buy low, sell higher — buy at $50, sell at $80, that's $30 profit per share. Dividends: some companies pay shareholders a share of profits regularly, usually quarterly. Own 100 shares of a company paying a $0.46 dividend and you receive $46 without selling anything."
+          "p": "Two main ways. Capital gains: buy low and sell higher. For example, buy at $50 and sell at $80 for a $30 profit per share. Dividends: some companies pay shareholders a share of profits regularly, usually quarterly. Own 100 shares of a company paying a $0.46 dividend and you receive $46 without selling anything."
         },
         {
           "h": "Public vs. private companies",
-          "p": "Public companies are listed on exchanges like the NYSE or NASDAQ — anyone can buy their stock. Private companies aren't listed; you generally can't buy shares unless you're an investor, employee, or venture capitalist."
+          "p": "Public companies are listed on exchanges like the NYSE or NASDAQ. Their shares can generally be purchased by eligible investors. Private companies aren't listed; you generally can't buy shares unless you're an investor, employee, or venture capitalist."
         }
       ],
       "terms": [
@@ -32,7 +32,7 @@
         },
         {
           "term": "IPO",
-          "def": "Initial Public Offering — when a private company first sells shares to the public."
+          "def": "Initial Public Offering: when a private company first sells shares to the public."
         },
         {
           "term": "Capital gains",
@@ -54,7 +54,7 @@
       "sections": [
         {
           "h": "Stock exchanges",
-          "p": "An exchange is a marketplace where buyers and sellers trade stocks. The two biggest in the U.S. are the NYSE (New York Stock Exchange), the largest in the world by market cap and home to established names like Coca-Cola, JPMorgan, and Walmart; and the NASDAQ, known for tech — Apple, Microsoft, Amazon, Google, Meta."
+          "p": "An exchange is a marketplace where buyers and sellers trade stocks. The two biggest in the U.S. are the NYSE (New York Stock Exchange), the largest in the world by market cap and home to established names like Coca-Cola, JPMorgan, and Walmart; and the NASDAQ, known for tech: Apple, Microsoft, Amazon, Google, Meta."
         },
         {
           "h": "Market hours",
@@ -76,7 +76,7 @@
         },
         {
           "term": "Market cap",
-          "def": "Stock price times total shares — a measure of company size."
+          "def": "Stock price times total shares: a measure of company size."
         },
         {
           "term": "S&P 500",
@@ -98,7 +98,7 @@
       "sections": [
         {
           "h": "Common vs. preferred stock",
-          "p": "Common stock is what most people buy — you get voting rights and potential dividends, but in bankruptcy you're paid last. Preferred stock gets priority over common for dividends and in bankruptcy, usually with no voting rights — a hybrid between a stock and a bond."
+          "p": "Common stock is what most people buy. You get voting rights and potential dividends, but in bankruptcy you're paid last. Preferred stock gets priority over common for dividends and in bankruptcy, usually with no voting rights. It combines some characteristics of stocks and bonds."
         },
         {
           "h": "Growth, value, and dividend stocks",
@@ -114,7 +114,7 @@
         },
         {
           "h": "Options, futures, and derivatives",
-          "p": "Advanced instruments beginners should avoid until they have years of experience. Options let you bet on where a stock goes by a certain date — they can be very profitable or lose 100% in days. Leave these alone for now."
+          "p": "Advanced instruments beginners should avoid until they have years of experience. Options let you bet on where a stock goes by a certain date; they can be very profitable or lose 100% in days. Leave these alone for now."
         }
       ],
       "terms": [
@@ -124,7 +124,7 @@
         },
         {
           "term": "ETF",
-          "def": "A basket of stocks traded like a single share — instant diversification."
+          "def": "A basket of stocks traded like a single share: instant diversification."
         },
         {
           "term": "Growth stock",
@@ -135,22 +135,22 @@
           "def": "A company that appears undervalued versus its true worth."
         }
       ],
-      "objective": "Compare stocks, funds, and derivatives by structure and risk—not promised return.",
+      "objective": "Compare stocks, funds, and derivatives by structure and risk, not promised return.",
       "practice": "Read two current fund prospectuses and identify fees, concentration, and tracking method.",
       "assessment": "Why is a dividend or growth label not a forecast?"
     },
     {
       "n": 4,
       "title": "How Much Money Do You Need to Start?",
-      "summary": "Very little — and why time matters far more than the amount.",
+      "summary": "Why starting with very little is possible, and why time matters far more than the amount.",
       "sections": [
         {
           "h": "The short answer: very little",
-          "p": "Many brokers let you start with $0 — or as little as $1 using fractional shares. You do not need thousands of dollars to begin."
+          "p": "Many brokers have no account minimum, and some support fractional-share purchases for as little as $1. You do not need thousands of dollars to begin."
         },
         {
           "h": "Fractional shares",
-          "p": "If a stock costs $185 and you have $20, you can buy a fractional share — about 0.108 of a share. Fidelity, Charles Schwab, and Robinhood all support this."
+          "p": "If a stock costs $185 and you have $20, you can buy a fractional share, about 0.108 of a share. Fidelity, Charles Schwab, and Robinhood all support this."
         },
         {
           "h": "Realistic starting points",
@@ -185,12 +185,12 @@
     },
     {
       "n": 5,
-      "title": "Brokers — Where You Actually Buy Stocks",
+      "title": "Brokers: Where You Actually Buy Stocks",
       "summary": "What a broker is, the best ones for beginners, paper trading, and account types.",
       "sections": [
         {
           "h": "What a broker is",
-          "p": "A broker is the platform that executes your trades — the middleman between you and the exchange. You open an account, deposit money, and place orders through them."
+          "p": "A broker is the platform that executes your trades: the middleman between you and the exchange. You open an account, deposit money, and place orders through them."
         },
         {
           "h": "Top brokers for beginners",
@@ -216,7 +216,7 @@
         },
         {
           "term": "Commission",
-          "def": "A fee per trade — now $0 at most major brokers."
+          "def": "A fee per trade: now $0 at most major brokers."
         }
       ],
       "objective": "Evaluate a broker using current primary documentation and regulatory information.",
@@ -229,7 +229,7 @@
       "summary": "TradingView and the research, news, and filing sites worth knowing.",
       "sections": [
         {
-          "h": "TradingView — the charting standard",
+          "h": "TradingView: the charting standard",
           "p": "Charting platforms provide price displays, indicators, drawing tools, screeners, alerts, and sometimes simulated trading. Features, delays, licensing, and prices change. Compare providers using current documentation and remember that more indicators do not necessarily produce better decisions."
         },
         {
@@ -242,7 +242,7 @@
         },
         {
           "h": "Filings & calendars",
-          "p": "SEC EDGAR (sec.gov/edgar) holds every public company's official filings — free and invaluable for deep research. Earnings Whispers for earnings dates, Investing.com for the economic calendar (CPI, jobs report, Fed meetings)."
+          "p": "SEC EDGAR (sec.gov/edgar) holds every public company's official filings and is free and invaluable for deep research. Earnings Whispers provides earnings dates, while Investing.com provides an economic calendar covering events such as CPI releases, jobs reports, and Fed meetings."
         }
       ],
       "terms": [
@@ -278,11 +278,11 @@
         },
         {
           "h": "Reading trends",
-          "p": "An uptrend is a series of higher highs and higher lows — buyers in control. A downtrend is lower highs and lower lows — sellers in control. Sideways/consolidation is horizontal movement with no clear direction; the stock is digesting."
+          "p": "An uptrend is a series of higher highs and higher lows, which suggests buyers are in control. A downtrend has lower highs and lower lows, which suggests sellers are in control. Sideways or consolidating movement has no clear direction; the stock is digesting."
         },
         {
           "h": "Support and resistance",
-          "p": "Two of the most important concepts. Support is a level where a stock tends to stop falling and bounce — a floor where buyers step in. Resistance is a level where it tends to stop rising and pull back — a ceiling where sellers step in. Key rule: when a stock breaks through resistance and stays above it, that resistance often becomes new support, and vice versa."
+          "p": "Two of the most important concepts. Support is a level where a stock tends to stop falling and bounce: a floor where buyers step in. Resistance is a level where it tends to stop rising and pull back: a ceiling where sellers step in. Key rule: when a stock breaks through resistance and stays above it, that resistance often becomes new support, and vice versa."
         },
         {
           "h": "Volume",
@@ -304,15 +304,15 @@
         },
         {
           "term": "Support",
-          "def": "A price level where a stock tends to stop falling and bounce — a floor."
+          "def": "A price level where a stock tends to stop falling and bounce: a floor."
         },
         {
           "term": "Resistance",
-          "def": "A price level where a stock tends to stop rising — a ceiling."
+          "def": "A price level where a stock tends to stop rising: a ceiling."
         },
         {
           "term": "Volume",
-          "def": "The number of shares traded in a period — the fuel behind price moves."
+          "def": "The number of shares traded in a period: the fuel behind price moves."
         },
         {
           "term": "Moving average",
@@ -326,11 +326,11 @@
     {
       "n": 8,
       "title": "Key Stock Market Terminology",
-      "summary": "The vocabulary you'll hear constantly — know it cold.",
+      "summary": "The vocabulary you'll hear constantly: know it cold.",
       "sections": [
         {
           "h": "Market conditions",
-          "p": "Bull market: rising or expected to rise; optimistic sentiment. Bear market: fallen 20%+ from recent highs; pessimistic sentiment. Correction: a decline of 10–20% from recent highs — normal and healthy. Rally: a sustained period of price increases. Pullback: a small, temporary decline within an uptrend."
+          "p": "Bull market: rising or expected to rise; optimistic sentiment. Bear market: fallen 20%+ from recent highs; pessimistic sentiment. Correction: a decline of 10–20% from recent highs that is often considered normal. Rally: a sustained period of price increases. Pullback: a small, temporary decline within an uptrend."
         },
         {
           "h": "Stock behavior & risk",
@@ -338,15 +338,15 @@
         },
         {
           "h": "Valuation & income",
-          "p": "P/E ratio: price ÷ earnings per share, a key valuation metric. EPS: earnings per share — profit per share outstanding. Dividend yield: annual dividend ÷ price, the income return from dividends."
+          "p": "P/E ratio: price ÷ earnings per share, a key valuation metric. EPS means earnings per share, or profit per outstanding share. Dividend yield: annual dividend ÷ price, the income return from dividends."
         },
         {
           "h": "Trading terms",
-          "p": "Bid/ask spread: the bid is what buyers will pay, the ask what sellers want; you buy at the ask and sell at the bid. Going long: buying a stock expecting it to rise — the normal way most people invest. Short selling: borrowing shares to sell, hoping to buy back cheaper — complex and risky. Portfolio: all your investments. Diversification: spreading investments to reduce risk."
+          "p": "Bid/ask spread: the bid is what buyers will pay, while the ask is what sellers want; you buy at the ask and sell at the bid. Going long means buying a stock because you expect it to rise. Short selling means borrowing shares to sell in the hope of buying them back more cheaply; it is complex and risky. Portfolio: all your investments. Diversification: spreading investments to reduce risk."
         },
         {
           "h": "Structural terms",
-          "p": "IPO: when a private company first lists shares publicly. Sector: a category of the economy — Technology, Healthcare, Energy, Financials, Consumer Staples. Circuit breaker: a market-wide halt triggered when the S&P 500 drops 7%, 13%, or 20% in a single day."
+          "p": "IPO: when a private company first lists shares publicly. Sector: a category of the economy: Technology, Healthcare, Energy, Financials, Consumer Staples. Circuit breaker: a market-wide halt triggered when the S&P 500 drops 7%, 13%, or 20% in a single day."
         }
       ],
       "terms": [
@@ -364,7 +364,7 @@
         },
         {
           "term": "P/E ratio",
-          "def": "Price divided by earnings per share — a key valuation metric."
+          "def": "Price divided by earnings per share: a key valuation metric."
         },
         {
           "term": "Breakout",
@@ -386,15 +386,15 @@
         },
         {
           "h": "The three financial statements",
-          "p": "Income statement: revenue, expenses, and profit over a period — look for growing revenue and consistent profit. Balance sheet: a snapshot of what the company owns (assets) versus owes (liabilities) — look for more assets than liabilities and manageable debt. Cash flow statement: actual cash in and out — often the most honest of the three, since paper profit doesn't mean cash in hand."
+          "p": "Income statement: revenue, expenses, and profit over a period. Look for growing revenue and consistent profit. Balance sheet: a snapshot of what the company owns (assets) versus owes (liabilities). Look for more assets than liabilities and manageable debt. Cash flow statement: actual cash moving in and out. It is often the most revealing of the three because paper profit doesn't mean cash in hand."
         },
         {
           "h": "Key metrics",
-          "p": "P/E ratio: price ÷ earnings per share; a P/E of 20 means paying $20 per $1 of earnings — compare to the company's history and its industry. EPS growth: is the company earning more per share each year? Revenue growth: is it selling more? Profit margins: net profit ÷ revenue — higher is better. Debt-to-equity: high debt is dangerous, especially as rates rise. Return on equity (ROE): how efficiently the company turns shareholder money into profit."
+          "p": "P/E ratio: price ÷ earnings per share; a P/E of 20 means paying $20 per $1 of earnings. Compare it with the company's history and its industry. EPS growth: is the company earning more per share each year? Revenue growth: is it selling more? Profit margin means net profit ÷ revenue; a higher margin can indicate greater profitability. Debt-to-equity: high debt is dangerous, especially as rates rise. Return on equity (ROE): how efficiently the company turns shareholder money into profit."
         },
         {
           "h": "Earnings reports",
-          "p": "Every quarter, companies release earnings — major market movers. An EPS beat (more than analysts expected) often lifts the stock; a miss often drops it. But not always: a beat can still drop a stock if future guidance is weak ('sell the news'). Always check the earnings date before owning a stock, to avoid surprises."
+          "p": "Every quarter, companies release earnings, which can move markets. An EPS beat (more than analysts expected) often lifts the stock; a miss often drops it. But not always: a beat can still drop a stock if future guidance is weak ('sell the news'). Always check the earnings date before owning a stock, to avoid surprises."
         }
       ],
       "terms": [
@@ -404,15 +404,15 @@
         },
         {
           "term": "EPS",
-          "def": "Earnings per share — profit per outstanding share."
+          "def": "Earnings per share: profit per outstanding share."
         },
         {
           "term": "Profit margin",
-          "def": "Net profit divided by revenue — how much of each sales dollar is profit."
+          "def": "Net profit divided by revenue: how much of each sales dollar is profit."
         },
         {
           "term": "ROE",
-          "def": "Return on equity — how efficiently a company turns shareholder money into profit."
+          "def": "Return on equity: how efficiently a company turns shareholder money into profit."
         }
       ],
       "objective": "Use financial statements and filings to form questions about a business.",
@@ -444,7 +444,7 @@
         },
         {
           "term": "RSI",
-          "def": "Relative Strength Index — flags overbought (>70) or oversold (<30) conditions."
+          "def": "Relative Strength Index: flags overbought (>70) or oversold (<30) conditions."
         },
         {
           "term": "MACD",
@@ -461,16 +461,16 @@
     },
     {
       "n": 11,
-      "title": "Risk Management — The Most Important Chapter",
+      "title": "Risk Management: The Most Important Chapter",
       "summary": "What separates people who build wealth from people who blow up their accounts.",
       "sections": [
         {
           "h": "The #1 rule",
-          "p": "Never risk more than you can afford to lose. The market can and does crash — the NASDAQ fell 78% in 2000, the S&P 500 fell 57% in 2008 and 34% in a month in March 2020. Put your life savings in at the wrong time without a plan and you might panic-sell at the bottom, locking in devastating losses."
+          "p": "Never risk more than you can afford to lose. The market can and does crash: the NASDAQ fell 78% in 2000, the S&P 500 fell 57% in 2008 and 34% in a month in March 2020. Put your life savings in at the wrong time without a plan and you might panic-sell at the bottom, locking in devastating losses."
         },
         {
           "h": "Position sizing",
-          "p": "Never put all your money in one stock — even professionals diversify. A common rule: no more than 5–10% of your portfolio in a single stock, so if any one goes to zero you lose at most 5–10%, not everything."
+          "p": "Never put all your money in one stock; even professionals diversify. A common rule: no more than 5–10% of your portfolio in a single stock, so if any one goes to zero you lose at most 5–10%, not everything."
         },
         {
           "h": "The 1% rule for traders",
@@ -486,7 +486,7 @@
         },
         {
           "h": "Emotional control & DCA",
-          "p": "The two emotions that destroy accounts are fear (selling at the bottom) and greed (holding too long). Build a plan — entry, stop, target — before you enter, then stick to it. Dollar-cost averaging (investing a fixed amount regularly) buys fewer shares when prices are high and more when low, smoothing your average cost and removing the need to time the market."
+          "p": "The two emotions that destroy accounts are fear (selling at the bottom) and greed (holding too long). Build a plan with an entry, stop, and target before you enter, then stick to it. Dollar-cost averaging (investing a fixed amount regularly) buys fewer shares when prices are high and more when low, smoothing your average cost and removing the need to time the market."
         }
       ],
       "terms": [
@@ -500,7 +500,7 @@
         },
         {
           "term": "Risk/reward ratio",
-          "def": "The potential loss versus potential gain on a trade — aim for 1:2+."
+          "def": "The potential loss versus potential gain on a trade: aim for 1:2+."
         },
         {
           "term": "Dollar-cost averaging",
@@ -524,7 +524,7 @@
       "terms": [
         {
           "term": "FOMO",
-          "def": "Fear of missing out — chasing a stock after it's already run up."
+          "def": "Fear of missing out: chasing a stock after it's already run up."
         },
         {
           "term": "Panic selling",
@@ -550,21 +550,21 @@
         },
         {
           "h": "A 3-fund starter",
-          "p": "Once you have the basics: 60–70% VTI or VOO (U.S. large-cap), 20–30% VXUS or VEA (international, for geographic diversity), 0–20% BND or AGG (bonds, for stability — optional for young investors)."
+          "p": "Once you have the basics: 60–70% VTI or VOO (U.S. large-cap), 20–30% VXUS or VEA (international, for geographic diversity), 0–20% BND or AGG (bonds for stability; optional for young investors)."
         },
         {
           "h": "Adding individual stocks",
-          "p": "With a solid ETF foundation, you can use a small portion (10–20%) for individual stocks you believe in — companies whose products you use, whose model you understand, whose financials you've researched. Never let individual picks dominate until you have significant experience."
+          "p": "With a solid ETF foundation, you can use a small portion (10–20%) for individual stocks you believe in: companies whose products you use, whose model you understand, whose financials you've researched. Never let individual picks dominate until you have significant experience."
         },
         {
           "h": "Rebalancing",
-          "p": "Over time some positions grow larger than others. Rebalancing means trimming winners and adding to underperformers to return to your target allocations — typically once or twice a year."
+          "p": "Over time some positions grow larger than others. Rebalancing means trimming winners and adding to underperformers to return to your target allocations: typically once or twice a year."
         }
       ],
       "terms": [
         {
           "term": "Index fund",
-          "def": "A fund tracking a whole index like the S&P 500 — simple and low-fee."
+          "def": "A fund tracking a whole index like the S&P 500: simple and low-fee."
         },
         {
           "term": "Diversification",
@@ -598,7 +598,7 @@
         },
         {
           "h": "Dividends and accounts",
-          "p": "Qualified dividends are taxed at the lower long-term rate; non-qualified as ordinary income. The easiest way to avoid most tax headaches is to invest inside a Roth or Traditional IRA — no capital gains tax on trades inside them, and a Roth's qualified retirement withdrawals are completely tax-free."
+          "p": "Qualified dividends are taxed at the lower long-term rate; non-qualified as ordinary income. The easiest way to avoid most tax headaches is to invest inside a Roth or Traditional IRA: no capital gains tax on trades inside them, and a Roth's qualified retirement withdrawals are completely tax-free."
         }
       ],
       "terms": [
@@ -634,7 +634,7 @@
         },
         {
           "h": "Books to read",
-          "p": "The Intelligent Investor by Benjamin Graham — the classic on value investing. A Random Walk Down Wall Street by Burton Malkiel — the case for index funds. One Up On Wall Street by Peter Lynch — finding stocks in everyday life. How to Make Money in Stocks by William O'Neil — the CANSLIM growth system. Reminiscences of a Stock Operator by Edwin Lefèvre — a classic on trading psychology."
+          "p": "The Intelligent Investor by Benjamin Graham: the classic on value investing. A Random Walk Down Wall Street by Burton Malkiel: the case for index funds. One Up On Wall Street by Peter Lynch: finding stocks in everyday life. How to Make Money in Stocks by William O'Neil: the CANSLIM growth system. Reminiscences of a Stock Operator by Edwin Lefèvre: a classic on trading psychology."
         },
         {
           "h": "Where to keep learning",
@@ -642,7 +642,7 @@
         },
         {
           "h": "Final thoughts",
-          "p": "The market rewards patience, discipline, and education, and punishes impatience, overconfidence, and emotion. You don't need to be a genius or find the next Apple first. Invest consistently, diversify, manage risk, stay calm when markets get scary, and never stop learning. The investors who win long-term aren't the ones making the most trades — they're the ones making the fewest mistakes."
+          "p": "The market rewards patience, discipline, and education, and punishes impatience, overconfidence, and emotion. You don't need to be a genius or find the next Apple first. Invest consistently, diversify, manage risk, stay calm when markets get scary, and never stop learning. The investors who win long-term aren't the ones making the most trades; they're the ones making the fewest mistakes."
         }
       ],
       "terms": [

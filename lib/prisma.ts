@@ -1,4 +1,4 @@
-// Database connection helper (Prisma v7 — uses the pg adapter).
+// Database connection helper for Prisma v7, which uses the pg adapter.
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 

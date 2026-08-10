@@ -1,5 +1,5 @@
 /* ============================================================
-   VeltaCapital — shared front-end state
+   VeltaCapital: shared front-end state
    ============================================================ */
 
 const Velta = (() => {

@@ -6,7 +6,7 @@
 //  Run with:   npx tsx scripts/make-admin-premium.ts
 //  (or)        npx ts-node scripts/make-admin-premium.ts
 //
-//  Safe to run more than once — it just re-sets the same fields.
+//  Safe to run more than once: it just re-sets the same fields.
 // ============================================================
 import { config } from "dotenv";
 config({ path: ".env.local" });

@@ -1,7 +1,7 @@
 // ============================================================
 //  POST /api/checkout   body: { plan: "trial" | "starter" | "standard" | "premium" }
 //  Creates a Stripe Checkout session for the given plan and returns its URL.
-//  Grants NOTHING here — the plan is only granted in the webhook AFTER Stripe
+//  Grants NOTHING here: the plan is only granted in the webhook AFTER Stripe
 //  confirms payment. This route just starts the payment.
 //  File location: app/api/checkout/route.ts
 // ============================================================
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Must be a logged-in user — getUid works here because this call comes
+    // Must be a logged-in user: getUid works here because this call comes
     // from the browser (with the session cookie), unlike the webhook.
     const uid = await getUid();
     if (!uid) {

@@ -1,17 +1,17 @@
 /* ============================================================
-   VeltaCapital — shared site styles
+   VeltaCapital: shared site styles
    Visual identity carried over from the Predict-the-Graph game:
    warm paper UI, dark trading-panel ink, amber + teal accents.
    ============================================================ */
 :root{
-  --ink:#0F172A;          /* deep slate — text & dark panels */
-  --ink-2:#0B1220;        /* chart panel — near-black slate */
+  --ink:#0F172A;          /* deep slate: text & dark panels */
+  --ink-2:#0B1220;        /* chart panel: near-black slate */
   --paper:#F8FAFC;        /* cool off-white background */
   --paper-2:#EEF2F6;      /* raised surface */
   --line:#E2E8F0;         /* hairline on light surfaces */
   --up:#16A36A;           /* candle up / positive */
   --down:#D8503C;         /* candle down / negative */
-  --amber:#059669;        /* primary accent — now emerald */
+  --amber:#059669;        /* primary accent: now emerald */
   --teal:#0F8B6C;         /* secondary/reveal accent */
   --muted:#64748B;
   --muted-d:#94A3B8;      /* muted on dark */

@@ -3,7 +3,7 @@
 <head> <link rel="icon" type="image/png" href="assets/img/logo.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VeltaCapital — Publish Report (Admin)</title>
+<title>VeltaCapital: Publish Report (Admin)</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -69,8 +69,8 @@ textarea{min-height:280px;resize:vertical;line-height:1.7}
   <input id="title" placeholder="What happened with Apple this week" maxlength="200">
 
   <label for="body">Report</label>
-  <textarea id="body" placeholder="Write the news and how to read it. Plain English. Educational — describe what's happening and what to watch, not buy/sell calls."></textarea>
-  <p class="hint">Line breaks are preserved. Keep it educational — reporting events and how to read them, not recommendations.</p>
+  <textarea id="body" placeholder="Write the news and how to read it. Plain English. Educational: describe what's happening and what to watch, not buy/sell calls."></textarea>
+  <p class="hint">Line breaks are preserved. Keep it educational: reporting events and how to read them, not recommendations.</p>
 
   <div class="checkbox-row">
     <input type="checkbox" id="published" checked>
@@ -118,7 +118,7 @@ $('publish').addEventListener('click', async ()=>{
     const data = await r.json();
     if(r.status === 403){
       msg.className = 'msg err';
-      msg.textContent = 'Not authorized — this account is not the admin.';
+      msg.textContent = 'Not authorized: this account is not the admin.';
     } else if(!data.ok){
       msg.className = 'msg err';
       msg.textContent = data.error || 'Could not publish.';
@@ -130,7 +130,7 @@ $('publish').addEventListener('click', async ()=>{
     }
   }catch(err){
     msg.className = 'msg err';
-    msg.textContent = 'Network error — please try again.';
+    msg.textContent = 'Network error: please try again.';
   }finally{
     $('publish').disabled = false; $('publish').textContent = 'Publish report';
   }
