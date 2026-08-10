@@ -232,8 +232,9 @@
     <p class="eyebrow">Course access</p>
     <h2>Choose your one-time plan.</h2>
     <p class="lead" style="margin:14px 0 30px">Choose by the number of chapters and historical chart exercises you want. Every tier uses the same scoring and earns the same rate of non-cash learning credits.</p>
+    <p class="locked-tag" id="purchase-status" role="status" hidden></p>
     <div class="tiers" id="tiers" aria-label="Course access options"></div>
-    <p class="mono" style="font-size:12px;color:var(--muted);margin-top:20px">Prices are in USD. Checkout is securely processed by Stripe when enabled. <a href="refunds.html">Purchase and refund details</a>.</p>
+    <p class="mono" style="font-size:12px;color:var(--muted);margin-top:20px">Prices are in USD. Checkout opens securely on Stripe with the email from your VeltaCapital account. <a href="refunds.html">Purchase and refund details</a>.</p>
   </div></section>
 </main>
 
@@ -333,6 +334,24 @@
   async function init(){
     user = await Velta.apiMe();
     if(!user){ window.location.href='index.html'; return; }
+    const params=new URLSearchParams(location.search);
+    const returningFromStripe=params.get('paid')==='1'||params.has('session_id');
+    if(returningFromStripe&&user.plan==='none'){
+      const status=document.getElementById('purchase-status');
+      status.hidden=false;
+      status.textContent='Stripe confirmed your checkout. VeltaCapital is activating your plan…';
+      document.getElementById('plan-badge').textContent='Confirming payment…';
+      for(let attempt=0;attempt<8&&user.plan==='none';attempt++){
+        await new Promise(resolve=>setTimeout(resolve,1500));
+        user=await Velta.apiMe();
+        if(!user){window.location.href='index.html';return;}
+      }
+      if(user.plan==='none'){
+        status.textContent='Your payment is still being confirmed. Refresh this page shortly or contact support with your Stripe receipt.';
+      }else{
+        history.replaceState({},'',location.pathname);
+      }
+    }
     refresh();
   }
 
@@ -382,7 +401,7 @@
       const original=button.textContent;
       button.disabled=true;
       button.textContent='Preparing checkout…';
-      try{ await Velta.apiBuy(key); }
+      try{ await Velta.apiBuy(key,user); }
       catch(err){
         window.alert(err instanceof Error ? err.message : 'Could not start checkout');
         button.disabled=false;

@@ -4,11 +4,12 @@
 //  granted. Three safety layers:
 //   1) Signature check: proves the request is really from Stripe.
 //   2) Idempotency: a repeated event cannot grant a plan twice.
-//   3) Metadata lookup: identifies the buyer without a browser session.
+//   3) Payment Link and email lookup: identifies the plan and account.
 //  File location: app/api/stripe/webhook/route.ts
 // ============================================================
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { PAYMENT_PLANS, planFromPaymentLinkUrl, type PlanKey } from "@/lib/paymentPlans";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
@@ -19,12 +20,39 @@ export const dynamic = "force-dynamic";
 
 // Every public tier can earn non-cash learning credits. No tier receives a
 // score multiplier or ranking advantage for paying more.
-const PLANS: Record<string, { runs: number; unlimited: boolean }> = {
-  trial: { runs: 5, unlimited: false },
-  starter: { runs: 15, unlimited: false },
-  standard: { runs: 50, unlimited: false },
-  premium: { runs: 0, unlimited: true },
-};
+async function planFromSession(session: Stripe.Checkout.Session): Promise<PlanKey | null> {
+  const legacyPlan = session.metadata?.plan;
+  if (legacyPlan && legacyPlan in PAYMENT_PLANS) return legacyPlan as PlanKey;
+
+  const paymentLinkReference = session.payment_link;
+  if (!paymentLinkReference) return null;
+
+  const paymentLink = typeof paymentLinkReference === "string"
+    ? await stripe.paymentLinks.retrieve(paymentLinkReference)
+    : paymentLinkReference;
+  return paymentLink.url ? planFromPaymentLinkUrl(paymentLink.url) : null;
+}
+
+async function userFromSession(session: Stripe.Checkout.Session) {
+  const checkoutEmail = (session.customer_details?.email || session.customer_email || "").trim();
+  const referencedUserId = session.client_reference_id || session.metadata?.userId;
+  const select = { id: true, email: true, plan: true, simRunsLeft: true, unlimitedSims: true } as const;
+
+  if (referencedUserId) {
+    const referencedUser = await prisma.user.findUnique({ where: { id: referencedUserId }, select });
+    if (
+      referencedUser &&
+      checkoutEmail &&
+      referencedUser.email.toLowerCase() === checkoutEmail.toLowerCase()
+    ) return referencedUser;
+  }
+
+  if (!checkoutEmail) return null;
+  return prisma.user.findFirst({
+    where: { email: { equals: checkoutEmail, mode: "insensitive" } },
+    select,
+  });
+}
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -44,19 +72,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: `Signature check failed: ${String(err)}` }, { status: 400 });
   }
 
-  // We only care about completed checkouts for now.
-  if (event.type !== "checkout.session.completed") {
+  // Cards normally complete immediately. The second event covers payment
+  // methods that confirm after the customer leaves Checkout.
+  if (
+    event.type !== "checkout.session.completed" &&
+    event.type !== "checkout.session.async_payment_succeeded"
+  ) {
     return NextResponse.json({ ok: true, ignored: event.type });
   }
 
   try {
-    // --- Layer 2: idempotency ---
-    // Stripe may deliver the same event more than once. Record processed
-    // event ids; if we've seen this one, do nothing. `create` throws on a
-    // duplicate id (unique key), which we treat as "already handled".
-    try {
-      await prisma.processedStripeEvent.create({ data: { id: event.id } });
-    } catch {
+    // Avoid external lookups for a webhook event that was already handled.
+    const alreadyProcessed = await prisma.processedStripeEvent.findUnique({ where: { id: event.id } });
+    if (alreadyProcessed) {
       return NextResponse.json({ ok: true, duplicate: event.id });
     }
 
@@ -67,30 +95,55 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, note: "not paid", status: session.payment_status });
     }
 
-    // --- Layer 3: read the buyer + plan from the metadata we stamped ---
-    const uid  = session.metadata?.userId;
-    const plan = session.metadata?.plan;
-    const cfg = plan ? PLANS[plan] : undefined;
+    // --- Layer 3: resolve the Payment Link and the paying account ---
+    const plan = await planFromSession(session);
+    const user = await userFromSession(session);
+    const cfg = plan ? PAYMENT_PLANS[plan] : null;
 
-    if (!uid || !cfg) {
-      // Nothing we can safely grant. 200 so Stripe doesn't keep retrying a
-      // fundamentally un-actionable event, but we log the reason.
-      return NextResponse.json({ ok: true, note: "missing/invalid metadata", uid, plan });
+    if (!user || !plan || !cfg) {
+      return NextResponse.json({
+        ok: true,
+        note: "unmatched payment link or account",
+        paymentLink: session.payment_link,
+        email: session.customer_details?.email || session.customer_email || null,
+      });
     }
 
-    // --- Grant the plan (same logic as the original plan/set route) ---
-    await prisma.user.update({
-      where: { id: uid },
-      data: {
-        plan,
-        simRunsLeft: cfg.runs,
-        unlimitedSims: cfg.unlimited,
-        canRedeem: true,
-        earnMult: 1.0,
-      },
-    });
+    // Never let a later lower-tier purchase remove existing higher-tier access.
+    const currentPlan = user.plan in PAYMENT_PLANS ? user.plan as PlanKey : null;
+    const grantedPlan = currentPlan && PAYMENT_PLANS[currentPlan].rank > cfg.rank ? currentPlan : plan;
+    const grantedCfg = PAYMENT_PLANS[grantedPlan];
+    const simRunsLeft = grantedCfg.unlimited
+      ? user.simRunsLeft
+      : Math.max(user.simRunsLeft, grantedCfg.runs);
 
-    return NextResponse.json({ ok: true, granted: plan, user: uid });
+    // Record the event and grant access atomically. If either write fails,
+    // neither one is committed, so Stripe can safely retry the webhook.
+    try {
+      await prisma.$transaction([
+        prisma.processedStripeEvent.create({ data: { id: event.id } }),
+        prisma.user.update({
+          where: { id: user.id },
+          data: {
+            plan: grantedPlan,
+            simRunsLeft,
+            unlimitedSims: grantedCfg.unlimited,
+            canRedeem: true,
+            earnMult: 1.0,
+          },
+        }),
+      ]);
+    } catch (err) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        err.code === "P2002"
+      ) return NextResponse.json({ ok: true, duplicate: event.id });
+      throw err;
+    }
+
+    return NextResponse.json({ ok: true, purchased: plan, granted: grantedPlan, user: user.id });
   } catch (err) {
     // 500 tells Stripe to retry later (transient DB issue, etc.).
     return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });

@@ -418,7 +418,7 @@ main,header,footer{position:relative;z-index:1}
     <p class="lead">All four options are one-time purchases. Higher tiers add chapters and historical chart exercises, but they do not improve scores, provide cash rewards, or claim investment performance.</p>
   </div>
   <div class="tiers" id="tiers" aria-label="Course access options"></div>
-  <p class="hero-note" style="margin-top:22px">Prices are in USD. Checkout is processed securely by Stripe when enabled for this deployment. <a href="refunds.html" style="color:var(--up)">Read purchase and refund details →</a></p>
+  <p class="hero-note" style="margin-top:22px">Prices are in USD. Sign in first, then complete payment securely through Stripe using the email locked to your account. <a href="refunds.html" style="color:var(--up)">Read purchase and refund details →</a></p>
 </div></section>
 
 <!-- CONTACT -->
@@ -579,7 +579,7 @@ main,header,footer{position:relative;z-index:1}
         try{
           const me=await Velta.apiMe();
           if(!me){ Velta.apiLogin('/member.html?plan='+encodeURIComponent(key)); return; }
-          await Velta.apiBuy(key);
+          await Velta.apiBuy(key,me);
         }catch(err){
           window.alert(err instanceof Error ? err.message : 'Could not start checkout');
           button.disabled=false;

@@ -82,15 +82,17 @@ const Velta = (() => {
     if(!data.ok) throw new Error(data.error || 'Could not redeem reward');
     return data;
   }
-  async function apiBuy(plan){
-    const r = await fetch('/api/checkout', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ plan }),
-    });
-    const data = await r.json();
-    if(!data.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
-    window.location.assign(data.url);
+  async function apiBuy(plan,knownUser){
+    const selected=PLANS[plan];
+    if(!selected || !selected.paymentLink)throw new Error('This payment option is not configured');
+    const user=knownUser||await apiMe();
+    if(!user)throw new Error('Sign in before choosing a plan');
+    if(user.plan&&user.plan!=='none')throw new Error('This account already has course access. Contact support before buying another plan.');
+    if(!user.id||!user.email)throw new Error('Your account is missing the information required for checkout');
+    const checkout=new URL(selected.paymentLink);
+    checkout.searchParams.set('client_reference_id',user.id);
+    checkout.searchParams.set('locked_prefilled_email',user.email);
+    window.location.assign(checkout.toString());
   }
   async function apiPortfolio(){
     const r=await fetch('/api/portfolio');
@@ -112,6 +114,7 @@ const PLANS = {
     name:'Course Trial',
     price:'$9', cadence:'one-time',
     blurb:'A low-cost introduction to the written course and historical chart practice.',
+    paymentLink:'https://buy.stripe.com/5kQ3cv06e2zEfSHfil5sA01',
     simRuns:5, unlimited:false,
     features:[
       'First 5 course chapters',
@@ -124,6 +127,7 @@ const PLANS = {
     name:'Starter',
     price:'$19', cadence:'one-time',
     blurb:'More lessons and practice for learners building their foundation.',
+    paymentLink:'https://buy.stripe.com/bJeeVdg5cgqufSHb255sA03',
     simRuns:15, unlimited:false,
     features:[
       'First 10 course chapters',
@@ -136,6 +140,7 @@ const PLANS = {
     name:'Standard',
     price:'$39', cadence:'one-time',
     blurb:'The full written curriculum with enough practice for structured repetition.',
+    paymentLink:'https://buy.stripe.com/aFadR9aKS2zEaynfil5sA04',
     simRuns:50, unlimited:false,
     features:[
       'All 15 course chapters',
@@ -148,6 +153,7 @@ const PLANS = {
     name:'Premium',
     price:'$69', cadence:'one-time',
     blurb:'Full curriculum access with unlimited historical chart practice.',
+    paymentLink:'https://buy.stripe.com/28E5kD9GOdei8qfdad5sA05',
     simRuns:0, unlimited:true,
     features:[
       'All 15 course chapters',
