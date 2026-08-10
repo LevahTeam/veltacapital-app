@@ -94,6 +94,16 @@ const Velta = (() => {
     checkout.searchParams.set('locked_prefilled_email',user.email);
     window.location.assign(checkout.toString());
   }
+  async function apiConfirmCheckout(sessionId){
+    const r=await fetch('/api/stripe/confirm',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sessionId}),
+    });
+    const data=await r.json();
+    if(!data.ok)throw new Error(data.error||'Could not confirm payment');
+    return data;
+  }
   async function apiPortfolio(){
     const r=await fetch('/api/portfolio');
     const data=await r.json();
@@ -104,7 +114,7 @@ const Velta = (() => {
     get:()=>({...state}),
     fakeLogin, useTrialRound, reset,
     save:()=>save(state),
-    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiBuy, apiPortfolio, apiStats,
+    apiLogin, apiMe, apiLogout, apiSubmitScore, apiRedeem, apiBuy, apiConfirmCheckout, apiPortfolio, apiStats,
   };
 })();
 

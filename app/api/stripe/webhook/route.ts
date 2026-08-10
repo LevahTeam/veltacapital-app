@@ -9,7 +9,8 @@
 // ============================================================
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { PAYMENT_PLANS, planFromPaymentLinkUrl, type PlanKey } from "@/lib/paymentPlans";
+import { PAYMENT_PLANS } from "@/lib/paymentPlans";
+import { accessForPurchase, planFromCheckoutSession } from "@/lib/stripeFulfillment";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
@@ -17,21 +18,6 @@ import type Stripe from "stripe";
 // disable any body parsing/caching for this route.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-// Every public tier can earn non-cash learning credits. No tier receives a
-// score multiplier or ranking advantage for paying more.
-async function planFromSession(session: Stripe.Checkout.Session): Promise<PlanKey | null> {
-  const legacyPlan = session.metadata?.plan;
-  if (legacyPlan && legacyPlan in PAYMENT_PLANS) return legacyPlan as PlanKey;
-
-  const paymentLinkReference = session.payment_link;
-  if (!paymentLinkReference) return null;
-
-  const paymentLink = typeof paymentLinkReference === "string"
-    ? await stripe.paymentLinks.retrieve(paymentLinkReference)
-    : paymentLinkReference;
-  return paymentLink.url ? planFromPaymentLinkUrl(paymentLink.url) : null;
-}
 
 async function userFromSession(session: Stripe.Checkout.Session) {
   const checkoutEmail = (session.customer_details?.email || session.customer_email || "").trim();
@@ -96,7 +82,7 @@ export async function POST(req: Request) {
     }
 
     // --- Layer 3: resolve the Payment Link and the paying account ---
-    const plan = await planFromSession(session);
+    const plan = await planFromCheckoutSession(session);
     const user = await userFromSession(session);
     const cfg = plan ? PAYMENT_PLANS[plan] : null;
 
@@ -109,13 +95,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Never let a later lower-tier purchase remove existing higher-tier access.
-    const currentPlan = user.plan in PAYMENT_PLANS ? user.plan as PlanKey : null;
-    const grantedPlan = currentPlan && PAYMENT_PLANS[currentPlan].rank > cfg.rank ? currentPlan : plan;
-    const grantedCfg = PAYMENT_PLANS[grantedPlan];
-    const simRunsLeft = grantedCfg.unlimited
-      ? user.simRunsLeft
-      : Math.max(user.simRunsLeft, grantedCfg.runs);
+    const access = accessForPurchase(user, plan);
 
     // Record the event and grant access atomically. If either write fails,
     // neither one is committed, so Stripe can safely retry the webhook.
@@ -125,9 +105,9 @@ export async function POST(req: Request) {
         prisma.user.update({
           where: { id: user.id },
           data: {
-            plan: grantedPlan,
-            simRunsLeft,
-            unlimitedSims: grantedCfg.unlimited,
+            plan: access.grantedPlan,
+            simRunsLeft: access.simRunsLeft,
+            unlimitedSims: access.unlimitedSims,
             canRedeem: true,
             earnMult: 1.0,
           },
@@ -143,7 +123,7 @@ export async function POST(req: Request) {
       throw err;
     }
 
-    return NextResponse.json({ ok: true, purchased: plan, granted: grantedPlan, user: user.id });
+    return NextResponse.json({ ok: true, purchased: plan, granted: access.grantedPlan, user: user.id });
   } catch (err) {
     // 500 tells Stripe to retry later (transient DB issue, etc.).
     return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
