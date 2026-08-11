@@ -7,15 +7,14 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-  clientId: process.env.GOOGLE_CLIENT_ID!,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  allowDangerousEmailAccountLinking: true,
-      }),
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
+    }),
   ],
   session: { strategy: "database" },
   pages: {
     signIn: "/",        // your own page, not NextAuth's
-    signOut: "/auth/signout", // your own page, not NextAuth's
   },
   callbacks: {
     async session({ session, user }) {

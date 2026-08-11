@@ -23,13 +23,42 @@ const Velta = (() => {
   function reset(){ state = Object.assign({}, DEFAULTS); save(state); }
 
   // ---- REAL backend methods (talk to the database via API routes) ----
+  async function getCsrfToken(){
+    const response = await fetch('/api/auth/csrf', { cache:'no-store' });
+    if(!response.ok) throw new Error('Could not start secure sign-in');
+    const data = await response.json();
+    if(!data.csrfToken) throw new Error('Could not start secure sign-in');
+    return data.csrfToken;
+  }
+
+  async function clearAuthSession(callbackUrl){
+    const csrfToken = await getCsrfToken();
+    const body = new URLSearchParams({
+      csrfToken,
+      callbackUrl: callbackUrl || '/',
+    });
+    const response = await fetch('/api/auth/signout', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body,
+    });
+    if(!response.ok) throw new Error('Could not switch accounts safely');
+  }
+
   async function apiLogin(callbackUrl){
-    const r = await fetch('/api/auth/csrf');
-    const { csrfToken } = await r.json();
+    const safeCallback = typeof callbackUrl === 'string' && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')
+      ? callbackUrl
+      : '/member.html';
+
+    // Clear any existing VeltaCapital session before Google sign-in. Without
+    // this, choosing a different Google account can look like an unsafe
+    // attempt to link two existing users and NextAuth rejects the callback.
+    await clearAuthSession('/');
+    const csrfToken = await getCsrfToken();
 
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/api/auth/signin/google';
+    form.action = '/api/auth/signin/google?prompt=select_account';
 
     const csrf = document.createElement('input');
     csrf.type = 'hidden';
@@ -40,9 +69,7 @@ const Velta = (() => {
     const cb = document.createElement('input');
     cb.type = 'hidden';
     cb.name = 'callbackUrl';
-    cb.value = typeof callbackUrl === 'string' && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')
-      ? callbackUrl
-      : '/member.html';
+    cb.value = safeCallback;
     form.appendChild(cb);
 
     document.body.appendChild(form);
@@ -53,8 +80,8 @@ const Velta = (() => {
     const data = await r.json();
     return data.ok ? data.user : null;
   }
-  function apiLogout(){
-    window.location.href = "/api/auth/signout?callbackUrl=/";
+  async function apiLogout(){
+    await clearAuthSession('/');
   }
   async function apiStats(){
     const r = await fetch('/api/stats');
