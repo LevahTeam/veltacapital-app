@@ -179,7 +179,7 @@
 <div class="proto-flag">LEARNING BUILD: credits and simulated outcomes have no cash value. Public rankings remain disabled.</div>
 
 <header class="nav"><div class="wrap nav-in">
-  <a class="brand" href="index.html" id="brand"></a>
+  <a class="brand" href="member.html" id="brand" aria-label="VeltaCapital member dashboard"></a>
   <nav class="nav-links">
     <a href="index.html#how">How it works</a>
     <a href="methodology.html">Methodology</a>
@@ -358,6 +358,8 @@
       if(user.plan==='none'){
         status.textContent='Your payment is still being confirmed. Refresh this page shortly or contact support with your Stripe receipt.';
       }else{
+        status.hidden=true;
+        status.textContent='';
         history.replaceState({},'',location.pathname);
       }
     }
@@ -429,6 +431,7 @@
     document.getElementById('convert').style.display='none';
     document.getElementById('member').style.display='block';
     const p=PLANS[user.plan];
+    document.getElementById('plan-badge').textContent = p.name;
     document.getElementById('videos-sub').textContent =
       'Full written course included with your '+p.name+' plan.';
     document.getElementById('rounds-allowance').textContent =
@@ -574,9 +577,13 @@ function openLesson(n){
   }
 
 const REWARDS = [
-  {id:'extra_runs',name:'+5 historical-chart exercises',credits:100},
-  {id:'badge',name:'Learning profile badge',credits:300,once:true,ownedField:'hasBadge'},
-  {id:'advanced_module',name:'Advanced learning module',credits:500,once:true,ownedField:'advancedUnlocked'},
+  {id:'extra_run',name:'+1 historical-chart exercise',description:'Add one more scored practice round.',credits:25,kind:'runs'},
+  {id:'extra_runs',name:'+5 historical-chart exercises',description:'A small practice refill at a lower per-round cost.',credits:100,kind:'runs'},
+  {id:'practice_pack',name:'+15 historical-chart exercises',description:'A larger pack for continued chart-reading practice.',credits:250,kind:'runs'},
+  {id:'practice_bundle',name:'+30 historical-chart exercises',description:'A long-form practice bundle for sustained learning.',credits:450,kind:'runs'},
+  {id:'mastery_pack',name:'+60 historical-chart exercises',description:'The largest finite practice bundle.',credits:800,kind:'runs'},
+  {id:'badge',name:'Learning profile badge',description:'Display a learning badge beside your member profile.',credits:300,once:true,ownedField:'hasBadge'},
+  {id:'advanced_module',name:'Advanced learning module',description:'Unlock every remaining course chapter and flashcard deck.',credits:500,once:true,ownedField:'advancedUnlocked'},
 ];
 
 function buildRewards(){
@@ -585,11 +592,12 @@ function buildRewards(){
   grid.innerHTML='';
   REWARDS.forEach(reward=>{
     const owned=reward.once&&reward.ownedField&&user[reward.ownedField];
+    const included=reward.kind==='runs'&&user.unlimitedSims;
     const affordable=(user.credits||0)>=reward.credits;
-    const usable=user.plan!=='none'&&affordable&&!owned;
+    const usable=user.plan!=='none'&&affordable&&!owned&&!included;
     const card=el('div',{class:'reward'+(usable?'':' locked')});
-    const label=owned?'✓ Owned':!affordable?'Need '+fmt(reward.credits-(user.credits||0))+' more':'Redeem';
-    card.innerHTML='<h3>'+reward.name+'</h3><div class="cost">Cost: <b>'+fmt(reward.credits)+'</b> credits</div><button class="btn'+(usable?' amber':'')+'" '+(usable?'':'disabled')+' style="justify-content:center">'+label+'</button>';
+    const label=owned?'✓ Owned':included?'Included with Premium':!affordable?'Need '+fmt(reward.credits-(user.credits||0))+' more':'Redeem';
+    card.innerHTML='<h3>'+reward.name+'</h3><p>'+reward.description+'</p><div class="cost">Cost: <b>'+fmt(reward.credits)+'</b> credits</div><button class="btn'+(usable?' amber':'')+'" '+(usable?'':'disabled')+' style="justify-content:center">'+label+'</button>';
     if(usable)card.querySelector('button').addEventListener('click',async event=>{
       const button=event.currentTarget;
       button.disabled=true;button.textContent='Redeeming…';
