@@ -1,14 +1,15 @@
-// Database connection helper for Prisma v7, which uses the pg adapter.
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString = process.env.DATABASE_URL;
+type PrismaGlobal = typeof globalThis & { prisma?: PrismaClient };
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const prismaGlobal = globalThis as PrismaGlobal;
+const postgresAdapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
 
-const adapter = new PrismaPg({ connectionString });
+export const prisma = prismaGlobal.prisma ?? new PrismaClient({ adapter: postgresAdapter });
 
-export const prisma =
-  globalForPrisma.prisma ?? new PrismaClient({ adapter });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  prismaGlobal.prisma = prisma;
+}

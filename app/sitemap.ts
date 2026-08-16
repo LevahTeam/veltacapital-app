@@ -1,12 +1,18 @@
 import type { MetadataRoute } from "next";
 
+const SITE_URL = "https://www.veltacapital.net";
+const INDEXABLE_PATHS = [
+  ["/", "weekly", 1],
+  ["/methodology", "monthly", 0.8],
+  ["/terms", "yearly", 0.3],
+  ["/privacy", "yearly", 0.3],
+  ["/refunds", "yearly", 0.3],
+] as const;
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://www.veltacapital.net";
-  return [
-    { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/methodology`, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/terms`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/privacy`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/refunds`, changeFrequency: "yearly", priority: 0.3 },
-  ];
+  return INDEXABLE_PATHS.map(([path, changeFrequency, priority]) => ({
+    url: `${SITE_URL}${path}`,
+    changeFrequency,
+    priority,
+  }));
 }

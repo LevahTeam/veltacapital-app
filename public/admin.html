@@ -91,105 +91,68 @@ textarea{min-height:280px;resize:vertical;line-height:1.7}
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
-function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-// ---- publish ----
-$('publish').addEventListener('click', async ()=>{
-  const msg = $('msg');
-  msg.className = 'msg'; msg.textContent = '';
-  const ticker = $('ticker').value.trim();
-  const title  = $('title').value.trim();
-  const body   = $('body').value.trim();
-  const published = $('published').checked;
-
-  if(!ticker || !title || !body){
-    msg.className = 'msg err';
-    msg.textContent = 'Ticker, headline, and report text are all required.';
+const $ = (id) => document.getElementById(id);
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+$("publish").addEventListener("click", async () => {
+  const msg = $("msg");
+  msg.className = "msg", msg.textContent = "";
+  const ticker = $("ticker").value.trim(), title = $("title").value.trim(), body = $("body").value.trim(), published = $("published").checked;
+  if (!ticker || !title || !body) {
+    msg.className = "msg err", msg.textContent = "Ticker, headline, and report text are all required.";
     return;
   }
-  $('publish').disabled = true; $('publish').textContent = 'Publishing…';
-  try{
-    const r = await fetch('/api/reports', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ ticker, title, body, published }),
-    });
-    const data = await r.json();
-    if(r.status === 403){
-      msg.className = 'msg err';
-      msg.textContent = 'Not authorized: this account is not the admin.';
-    } else if(!data.ok){
-      msg.className = 'msg err';
-      msg.textContent = data.error || 'Could not publish.';
-    } else {
-      msg.className = 'msg ok';
-      msg.textContent = '✓ Published "'+data.report.title+'" ('+data.report.ticker+').';
-      $('ticker').value=''; $('title').value=''; $('body').value='';
-      loadList(); // refresh the list to show the new one
-    }
-  }catch(err){
-    msg.className = 'msg err';
-    msg.textContent = 'Network error: please try again.';
-  }finally{
-    $('publish').disabled = false; $('publish').textContent = 'Publish report';
+  $("publish").disabled = !0, $("publish").textContent = "Publishing\u2026";
+  try {
+    const r = await fetch("/api/reports", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker, title, body, published })
+    }), data = await r.json();
+    r.status === 403 ? (msg.className = "msg err", msg.textContent = "Not authorized: this account is not the admin.") : data.ok ? (msg.className = "msg ok", msg.textContent = '\u2713 Published "' + data.report.title + '" (' + data.report.ticker + ").", $("ticker").value = "", $("title").value = "", $("body").value = "", loadList()) : (msg.className = "msg err", msg.textContent = data.error || "Could not publish.");
+  } catch {
+    msg.className = "msg err", msg.textContent = "Network error: please try again.";
+  } finally {
+    $("publish").disabled = !1, $("publish").textContent = "Publish report";
   }
 });
-
-// ---- list + delete ----
-async function loadList(){
-  const host = $('list');
-  try{
-    const r = await fetch('/api/reports');
-    const data = await r.json();
-    if(!data.ok || !data.reports || !data.reports.length){
+async function loadList() {
+  const host = $("list");
+  try {
+    const data = await (await fetch("/api/reports")).json();
+    if (!data.ok || !data.reports || !data.reports.length) {
       host.innerHTML = '<div class="list-empty">No reports yet.</div>';
       return;
     }
-    host.innerHTML = data.reports.map(rep=>{
-      const d = new Date(rep.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
-      const draft = rep.published ? '' : '<span class="draft">DRAFT</span>';
-      return '<div class="item" data-id="'+rep.id+'">'+
-        '<div class="meta">'+
-          '<div class="tk">'+esc(rep.ticker)+draft+'</div>'+
-          '<div class="ti">'+esc(rep.title)+'</div>'+
-          '<div class="dt">'+d+'</div>'+
-        '</div>'+
-        '<button class="del" data-id="'+rep.id+'" data-title="'+esc(rep.title)+'">Delete</button>'+
-      '</div>';
-    }).join('');
-    // wire delete buttons
-    host.querySelectorAll('.del').forEach(btn=>{
-      btn.addEventListener('click', ()=>deleteReport(btn.dataset.id, btn.dataset.title, btn));
+    host.innerHTML = data.reports.map((rep) => {
+      const d = new Date(rep.createdAt).toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" }), draft = rep.published ? "" : '<span class="draft">DRAFT</span>';
+      return '<div class="item" data-id="' + rep.id + '"><div class="meta"><div class="tk">' + esc(rep.ticker) + draft + '</div><div class="ti">' + esc(rep.title) + '</div><div class="dt">' + d + '</div></div><button class="del" data-id="' + rep.id + '" data-title="' + esc(rep.title) + '">Delete</button></div>';
+    }).join(""), host.querySelectorAll(".del").forEach((btn) => {
+      btn.addEventListener("click", () => deleteReport(btn.dataset.id, btn.dataset.title, btn));
     });
-  }catch(err){
+  } catch {
     host.innerHTML = '<div class="list-empty">Could not load reports.</div>';
   }
 }
-
-async function deleteReport(id, title, btn){
-  if(!confirm('Delete "'+title+'"? This cannot be undone.')) return;
-  btn.disabled = true; btn.textContent = 'Deleting…';
-  try{
-    const r = await fetch('/api/reports?id='+encodeURIComponent(id), { method:'DELETE' });
-    const data = await r.json();
-    if(r.status === 403){
-      alert('Not authorized.');
-      btn.disabled=false; btn.textContent='Delete';
-    } else if(!data.ok){
-      alert(data.error || 'Could not delete.');
-      btn.disabled=false; btn.textContent='Delete';
-    } else {
-      // remove the row
-      const row = btn.closest('.item'); if(row) row.remove();
-      if(!$('list').querySelector('.item')){ $('list').innerHTML='<div class="list-empty">No reports yet.</div>'; }
+async function deleteReport(id, title, btn) {
+  if (confirm('Delete "' + title + '"? This cannot be undone.')) {
+    btn.disabled = !0, btn.textContent = "Deleting\u2026";
+    try {
+      const r = await fetch("/api/reports?id=" + encodeURIComponent(id), { method: "DELETE" }), data = await r.json();
+      if (r.status === 403)
+        alert("Not authorized."), btn.disabled = !1, btn.textContent = "Delete";
+      else if (!data.ok)
+        alert(data.error || "Could not delete."), btn.disabled = !1, btn.textContent = "Delete";
+      else {
+        const row = btn.closest(".item");
+        row && row.remove(), $("list").querySelector(".item") || ($("list").innerHTML = '<div class="list-empty">No reports yet.</div>');
+      }
+    } catch {
+      alert("Network error."), btn.disabled = !1, btn.textContent = "Delete";
     }
-  }catch(err){
-    alert('Network error.');
-    btn.disabled=false; btn.textContent='Delete';
   }
 }
-
 loadList();
 </script>
 </body>

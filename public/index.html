@@ -483,131 +483,104 @@ main,header,footer{position:relative;z-index:1}
 
 <script src="assets/velta.js"></script>
 <script>
-  // brand marks (real veltaMark from velta.js)
-  document.getElementById('brand').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
-  document.getElementById('brand-foot').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
-
-  // ---- hero animated candle strip ----
-  (function(){
-    const svg=document.getElementById('heroChart');
-    const NS="http://www.w3.org/2000/svg", W=420,H=240;
-    let seed=7; const r=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
-    const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.283*r());
-    const n=22; let price=120, data=[];
-    for(let i=0;i<n;i++){const o=price,c=Math.max(20,o*Math.exp(0.004+0.05*g()));
-      const hi=Math.max(o,c)*(1+Math.abs(g())*0.02), lo=Math.min(o,c)*(1-Math.abs(g())*0.02);
-      data.push([o,hi,lo,c]); price=c;}
-    const lo=Math.min(...data.map(d=>d[2])), hi=Math.max(...data.map(d=>d[1]));
-    const pad=18, cw=(W-pad*2)/n;
-    const y=v=>pad+(1-(v-lo)/(hi-lo))*(H-pad*2);
-    function rect(x,yy,w,h,f,o){const e=document.createElementNS(NS,'rect');
-      e.setAttribute('x',x);e.setAttribute('y',yy);e.setAttribute('width',w);e.setAttribute('height',h);
-      e.setAttribute('rx',1);e.setAttribute('fill',f);if(o!=null)e.setAttribute('opacity',o);svg.appendChild(e);return e;}
-    function line(x1,y1,x2,y2,s){const e=document.createElementNS(NS,'line');
-      e.setAttribute('x1',x1);e.setAttribute('y1',y1);e.setAttribute('x2',x2);e.setAttribute('y2',y2);
-      e.setAttribute('stroke',s);e.setAttribute('stroke-width',1.2);svg.appendChild(e);}
-    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-    data.forEach((d,i)=>{
-      const x=pad+i*cw+cw*0.5, up=d[3]>=d[0], col=up?'#2BD37F':'#E5573C';
-      const future=i>=Math.floor(n*0.6);
-      const fill=future?'#3a4a52':col;
-      line(x,y(d[1]),x,y(d[2]),fill);
-      const top=Math.min(y(d[0]),y(d[3])), bh=Math.max(2,Math.abs(y(d[3])-y(d[0])));
-      const bar=rect(x-cw*0.3,top,cw*0.6,bh,fill,future?0.5:1);
-      if(future && !reduce){ bar.style.opacity=0;
-        bar.animate([{opacity:0},{opacity:0.5}],{duration:500,delay:600+(i-Math.floor(n*0.6))*180,fill:'forwards'}); }
-    });
-    line(pad+Math.floor(n*0.6)*cw, pad, pad+Math.floor(n*0.6)*cw, H-pad, '#273139');
-  })();
-
-  // ---- scroll reveal (redesign) ----
-  (function(){
-    const els=document.querySelectorAll('.reveal');
-    if(!('IntersectionObserver'in window)){els.forEach(e=>e.classList.add('in'));return;}
-    const io=new IntersectionObserver((ents)=>{
-      ents.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('in'),i*70);io.unobserve(e.target);}});
-    },{threshold:.12});
-    els.forEach(e=>io.observe(e));
-  })();
-
-  // ---- founder read-more (redesign) ----
-  document.querySelectorAll('.more').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const t=document.getElementById(btn.dataset.target);
-      const open=t.classList.toggle('open');
-      btn.innerHTML= open ? 'Read less <span>&uarr;</span>' : 'Read more <span>&darr;</span>';
-    });
-  });
-
-  // ---- responsive navigation ----
-  const navToggle=document.getElementById('nav-toggle');
-  const primaryNav=document.getElementById('primary-nav');
-  navToggle.addEventListener('click',()=>{const open=primaryNav.classList.toggle('open');navToggle.setAttribute('aria-expanded',String(open));});
-  primaryNav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{primaryNav.classList.remove('open');navToggle.setAttribute('aria-expanded','false');}));
-
-  // ---- login modal (real Velta.apiLogin) ----
-  const modal=document.getElementById('login-modal');
-  function openLogin(){ modal.classList.add('open'); document.getElementById('login-x').focus(); }
-  function closeLogin(){ modal.classList.remove('open'); document.getElementById('login-top').focus(); }
-  document.getElementById('login-top').addEventListener('click',e=>{e.preventDefault();openLogin();});
-  document.getElementById('login-x').addEventListener('click',closeLogin);
-  modal.addEventListener('click',e=>{ if(e.target===modal)closeLogin(); });
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeLogin();});
-
-  function doLogin(){ Velta.apiLogin(); }
-  document.getElementById('google-btn').addEventListener('click',doLogin);
-
-  // ---- one-time course price options ----
-  (function(){
-    const host=document.getElementById('tiers');
-    ['trial','starter','standard','premium'].forEach(key=>{
-      const p=PLANS[key];
-      const featured=key==='standard';
-      const card=el('article',{class:'tier'+(featured?' feature':'')});
-      card.innerHTML=
-        '<div class="ribbon">'+(featured?'Most popular':'One-time access')+'</div>'+
-        '<h3>'+p.name+'</h3>'+
-        '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
-        '<p style="color:var(--fg-dim);font-size:14px">'+p.blurb+'</p>'+
-        '<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>'+
-        '<button class="btn '+(featured?'solid':'ghost')+'" type="button">Choose '+p.name+'</button>';
-      const button=card.querySelector('button');
-      button.addEventListener('click',async()=>{
-        const original=button.textContent;
-        button.disabled=true;
-        button.textContent='Preparing checkout…';
-        try{
-          const me=await Velta.apiMe();
-          if(!me){ Velta.apiLogin('/member.html?plan='+encodeURIComponent(key)); return; }
-          await Velta.apiBuy(key,me);
-        }catch(err){
-          window.alert(err instanceof Error ? err.message : 'Could not start checkout');
-          button.disabled=false;
-          button.textContent=original;
-        }
-      });
-      host.appendChild(card);
-    });
-  })();
-
-  // ---- trial gating: after 3 rounds, swap iframe for the login gate ----
-  let trialRounds = Velta.get().trialRoundsUsed;
-  updateTrialCount();
-  window.addEventListener('message',(ev)=>{
-    if(ev.origin!==location.origin)return;
-    if(ev.data && ev.data.type==='velta_round_done'){
-      trialRounds++; Velta.useTrialRound(); updateTrialCount();
-      if(trialRounds>=3){
-        document.getElementById('trial-frame').style.display='none';
-        document.getElementById('trial-gate').style.display='block';
-      }
-    }
-  });
-  function updateTrialCount(){
-    const left=Math.max(0,3-trialRounds);
-    document.getElementById('trial-count').textContent = left+' free round'+(left===1?'':'s')+' left';
+document.getElementById("brand").innerHTML = veltaMark() + "<span>VeltaCapital</span>", document.getElementById("brand-foot").innerHTML = veltaMark() + "<span>VeltaCapital</span>", (function() {
+  const svg = document.getElementById("heroChart"), NS = "http://www.w3.org/2000/svg", W = 420, H = 240;
+  let seed = 7;
+  const r = () => (seed = seed * 1103515245 + 12345 & 2147483647, seed / 2147483647), g = () => Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(6.283 * r()), n = 22;
+  let price = 120, data = [];
+  for (let i = 0; i < n; i++) {
+    const o = price, c = Math.max(20, o * Math.exp(4e-3 + 0.05 * g())), hi2 = Math.max(o, c) * (1 + Math.abs(g()) * 0.02), lo2 = Math.min(o, c) * (1 - Math.abs(g()) * 0.02);
+    data.push([o, hi2, lo2, c]), price = c;
   }
-  document.getElementById('trial-login').addEventListener('click',openLogin);
+  const lo = Math.min(...data.map((d) => d[2])), hi = Math.max(...data.map((d) => d[1])), pad = 18, cw = (W - pad * 2) / n, y = (v) => pad + (1 - (v - lo) / (hi - lo)) * (H - pad * 2);
+  function rect(x, yy, w, h, f, o) {
+    const e = document.createElementNS(NS, "rect");
+    return e.setAttribute("x", x), e.setAttribute("y", yy), e.setAttribute("width", w), e.setAttribute("height", h), e.setAttribute("rx", 1), e.setAttribute("fill", f), o != null && e.setAttribute("opacity", o), svg.appendChild(e), e;
+  }
+  function line(x1, y1, x2, y2, s) {
+    const e = document.createElementNS(NS, "line");
+    e.setAttribute("x1", x1), e.setAttribute("y1", y1), e.setAttribute("x2", x2), e.setAttribute("y2", y2), e.setAttribute("stroke", s), e.setAttribute("stroke-width", 1.2), svg.appendChild(e);
+  }
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  data.forEach((d, i) => {
+    const x = pad + i * cw + cw * 0.5, up = d[3] >= d[0], col = up ? "#2BD37F" : "#E5573C", future = i >= Math.floor(n * 0.6), fill = future ? "#3a4a52" : col;
+    line(x, y(d[1]), x, y(d[2]), fill);
+    const top = Math.min(y(d[0]), y(d[3])), bh = Math.max(2, Math.abs(y(d[3]) - y(d[0]))), bar = rect(x - cw * 0.3, top, cw * 0.6, bh, fill, future ? 0.5 : 1);
+    future && !reduce && (bar.style.opacity = 0, bar.animate([{ opacity: 0 }, { opacity: 0.5 }], { duration: 500, delay: 600 + (i - Math.floor(n * 0.6)) * 180, fill: "forwards" }));
+  }), line(pad + Math.floor(n * 0.6) * cw, pad, pad + Math.floor(n * 0.6) * cw, H - pad, "#273139");
+})(), (function() {
+  const els = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window)) {
+    els.forEach((e) => e.classList.add("in"));
+    return;
+  }
+  const io = new IntersectionObserver((ents) => {
+    ents.forEach((e, i) => {
+      e.isIntersecting && (setTimeout(() => e.target.classList.add("in"), i * 70), io.unobserve(e.target));
+    });
+  }, { threshold: 0.12 });
+  els.forEach((e) => io.observe(e));
+})(), document.querySelectorAll(".more").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const open = document.getElementById(btn.dataset.target).classList.toggle("open");
+    btn.innerHTML = open ? "Read less <span>&uarr;</span>" : "Read more <span>&darr;</span>";
+  });
+});
+const navToggle = document.getElementById("nav-toggle"), primaryNav = document.getElementById("primary-nav");
+navToggle.addEventListener("click", () => {
+  const open = primaryNav.classList.toggle("open");
+  navToggle.setAttribute("aria-expanded", String(open));
+}), primaryNav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+  primaryNav.classList.remove("open"), navToggle.setAttribute("aria-expanded", "false");
+}));
+const modal = document.getElementById("login-modal");
+function openLogin() {
+  modal.classList.add("open"), document.getElementById("login-x").focus();
+}
+function closeLogin() {
+  modal.classList.remove("open"), document.getElementById("login-top").focus();
+}
+document.getElementById("login-top").addEventListener("click", (e) => {
+  e.preventDefault(), openLogin();
+}), document.getElementById("login-x").addEventListener("click", closeLogin), modal.addEventListener("click", (e) => {
+  e.target === modal && closeLogin();
+}), document.addEventListener("keydown", (e) => {
+  e.key === "Escape" && modal.classList.contains("open") && closeLogin();
+});
+function doLogin() {
+  Velta.apiLogin();
+}
+document.getElementById("google-btn").addEventListener("click", doLogin), (function() {
+  const host = document.getElementById("tiers");
+  ["trial", "starter", "standard", "premium"].forEach((key) => {
+    const p = PLANS[key], featured = key === "standard", card = el("article", { class: "tier" + (featured ? " feature" : "") });
+    card.innerHTML = '<div class="ribbon">' + (featured ? "Most popular" : "One-time access") + "</div><h3>" + p.name + '</h3><div class="price">' + p.price + " <small>" + p.cadence + '</small></div><p style="color:var(--fg-dim);font-size:14px">' + p.blurb + "</p><ul>" + p.features.map((f) => '<li><span class="ic">\u2713</span><span>' + f + "</span></li>").join("") + '</ul><button class="btn ' + (featured ? "solid" : "ghost") + '" type="button">Choose ' + p.name + "</button>";
+    const button = card.querySelector("button");
+    button.addEventListener("click", async () => {
+      const original = button.textContent;
+      button.disabled = !0, button.textContent = "Preparing checkout\u2026";
+      try {
+        const me = await Velta.apiMe();
+        if (!me) {
+          Velta.apiLogin("/member.html?plan=" + encodeURIComponent(key));
+          return;
+        }
+        await Velta.apiBuy(key, me);
+      } catch (err) {
+        window.alert(err instanceof Error ? err.message : "Could not start checkout"), button.disabled = !1, button.textContent = original;
+      }
+    }), host.appendChild(card);
+  });
+})();
+let trialRounds = Velta.get().trialRoundsUsed;
+updateTrialCount(), window.addEventListener("message", (ev) => {
+  ev.origin === location.origin && ev.data && ev.data.type === "velta_round_done" && (trialRounds++, Velta.useTrialRound(), updateTrialCount(), trialRounds >= 3 && (document.getElementById("trial-frame").style.display = "none", document.getElementById("trial-gate").style.display = "block"));
+});
+function updateTrialCount() {
+  const left = Math.max(0, 3 - trialRounds);
+  document.getElementById("trial-count").textContent = left + " free round" + (left === 1 ? "" : "s") + " left";
+}
+document.getElementById("trial-login").addEventListener("click", openLogin);
 </script>
 </body>
 </html>

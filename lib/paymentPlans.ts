@@ -27,14 +27,20 @@ export const PAYMENT_PLANS = {
 
 export type PlanKey = keyof typeof PAYMENT_PLANS;
 
+function withoutQueryOrFragment(value: string) {
+  const url = new URL(value);
+  url.search = "";
+  url.hash = "";
+  return url.toString().replace(/\/$/, "");
+}
+
 export function planFromPaymentLinkUrl(value: string): PlanKey | null {
   try {
-    const candidate = new URL(value);
-    candidate.search = "";
-    candidate.hash = "";
-    const normalized = candidate.toString().replace(/\/$/, "");
-    const match = Object.entries(PAYMENT_PLANS).find(([, plan]) => plan.url === normalized);
-    return match ? match[0] as PlanKey : null;
+    const normalizedUrl = withoutQueryOrFragment(value);
+    for (const planName of Object.keys(PAYMENT_PLANS) as PlanKey[]) {
+      if (PAYMENT_PLANS[planName].url === normalizedUrl) return planName;
+    }
+    return null;
   } catch {
     return null;
   }

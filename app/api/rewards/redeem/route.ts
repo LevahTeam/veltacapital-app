@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import { getUid } from "@/lib/getUid";
-import { NextResponse } from "next/server";
+import { errorResponse, jsonResponse } from "@/lib/http";
+import { prisma } from "@/lib/prisma";
 
 type Reward = {
   name: string;
@@ -11,8 +11,6 @@ type Reward = {
   apply: () => Record<string, unknown>;
 };
 
-// Credits are an in-product learning counter. They cannot be purchased,
-// transferred, redeemed for cash, or used as evidence of investing skill.
 const CATALOG: Record<string, Reward> = {
   extra_run: {
     name: "+1 historical-chart exercise",
@@ -62,32 +60,48 @@ const CATALOG: Record<string, Reward> = {
   },
 };
 
+function unavailableRewardReason(
+  reward: Reward,
+  user: {
+    plan: string;
+    credits: number;
+    unlimitedSims: boolean;
+    advancedUnlocked: boolean;
+    hasBadge: boolean;
+  }
+) {
+  if (user.plan === "none") {
+    return { error: "Course access is required for redemption.", status: 403 };
+  }
+  if (reward.kind === "runs" && user.unlimitedSims) {
+    return {
+      error: "Unlimited historical-chart exercises are already included with this plan.",
+      status: 400,
+    };
+  }
+  if (user.credits < reward.cost) {
+    return { error: "Not enough credits", status: 400 };
+  }
+  if (reward.once && reward.ownedField && user[reward.ownedField]) {
+    return { error: "Already owned", status: 400 };
+  }
+  return null;
+}
+
 export async function POST(req: Request) {
   try {
     const uid = await getUid();
-    if (!uid) return NextResponse.json({ ok: false, error: "Not logged in" }, { status: 401 });
+    if (!uid) return errorResponse("Not logged in", 401);
 
-    const { rewardId } = await req.json();
+    const { rewardId } = (await req.json()) as { rewardId?: unknown };
     const reward = CATALOG[String(rewardId)];
-    if (!reward) return NextResponse.json({ ok: false, error: "Unknown reward" }, { status: 400 });
+    if (!reward) return errorResponse("Unknown reward", 400);
 
     const user = await prisma.user.findUnique({ where: { id: uid } });
-    if (!user) return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
-    if (user.plan === "none") {
-      return NextResponse.json({ ok: false, error: "Course access is required for redemption." }, { status: 403 });
-    }
-    if (reward.kind === "runs" && user.unlimitedSims) {
-      return NextResponse.json(
-        { ok: false, error: "Unlimited historical-chart exercises are already included with this plan." },
-        { status: 400 },
-      );
-    }
-    if (user.credits < reward.cost) {
-      return NextResponse.json({ ok: false, error: "Not enough credits" }, { status: 400 });
-    }
-    if (reward.once && reward.ownedField && (user as Record<string, unknown>)[reward.ownedField]) {
-      return NextResponse.json({ ok: false, error: "Already owned" }, { status: 400 });
-    }
+    if (!user) return errorResponse("User not found", 404);
+
+    const blocked = unavailableRewardReason(reward, user);
+    if (blocked) return errorResponse(blocked.error, blocked.status);
 
     const [, , updated] = await prisma.$transaction([
       prisma.redemption.create({
@@ -102,7 +116,7 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    return NextResponse.json({
+    return jsonResponse({
       ok: true,
       credits: updated.credits,
       simRunsLeft: updated.simRunsLeft,
@@ -110,6 +124,6 @@ export async function POST(req: Request) {
       hasBadge: updated.hasBadge,
     });
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
+    return errorResponse(String(err), 500);
   }
 }

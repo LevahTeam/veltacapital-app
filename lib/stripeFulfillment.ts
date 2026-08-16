@@ -5,35 +5,38 @@ import { PAYMENT_PLANS, planFromPaymentLinkUrl, type PlanKey } from "@/lib/payme
 export async function planFromCheckoutSession(
   session: Stripe.Checkout.Session
 ): Promise<PlanKey | null> {
-  const legacyPlan = session.metadata?.plan;
-  if (legacyPlan && legacyPlan in PAYMENT_PLANS) return legacyPlan as PlanKey;
+  const metadataPlan = session.metadata?.plan;
+  if (metadataPlan && metadataPlan in PAYMENT_PLANS) {
+    return metadataPlan as PlanKey;
+  }
 
-  const paymentLinkReference = session.payment_link;
-  if (!paymentLinkReference) return null;
+  const paymentLink = session.payment_link;
+  if (paymentLink === null || paymentLink === undefined) return null;
 
-  const paymentLink = typeof paymentLinkReference === "string"
-    ? await stripe.paymentLinks.retrieve(paymentLinkReference)
-    : paymentLinkReference;
-  return paymentLink.url ? planFromPaymentLinkUrl(paymentLink.url) : null;
+  const resolvedLink =
+    typeof paymentLink === "string"
+      ? await stripe.paymentLinks.retrieve(paymentLink)
+      : paymentLink;
+  return resolvedLink.url ? planFromPaymentLinkUrl(resolvedLink.url) : null;
 }
 
 export function accessForPurchase(
   user: { plan: string; simRunsLeft: number },
   purchasedPlan: PlanKey
 ) {
-  const purchased = PAYMENT_PLANS[purchasedPlan];
-  const currentPlan = user.plan in PAYMENT_PLANS ? user.plan as PlanKey : null;
-  const grantedPlan = currentPlan && PAYMENT_PLANS[currentPlan].rank > purchased.rank
-    ? currentPlan
-    : purchasedPlan;
-  const granted = PAYMENT_PLANS[grantedPlan];
+  const existingPlan = user.plan in PAYMENT_PLANS ? (user.plan as PlanKey) : null;
+  const purchasedRank = PAYMENT_PLANS[purchasedPlan].rank;
+  const keepExistingPlan =
+    existingPlan !== null && PAYMENT_PLANS[existingPlan].rank > purchasedRank;
+  const grantedPlan = keepExistingPlan ? existingPlan : purchasedPlan;
+  const grantedAccess = PAYMENT_PLANS[grantedPlan];
 
   return {
     purchasedPlan,
     grantedPlan,
-    simRunsLeft: granted.unlimited
+    simRunsLeft: grantedAccess.unlimited
       ? user.simRunsLeft
-      : Math.max(user.simRunsLeft, granted.runs),
-    unlimitedSims: granted.unlimited,
+      : Math.max(user.simRunsLeft, grantedAccess.runs),
+    unlimitedSims: grantedAccess.unlimited,
   };
 }

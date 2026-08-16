@@ -2,19 +2,25 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { getUid } from "@/lib/getUid";
+import { errorResponse, jsonResponse } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { accessForPurchase, planFromCheckoutSession } from "@/lib/stripeFulfillment";
-import { NextResponse } from "next/server";
+
+const CHECKOUT_SESSION_ID = /^cs_[A-Za-z0-9_]+$/;
+
+function checkoutEmail(session: Awaited<ReturnType<typeof stripe.checkout.sessions.retrieve>>) {
+  return (session.customer_details?.email || session.customer_email || "").trim();
+}
 
 export async function POST(req: Request) {
   try {
     const uid = await getUid();
-    if (!uid) return NextResponse.json({ ok: false, error: "Not logged in" }, { status: 401 });
+    if (!uid) return errorResponse("Not logged in", 401);
 
     const { sessionId } = (await req.json()) as { sessionId?: unknown };
-    if (typeof sessionId !== "string" || !/^cs_[A-Za-z0-9_]+$/.test(sessionId)) {
-      return NextResponse.json({ ok: false, error: "Invalid Checkout Session" }, { status: 400 });
+    if (typeof sessionId !== "string" || !CHECKOUT_SESSION_ID.test(sessionId)) {
+      return errorResponse("Invalid Checkout Session", 400);
     }
 
     const [session, user] = await Promise.all([
@@ -24,22 +30,22 @@ export async function POST(req: Request) {
         select: { id: true, email: true, plan: true, simRunsLeft: true },
       }),
     ]);
-    if (!user) return NextResponse.json({ ok: false, error: "Account not found" }, { status: 404 });
+    if (!user) return errorResponse("Account not found", 404);
     if (session.payment_status !== "paid") {
-      return NextResponse.json({ ok: false, error: "Stripe has not confirmed payment" }, { status: 409 });
+      return errorResponse("Stripe has not confirmed payment", 409);
     }
 
-    const checkoutEmail = (session.customer_details?.email || session.customer_email || "").trim();
-    if (!checkoutEmail || checkoutEmail.toLowerCase() !== user.email.toLowerCase()) {
-      return NextResponse.json({ ok: false, error: "Checkout email does not match this account" }, { status: 403 });
+    const paidBy = checkoutEmail(session);
+    if (!paidBy || paidBy.toLowerCase() !== user.email.toLowerCase()) {
+      return errorResponse("Checkout email does not match this account", 403);
     }
     if (session.client_reference_id && session.client_reference_id !== uid) {
-      return NextResponse.json({ ok: false, error: "Checkout belongs to a different account" }, { status: 403 });
+      return errorResponse("Checkout belongs to a different account", 403);
     }
 
     const purchasedPlan = await planFromCheckoutSession(session);
     if (!purchasedPlan) {
-      return NextResponse.json({ ok: false, error: "Unrecognized VeltaCapital Payment Link" }, { status: 400 });
+      return errorResponse("Unrecognized VeltaCapital Payment Link", 400);
     }
 
     const access = accessForPurchase(user, purchasedPlan);
@@ -54,8 +60,8 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ ok: true, ...access });
+    return jsonResponse({ ok: true, ...access });
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
+    return errorResponse(String(err), 500);
   }
 }

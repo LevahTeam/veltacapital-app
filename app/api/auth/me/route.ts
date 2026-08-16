@@ -1,38 +1,46 @@
-// ============================================================
-//  GET /api/auth/me
-//  Returns the currently logged-in user, read fresh from the DB.
-//  Now backed by NextAuth (Google). Response shape unchanged,
-//  so existing callers keep working.
-// ============================================================
+import { jsonResponse } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
 import { getUid } from "@/lib/getUid";
+
+function publicUser(user: NonNullable<Awaited<ReturnType<typeof prisma.user.findUnique>>>) {
+  const {
+    id,
+    email,
+    name,
+    plan,
+    credits,
+    simRunsLeft,
+    unlimitedSims,
+    canRedeem,
+    agreedToTermsAt,
+    advancedUnlocked,
+    hasBadge,
+  } = user;
+  return {
+    id,
+    email,
+    name,
+    plan,
+    credits,
+    simRunsLeft,
+    unlimitedSims,
+    canRedeem,
+    agreedToTermsAt,
+    advancedUnlocked,
+    hasBadge,
+  };
+}
 
 export async function GET() {
   try {
     const uid = await getUid();
-    if (!uid) return NextResponse.json({ ok: true, user: null });
+    if (!uid) return jsonResponse({ ok: true, user: null });
 
     const user = await prisma.user.findUnique({ where: { id: uid } });
-    if (!user) return NextResponse.json({ ok: true, user: null });
+    if (!user) return jsonResponse({ ok: true, user: null });
 
-return NextResponse.json({
-      ok: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        plan: user.plan,
-        credits: user.credits,
-        simRunsLeft: user.simRunsLeft,
-        unlimitedSims: user.unlimitedSims,
-        canRedeem: user.canRedeem,
-        agreedToTermsAt: user.agreedToTermsAt,
-        advancedUnlocked: user.advancedUnlocked,
-        hasBadge: user.hasBadge,
-      },
-    });
+    return jsonResponse({ ok: true, user: publicUser(user) });
   } catch (err) {
-    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
+    return jsonResponse({ ok: false, error: String(err) }, 500);
   }
 }

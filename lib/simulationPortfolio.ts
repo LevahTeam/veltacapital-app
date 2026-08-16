@@ -31,68 +31,97 @@ export type PortfolioRow = {
 
 const dataset = roundsData as unknown as Dataset;
 
-function moneyPrecision(value: number) {
+function toCurrency(value: number) {
   return Math.round(value * 100) / 100;
+}
+
+function roundAt(index: number) {
+  if (!Number.isInteger(index) || index < 0 || index >= dataset.rounds.length) {
+    throw new RangeError("Invalid round index");
+  }
+  return dataset.rounds[index];
+}
+
+function validOptionType(value: string): value is OptionType {
+  return value === "call" || value === "put";
+}
+
+function closingValue(candle: Candle | undefined) {
+  const value = Number(candle?.[3]);
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new TypeError("Round price data is invalid");
+  }
+  return value;
+}
+
+function intrinsicValue(type: OptionType, strike: number, close: number) {
+  const difference = type === "call" ? close - strike : strike - close;
+  return Math.max(0, difference);
 }
 
 export function calculateVerifiedOptionOutcome(
   roundIndex: number,
   optionType: OptionType
 ): VerifiedOptionOutcome {
-  if (!Number.isInteger(roundIndex) || roundIndex < 0 || roundIndex >= dataset.rounds.length) {
-    throw new RangeError("Invalid round index");
-  }
-  if (optionType !== "call" && optionType !== "put") {
+  if (!validOptionType(optionType)) {
     throw new TypeError("Invalid option type");
   }
 
-  const round = dataset.rounds[roundIndex];
+  const round = roundAt(roundIndex);
   const splitIndex = Math.floor(round.candles.length * dataset.history_frac);
-  const strike = Number(round.candles[splitIndex - 1]?.[3]);
-  const closingPrice = Number(round.candles.at(-1)?.[3]);
-  if (!(strike > 0) || !(closingPrice > 0)) throw new TypeError("Round price data is invalid");
-
+  const strike = closingValue(round.candles[splitIndex - 1]);
+  const closingPrice = closingValue(round.candles.at(-1));
   const premium = Math.max(0.01, strike * 0.05);
-  const intrinsic =
-    optionType === "call"
-      ? Math.max(0, closingPrice - strike)
-      : Math.max(0, strike - closingPrice);
-  const finalValue = (SIMULATION_BUDGET / premium) * intrinsic;
+  const contracts = SIMULATION_BUDGET / premium;
+  const finalValue = contracts * intrinsicValue(optionType, strike, closingPrice);
 
   return {
     roundIndex,
     symbol: round.asset,
     optionType,
     budget: SIMULATION_BUDGET,
-    strike: moneyPrecision(strike),
-    premium: moneyPrecision(premium),
-    closingPrice: moneyPrecision(closingPrice),
-    finalValue: moneyPrecision(finalValue),
-    profitLoss: moneyPrecision(finalValue - SIMULATION_BUDGET),
+    strike: toCurrency(strike),
+    premium: toCurrency(premium),
+    closingPrice: toCurrency(closingPrice),
+    finalValue: toCurrency(finalValue),
+    profitLoss: toCurrency(finalValue - SIMULATION_BUDGET),
   };
 }
 
+function isCompletedRow(row: PortfolioRow) {
+  return (
+    row.optionBudget !== null &&
+    row.optionFinalValue !== null &&
+    row.optionProfitLoss !== null
+  );
+}
+
 export function summarizePortfolio(rows: PortfolioRow[]) {
-  const completed = rows.filter(
-    (row) => row.optionBudget !== null && row.optionFinalValue !== null && row.optionProfitLoss !== null
+  const totals = rows.reduce(
+    (summary, row) => {
+      if (!isCompletedRow(row)) return summary;
+      summary.rounds += 1;
+      summary.deployed += Number(row.optionBudget);
+      summary.endingValue += Number(row.optionFinalValue);
+      summary.netProfitLoss += Number(row.optionProfitLoss);
+      if (Number(row.optionProfitLoss) > 0) summary.profitableRounds += 1;
+      return summary;
+    },
+    { rounds: 0, deployed: 0, endingValue: 0, netProfitLoss: 0, profitableRounds: 0 }
   );
-  const deployed = moneyPrecision(completed.reduce((sum, row) => sum + Number(row.optionBudget), 0));
-  const endingValue = moneyPrecision(
-    completed.reduce((sum, row) => sum + Number(row.optionFinalValue), 0)
-  );
-  const netProfitLoss = moneyPrecision(
-    completed.reduce((sum, row) => sum + Number(row.optionProfitLoss), 0)
-  );
-  const profitableRounds = completed.filter((row) => Number(row.optionProfitLoss) > 0).length;
+
+  const deployed = toCurrency(totals.deployed);
+  const endingValue = toCurrency(totals.endingValue);
+  const netProfitLoss = toCurrency(totals.netProfitLoss);
   const certificateEligible =
-    completed.length >= CERTIFICATE_MIN_ROUNDS && netProfitLoss >= CERTIFICATE_NET_PROFIT;
+    totals.rounds >= CERTIFICATE_MIN_ROUNDS && netProfitLoss >= CERTIFICATE_NET_PROFIT;
 
   return {
-    rounds: completed.length,
+    rounds: totals.rounds,
     deployed,
     endingValue,
     netProfitLoss,
-    profitableRounds,
+    profitableRounds: totals.profitableRounds,
     certificateEligible,
     certificateThreshold: CERTIFICATE_NET_PROFIT,
     certificateMinRounds: CERTIFICATE_MIN_ROUNDS,

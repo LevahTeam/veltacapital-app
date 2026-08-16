@@ -324,514 +324,245 @@
 
 <script src="assets/velta.js"></script>
 <script>
-  document.getElementById('brand').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
-
-  // `user` holds the authenticated account returned by the server.
-  let user = null;
-  let s = Velta.get(); // still used for trial-round display only
-
-  // guard: load the logged-in user from the database; redirect home if none.
-  async function init(){
-    user = await Velta.apiMe();
-    if(!user){ window.location.href='index.html'; return; }
-    const params=new URLSearchParams(location.search);
-    const returningFromStripe=params.get('paid')==='1'||params.has('session_id');
-    if(returningFromStripe&&user.plan==='none'){
-      const status=document.getElementById('purchase-status');
-      status.hidden=false;
-      status.textContent='Stripe confirmed your checkout. VeltaCapital is activating your plan…';
-      document.getElementById('plan-badge').textContent='Confirming payment…';
-      const sessionId=params.get('session_id');
-      if(sessionId){
-        try{
-          await Velta.apiConfirmCheckout(sessionId);
-          user=await Velta.apiMe();
-        }catch(error){
-          status.textContent=error.message||'Could not confirm this payment yet.';
-        }
+document.getElementById("brand").innerHTML = veltaMark() + "<span>VeltaCapital</span>";
+let user = null, s = Velta.get();
+async function init() {
+  if (user = await Velta.apiMe(), !user) {
+    window.location.href = "index.html";
+    return;
+  }
+  const params = new URLSearchParams(location.search);
+  if ((params.get("paid") === "1" || params.has("session_id")) && user.plan === "none") {
+    const status = document.getElementById("purchase-status");
+    status.hidden = !1, status.textContent = "Stripe confirmed your checkout. VeltaCapital is activating your plan\u2026", document.getElementById("plan-badge").textContent = "Confirming payment\u2026";
+    const sessionId = params.get("session_id");
+    if (sessionId)
+      try {
+        await Velta.apiConfirmCheckout(sessionId), user = await Velta.apiMe();
+      } catch (error) {
+        status.textContent = error.message || "Could not confirm this payment yet.";
       }
-      for(let attempt=0;attempt<8&&user.plan==='none';attempt++){
-        await new Promise(resolve=>setTimeout(resolve,1500));
-        user=await Velta.apiMe();
-        if(!user){window.location.href='index.html';return;}
-      }
-      if(user.plan==='none'){
-        status.textContent='Your payment is still being confirmed. Refresh this page shortly or contact support with your Stripe receipt.';
-      }else{
-        status.hidden=true;
-        status.textContent='';
-        history.replaceState({},'',location.pathname);
-      }
-    }
-    refresh();
-  }
-
-  function refresh(){
-    document.getElementById('who').textContent = user.name || 'you';
-    document.getElementById('profile-badge').hidden = !user.hasBadge;
-    document.getElementById('cred').textContent = fmt(user.credits || 0);
-    const planCfg = PLANS[user.plan];
-    const planLabel = (!planCfg || user.plan==='none') ? 'No plan yet' : planCfg.name+' plan';
-
-    if(user.plan==='none' || !planCfg){ showConvert(); } else { showMember(); }
-  }
-
-  /* ---------- CONVERSION VIEW ---------- */
-  function showConvert(){
-    document.getElementById('convert').style.display='block';
-    document.getElementById('member').style.display='none';
-    document.getElementById('exercise-count').textContent = '3';
-    document.getElementById('earned-rounds').textContent = Math.min(3,s.trialRoundsUsed)+' / 3';
-    document.getElementById('earned-banked').textContent = fmt(user.credits || 0);
-    const requestedPlan=new URLSearchParams(location.search).get('plan');
-    const requestedCard=requestedPlan&&document.getElementById('plan-'+requestedPlan);
-    if(requestedCard){
-      requestedCard.scrollIntoView({behavior:'smooth',block:'center'});
-      const requestedButton=requestedCard.querySelector('button');
-      if(requestedButton)requestedButton.focus({preventScroll:true});
-    }
-  }
-  document.getElementById('see-plans').addEventListener('click',()=>{
-    document.getElementById('plans2').scrollIntoView({behavior:'smooth'});
-  });
-
-  /* ---------- pricing tiers (conversion page + pay modal) ---------- */
-  function tierCard(key,compact){
-    const p=PLANS[key], feat=key==='standard';
-    const c=el('div',{class:'tier'+(feat?' feature':''),id:'plan-'+key});
-    c.innerHTML =
-      (compact?'':'<div class="ribbon">'+(feat?'Most popular':'One-time access')+'</div>')+
-      '<h3>'+p.name+'</h3>'+
-      '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
-      '<p style="color:var(--muted);font-size:14px;margin:6px 0 0">'+p.blurb+'</p>'+
-      (compact?''
-        :'<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>')+
-      '<button class="btn '+(feat?'amber':'')+'" type="button" style="justify-content:center;margin-top:'+(compact?'14px':'0')+'">Choose '+p.name+'</button>';
-    const button=c.querySelector('button');
-    button.addEventListener('click',async()=>{
-      const original=button.textContent;
-      button.disabled=true;
-      button.textContent='Preparing checkout…';
-      try{ await Velta.apiBuy(key,user); }
-      catch(err){
-        window.alert(err instanceof Error ? err.message : 'Could not start checkout');
-        button.disabled=false;
-        button.textContent=original;
-      }
-    });
-    return c;
-  }
-  ['tiers'].forEach(id=>{
-    const host=document.getElementById(id); if(!host)return;
-    ['trial','starter','standard','premium'].forEach(k=>host.appendChild(tierCard(k,false)));
-  });
-
-  /* ---------- MEMBER VIEW ---------- */
-  function showMember(){
-    document.getElementById('convert').style.display='none';
-    document.getElementById('member').style.display='block';
-    const p=PLANS[user.plan];
-    document.getElementById('plan-badge').textContent = p.name;
-    document.getElementById('videos-sub').textContent =
-      'Full written course included with your '+p.name+' plan.';
-    document.getElementById('rounds-allowance').textContent =
-      user.unlimitedSims ? 'Unlimited' : fmt(user.simRunsLeft);
-    document.getElementById('plan-name-game').textContent = p.name;
-    document.getElementById('cred-game').textContent = fmt(user.credits || 0);
-    document.getElementById('mobile-runs').textContent = user.unlimitedSims ? 'Unlimited' : fmt(user.simRunsLeft);
-    document.getElementById('mobile-plan').textContent = p.name;
-    document.getElementById('mobile-credits').textContent = fmt(user.credits || 0);
-    document.getElementById('cred-rewards').textContent = fmt(user.credits || 0);
-    buildVideos(p); buildRewards(); setupCourseToggle();
-    loadStats();
-  }
-  async function loadStats(){
-    const elBest=document.getElementById('stat-best');
-    const elStreak=document.getElementById('stat-streak');
-    const elBarWrap=document.getElementById('stat-bar-wrap');
-    const elBarLabel=document.getElementById('stat-bar-label');
-    const elBarFill=document.getElementById('stat-bar-fill');
-    try{
-      const st=await Velta.apiStats();
-
-      // personal best
-      elBest.textContent = st.totalRounds>0 ? ('Best read: '+st.bestAccuracy+'/100') : '';
-
-      // streak: encouragement only, shown at 2+ days
-      elStreak.textContent = st.streakDays>=2 ? ('🔥 '+st.streakDays+'-day streak') : '';
-
-      const nextReward=REWARDS.filter(r=>!(r.once&&r.ownedField&&user[r.ownedField]))
-        .filter(r=>(user.credits||0)<r.credits).sort((a,b)=>a.credits-b.credits)[0];
-      elBarLabel.textContent = nextReward
-        ? fmt(user.credits||0)+' / '+fmt(nextReward.credits)+' credits → '+nextReward.name
-        : st.totalRounds+' practice round'+(st.totalRounds===1?'':'s')+' saved';
-      elBarFill.style.width = nextReward ? Math.min(100,(user.credits||0)/nextReward.credits*100)+'%' : '100%';
-      elBarWrap.style.display='block';
-    }catch(err){
-      // stats are non-critical; fail quietly
-      elBest.textContent=''; elStreak.textContent='';
-      elBarWrap.style.display='none';
-    }
-  }
-
-const CHAPTER_LIMITS = { trial:5, starter:10, standard:15, premium:15 };
-  let COURSE = null;
-
-  async function buildVideos(p){
-    const grid=document.getElementById('video-grid'); grid.innerHTML='';
-    const limit = user.advancedUnlocked ? 15 : (CHAPTER_LIMITS[user.plan] || 0);
-
-    if(!COURSE){
-      try{ COURSE = await fetch('course.json').then(r=>r.json()); }
-      catch(e){ grid.innerHTML='<p style="color:var(--muted)">Course is loading. Refresh in a moment.</p>'; return; }
-    }
-
-    COURSE.chapters.forEach(ch=>{
-      const locked = ch.n > limit;
-      const v=el('div',{class:'video'+(locked?' locked':'')});
-      v.innerHTML=
-        '<div class="thumb">'+
-          (locked ? '<span class="lock-badge">🔒 Upgrade to unlock</span>'
-                  : '<span class="ch-num">Chapter '+ch.n+'</span>')+
-        '</div>'+
-        '<div class="meta"><h3>'+ch.title+'</h3><p>'+ch.summary+'</p></div>';
-      if(!locked){
-        v.style.cursor='pointer';
-        v.addEventListener('click',()=>openLesson(ch.n));
-      }
-      grid.appendChild(v);
-    });
-  }
-
-function openLesson(n){
-    const ch = COURSE.chapters.find(c=>c.n===n);
-    if(!ch) return;
-    const total = COURSE.chapters.length;
-    const limit = user.advancedUnlocked ? COURSE.chapters.length : (CHAPTER_LIMITS[user.plan] || 0);
-    closeLesson();
-
-    const sections = ch.sections.map(s=>
-      '<h3 class="lesson-h">'+s.h+'</h3><p class="lesson-p">'+s.p+'</p>'
-    ).join('');
-
-    // sidebar chapter list
-    const sideItems = COURSE.chapters.map(c=>{
-      const locked = c.n>limit;
-      const active = c.n===ch.n ? ' active':'';
-      const lk = locked ? ' locked':'';
-      return '<button class="side-item'+active+lk+'" data-go="'+c.n+'"'+(locked?' disabled':'')+'>'+
-        '<span class="side-n">'+c.n+'</span>'+c.title+'</button>';
-    }).join('');
-
-    const readMins = Math.max(2, Math.round(ch.sections.reduce((a,s)=>a+s.p.length,0)/900));
-    const prevOk = ch.n>1 && (ch.n-1)<=limit;
-    const nextOk = ch.n<total && (ch.n+1)<=limit;
-
-    const fs = el('div',{class:'lesson-fs',id:'lesson-fs'});
-    fs.innerHTML =
-      '<div class="lesson-fs-top">'+
-        '<span class="brand">📈 VeltaCapital Course</span>'+
-        '<span class="unit-tag">Chapter '+ch.n+' of '+total+'</span>'+
-        '<button class="lesson-fs-close" id="lesson-close">Close ✕</button>'+
-      '</div>'+
-      '<div class="lesson-fs-body">'+
-        '<nav class="lesson-sidebar">'+
-          '<div class="side-label">Chapters</div>'+sideItems+
-        '</nav>'+
-        '<div class="lesson-main"><div class="lesson-main-inner">'+
-          '<div class="lesson-meta"><span>⏱ Reading time: <b>'+readMins+' min</b></span>'+
-            '<span>📚 Sections: <b>'+ch.sections.length+'</b></span></div>'+
-          '<h1 class="lesson-title">'+ch.title+'</h1>'+
-          '<p class="lesson-sum">'+ch.summary+'</p>'+
-          '<p class="lesson-verified">Learning objective: '+(ch.objective||ch.summary)+'</p>'+
-          sections+
-          '<h3 class="lesson-h">Guided practice</h3><p class="lesson-p">'+(ch.practice||'Summarize the lesson in your own words and identify one uncertainty.')+'</p>'+
-          '<h3 class="lesson-h">Assessment prompt</h3><p class="lesson-p">'+(ch.assessment||'What evidence would change your conclusion?')+'</p>'+
-          '<div class="lesson-navrow">'+
-            (prevOk?'<button class="lesson-navbtn ghost" data-go="'+(ch.n-1)+'">← Chapter '+(ch.n-1)+'</button>':'<span></span>')+
-            (nextOk?'<button class="lesson-navbtn" data-go="'+(ch.n+1)+'">Chapter '+(ch.n+1)+' →</button>':'<span></span>')+
-          '</div>'+
-          '<p class="lesson-disc">'+(COURSE.note||'Educational content only. Not financial advice.')+'</p>'+
-        '</div></div>'+
-        '<aside class="lesson-rail">'+
-          '<div class="rail-label">Key terms</div>'+
-          (ch.terms && ch.terms.length
-            ? ch.terms.map(t=>'<div class="rail-term"><div class="t">'+t.term+'</div><div class="d">'+t.def+'</div></div>').join('')
-            : '<div class="rail-empty">No key terms for this chapter.</div>')+
-        '</aside>'+
-      '</div>';
-    document.body.appendChild(fs);
-    document.body.style.overflow='hidden';
-
-    document.getElementById('lesson-close').addEventListener('click',closeLesson);
-    fs.querySelectorAll('[data-go]').forEach(b=>{
-      if(!b.disabled) b.addEventListener('click',()=>openLesson(parseInt(b.dataset.go)));
-    });
-    fs.querySelector('.lesson-main').scrollTop=0;
-  }
-
-  function closeLesson(){
-    const o=document.getElementById('lesson-fs');
-    if(o) o.remove();
-    document.body.style.overflow='';
-  }
-
-const REWARDS = [
-  {id:'extra_run',name:'+1 historical-chart exercise',description:'Add one more scored practice round.',credits:25,kind:'runs'},
-  {id:'extra_runs',name:'+5 historical-chart exercises',description:'A small practice refill at a lower per-round cost.',credits:100,kind:'runs'},
-  {id:'practice_pack',name:'+15 historical-chart exercises',description:'A larger pack for continued chart-reading practice.',credits:250,kind:'runs'},
-  {id:'practice_bundle',name:'+30 historical-chart exercises',description:'A long-form practice bundle for sustained learning.',credits:450,kind:'runs'},
-  {id:'mastery_pack',name:'+60 historical-chart exercises',description:'The largest finite practice bundle.',credits:800,kind:'runs'},
-  {id:'badge',name:'Learning profile badge',description:'Display a learning badge beside your member profile.',credits:300,once:true,ownedField:'hasBadge'},
-  {id:'advanced_module',name:'Advanced learning module',description:'Unlock every remaining course chapter and flashcard deck.',credits:500,once:true,ownedField:'advancedUnlocked'},
-];
-
-function buildRewards(){
-  const grid=document.getElementById('reward-grid');
-  if(!grid)return;
-  grid.innerHTML='';
-  REWARDS.forEach(reward=>{
-    const owned=reward.once&&reward.ownedField&&user[reward.ownedField];
-    const included=reward.kind==='runs'&&user.unlimitedSims;
-    const affordable=(user.credits||0)>=reward.credits;
-    const usable=user.plan!=='none'&&affordable&&!owned&&!included;
-    const card=el('div',{class:'reward'+(usable?'':' locked')});
-    const label=owned?'✓ Owned':included?'Included with Premium':!affordable?'Need '+fmt(reward.credits-(user.credits||0))+' more':'Redeem';
-    card.innerHTML='<h3>'+reward.name+'</h3><p>'+reward.description+'</p><div class="cost">Cost: <b>'+fmt(reward.credits)+'</b> credits</div><button class="btn'+(usable?' amber':'')+'" '+(usable?'':'disabled')+' style="justify-content:center">'+label+'</button>';
-    if(usable)card.querySelector('button').addEventListener('click',async event=>{
-      const button=event.currentTarget;
-      button.disabled=true;button.textContent='Redeeming…';
-      try{
-        const result=await Velta.apiRedeem(reward.id);
-        user.credits=result.credits;
-        user.simRunsLeft=result.simRunsLeft;
-        user.advancedUnlocked=result.advancedUnlocked;
-        user.hasBadge=result.hasBadge;
-        refresh();
-      }catch(error){
-        button.disabled=false;button.textContent='Redeem';alert(error.message);
-      }
-    });
-    grid.appendChild(card);
-  });
-}
-
-function setupCourseToggle(){
-    const btnL=document.getElementById('ct-lessons');
-    const btnF=document.getElementById('ct-flashcards');
-    const viewL=document.getElementById('course-lessons-view');
-    const viewF=document.getElementById('course-flashcards-view');
-    if(!btnL||!btnF) return;
-
-    const canFlash = user.plan !== 'none';
-    if(!canFlash){
-      btnF.classList.add('locked');
-      btnF.textContent='🔒 Flashcards';
-    } else {
-      btnF.classList.remove('locked');
-      btnF.textContent='Flashcards';
-    }
-
-    btnL.onclick=()=>{
-      btnL.classList.add('active'); btnF.classList.remove('active');
-      viewL.style.display=''; viewF.style.display='none';
-    };
-    btnF.onclick=()=>{
-      if(!canFlash){
-        alert("Flashcards are available with course access.");
+    for (let attempt = 0; attempt < 8 && user.plan === "none"; attempt++)
+      if (await new Promise((resolve) => setTimeout(resolve, 1500)), user = await Velta.apiMe(), !user) {
+        window.location.href = "index.html";
         return;
       }
-      btnF.classList.add('active'); btnL.classList.remove('active');
-      viewF.style.display=''; viewL.style.display='none';
-      buildFlashcards();
-    };
+    user.plan === "none" ? status.textContent = "Your payment is still being confirmed. Refresh this page shortly or contact support with your Stripe receipt." : (status.hidden = !0, status.textContent = "", history.replaceState({}, "", location.pathname));
   }
-
-function buildFlashcards(){
-    const host=document.getElementById('fc-picker'); if(!host) return;
-    host.innerHTML='';
-    if(!COURSE){ host.innerHTML='<p style="color:var(--muted)">Loading…</p>'; return; }
-    const limit = user.advancedUnlocked ? COURSE.chapters.length : (CHAPTER_LIMITS[user.plan] || 0);
-
-    COURSE.chapters.forEach(ch=>{
-      const locked = ch.n>limit;
-      const count = (ch.terms||[]).length;
-      const c=el('div',{class:'fc-card-pick'+(locked?' locked':'')});
-      c.innerHTML=
-        '<div class="fc-pick-n">Chapter '+ch.n+'</div>'+
-        '<div class="fc-pick-t">'+ch.title+'</div>'+
-        '<div class="fc-pick-meta">'+(locked?'🔒 Upgrade to unlock':count+' cards')+'</div>';
-      if(!locked && count>0){
-        c.style.cursor='pointer';
-        c.addEventListener('click',()=>openDeck(ch.n));
-      } else if(!locked && count===0){
-        c.querySelector('.fc-pick-meta').textContent='No cards';
-      }
-      host.appendChild(c);
-    });
+  refresh();
+}
+function refresh() {
+  document.getElementById("who").textContent = user.name || "you", document.getElementById("profile-badge").hidden = !user.hasBadge, document.getElementById("cred").textContent = fmt(user.credits || 0);
+  const planCfg = PLANS[user.plan], planLabel = !planCfg || user.plan === "none" ? "No plan yet" : planCfg.name + " plan";
+  user.plan === "none" || !planCfg ? showConvert() : showMember();
+}
+function showConvert() {
+  document.getElementById("convert").style.display = "block", document.getElementById("member").style.display = "none", document.getElementById("exercise-count").textContent = "3", document.getElementById("earned-rounds").textContent = Math.min(3, s.trialRoundsUsed) + " / 3", document.getElementById("earned-banked").textContent = fmt(user.credits || 0);
+  const requestedPlan = new URLSearchParams(location.search).get("plan"), requestedCard = requestedPlan && document.getElementById("plan-" + requestedPlan);
+  if (requestedCard) {
+    requestedCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    const requestedButton = requestedCard.querySelector("button");
+    requestedButton && requestedButton.focus({ preventScroll: !0 });
   }
-
-  let deckState = { cards:[], i:0, flipped:false };
-
-  function openDeck(n){
-    const ch = COURSE.chapters.find(c=>c.n===n);
-    if(!ch || !ch.terms || !ch.terms.length) return;
-    closeDeck();
-    deckState = { cards: ch.terms.slice(), i:0, flipped:false, title:ch.title, n:ch.n };
-
-    const fs = el('div',{class:'lesson-fs',id:'deck-fs'});
-    fs.innerHTML =
-      '<div class="lesson-fs-top">'+
-        '<span class="brand">🃏 Flashcards</span>'+
-        '<span class="unit-tag">Chapter '+ch.n+' · '+ch.title+'</span>'+
-        '<button class="lesson-fs-close" id="deck-close">Close ✕</button>'+
-      '</div>'+
-      '<div class="deck-body">'+
-        '<div class="deck-counter" id="deck-counter"></div>'+
-        '<div class="deck-card" id="deck-card"><div class="deck-card-inner" id="deck-inner">'+
-          '<div class="deck-face deck-front" id="deck-front"></div>'+
-          '<div class="deck-face deck-back" id="deck-back"></div>'+
-        '</div></div>'+
-        '<div class="deck-hint">Click the card to flip</div>'+
-        '<div class="deck-nav">'+
-          '<button class="deck-btn" id="deck-prev">← Prev</button>'+
-          '<button class="deck-btn ghost" id="deck-shuffle">⤨ Shuffle</button>'+
-          '<button class="deck-btn" id="deck-next">Next →</button>'+
-        '</div>'+
-      '</div>';
-    document.body.appendChild(fs);
-    document.body.style.overflow='hidden';
-
-    document.getElementById('deck-close').addEventListener('click',closeDeck);
-    document.getElementById('deck-card').addEventListener('click',flipCard);
-    document.getElementById('deck-prev').addEventListener('click',()=>moveCard(-1));
-    document.getElementById('deck-next').addEventListener('click',()=>moveCard(1));
-    document.getElementById('deck-shuffle').addEventListener('click',shuffleDeck);
-    renderCard();
-  }
-
-  function renderCard(){
-    const s=deckState; const card=s.cards[s.i];
-    document.getElementById('deck-front').textContent = card.term;
-    document.getElementById('deck-back').textContent = card.def;
-    document.getElementById('deck-inner').classList.toggle('flipped', s.flipped);
-    document.getElementById('deck-counter').textContent = (s.i+1)+' / '+s.cards.length;
-  }
-  function flipCard(){ deckState.flipped=!deckState.flipped; renderCard(); }
-  function moveCard(d){
-    const s=deckState;
-    s.i=(s.i+d+s.cards.length)%s.cards.length;
-    s.flipped=false; renderCard();
-  }
-  function shuffleDeck(){
-    deckState.cards.sort(()=>Math.random()-0.5);
-    deckState.i=0; deckState.flipped=false; renderCard();
-  }
-  function closeDeck(){
-    const o=document.getElementById('deck-fs'); if(o) o.remove();
-    document.body.style.overflow='';
-  }
-
-
-
-
-
-  const usd=value=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(value)||0);
-  const safe=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  let portfolioLoaded=false;
-
-  async function loadPortfolio(force=false){
-    if(portfolioLoaded&&!force)return;
-    const body=document.getElementById('portfolio-body');
-    body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted)">Loading portfolio…</td></tr>';
-    try{
-      const data=await Velta.apiPortfolio(),summary=data.summary;
-      portfolioLoaded=true;
-      document.getElementById('portfolio-rounds').textContent=fmt(summary.rounds);
-      document.getElementById('portfolio-deployed').textContent=usd(summary.deployed);
-      document.getElementById('portfolio-ending').textContent=usd(summary.endingValue);
-      const net=document.getElementById('portfolio-net');
-      net.textContent=(summary.netProfitLoss>0?'+':'')+usd(summary.netProfitLoss);
-      net.className=summary.netProfitLoss>=0?'positive':'negative';
-
-      const profitProgress=Math.max(0,Math.min(1,summary.netProfitLoss/summary.certificateThreshold));
-      const roundProgress=Math.min(1,summary.rounds/summary.certificateMinRounds);
-      document.getElementById('certificate-bar').style.width=Math.round(Math.min(profitProgress,roundProgress)*100)+'%';
-      const copy=document.getElementById('certificate-copy'),button=document.getElementById('certificate-button');
-      if(summary.certificateEligible){
-        copy.textContent='Milestone reached: '+fmt(summary.rounds)+' rounds and '+usd(summary.netProfitLoss)+' lifetime simulated net P&L.';
-        button.hidden=false;
-      }else{
-        copy.textContent='Reach at least '+fmt(summary.certificateMinRounds)+' logged rounds and '+usd(summary.certificateThreshold)+' lifetime simulated net P&L. Current: '+fmt(summary.rounds)+' rounds and '+usd(summary.netProfitLoss)+'.';
-        button.hidden=true;
-      }
-      document.getElementById('certificate-name').textContent=data.ownerName;
-      document.getElementById('certificate-rounds').textContent=fmt(summary.rounds);
-      document.getElementById('certificate-amount').textContent=usd(summary.netProfitLoss);
-      document.getElementById('certificate-date').textContent='Generated '+new Date().toLocaleDateString();
-      body.innerHTML=data.records.length?data.records.map(record=>'<tr><td>'+safe(record.symbol)+'<br><span class="mono" style="color:var(--muted);font-size:10px">'+new Date(record.createdAt).toLocaleDateString()+'</span></td><td>'+safe(record.optionType)+'</td><td>'+usd(record.optionStrike)+'</td><td>'+usd(record.optionClosingPrice)+'</td><td>'+usd(record.optionFinalValue)+'</td><td style="color:'+(record.optionProfitLoss>=0?'#0F8A54':'#C74242')+'">'+(record.optionProfitLoss>=0?'+':'')+usd(record.optionProfitLoss)+'</td></tr>').join(''):'<tr><td colspan="6" style="text-align:center;color:var(--muted)">Complete an authenticated round to start your simulation portfolio.</td></tr>';
-    }catch(error){
-      body.innerHTML='<tr><td colspan="6" style="text-align:center;color:#C74242">'+safe(error.message)+'</td></tr>';
+}
+document.getElementById("see-plans").addEventListener("click", () => {
+  document.getElementById("plans2").scrollIntoView({ behavior: "smooth" });
+});
+function tierCard(key, compact) {
+  const p = PLANS[key], feat = key === "standard", c = el("div", { class: "tier" + (feat ? " feature" : ""), id: "plan-" + key });
+  c.innerHTML = (compact ? "" : '<div class="ribbon">' + (feat ? "Most popular" : "One-time access") + "</div>") + "<h3>" + p.name + '</h3><div class="price">' + p.price + " <small>" + p.cadence + '</small></div><p style="color:var(--muted);font-size:14px;margin:6px 0 0">' + p.blurb + "</p>" + (compact ? "" : "<ul>" + p.features.map((f) => '<li><span class="ic">\u2713</span><span>' + f + "</span></li>").join("") + "</ul>") + '<button class="btn ' + (feat ? "amber" : "") + '" type="button" style="justify-content:center;margin-top:' + (compact ? "14px" : "0") + '">Choose ' + p.name + "</button>";
+  const button = c.querySelector("button");
+  return button.addEventListener("click", async () => {
+    const original = button.textContent;
+    button.disabled = !0, button.textContent = "Preparing checkout\u2026";
+    try {
+      await Velta.apiBuy(key, user);
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Could not start checkout"), button.disabled = !1, button.textContent = original;
     }
+  }), c;
+}
+["tiers"].forEach((id) => {
+  const host = document.getElementById(id);
+  host && ["trial", "starter", "standard", "premium"].forEach((k) => host.appendChild(tierCard(k, !1)));
+});
+function showMember() {
+  document.getElementById("convert").style.display = "none", document.getElementById("member").style.display = "block";
+  const p = PLANS[user.plan];
+  document.getElementById("plan-badge").textContent = p.name, document.getElementById("videos-sub").textContent = "Full written course included with your " + p.name + " plan.", document.getElementById("rounds-allowance").textContent = user.unlimitedSims ? "Unlimited" : fmt(user.simRunsLeft), document.getElementById("plan-name-game").textContent = p.name, document.getElementById("cred-game").textContent = fmt(user.credits || 0), document.getElementById("mobile-runs").textContent = user.unlimitedSims ? "Unlimited" : fmt(user.simRunsLeft), document.getElementById("mobile-plan").textContent = p.name, document.getElementById("mobile-credits").textContent = fmt(user.credits || 0), document.getElementById("cred-rewards").textContent = fmt(user.credits || 0), buildVideos(p), buildRewards(), setupCourseToggle(), loadStats();
+}
+async function loadStats() {
+  const elBest = document.getElementById("stat-best"), elStreak = document.getElementById("stat-streak"), elBarWrap = document.getElementById("stat-bar-wrap"), elBarLabel = document.getElementById("stat-bar-label"), elBarFill = document.getElementById("stat-bar-fill");
+  try {
+    const st = await Velta.apiStats();
+    elBest.textContent = st.totalRounds > 0 ? "Best read: " + st.bestAccuracy + "/100" : "", elStreak.textContent = st.streakDays >= 2 ? "\u{1F525} " + st.streakDays + "-day streak" : "";
+    const nextReward = REWARDS.filter((r) => !(r.once && r.ownedField && user[r.ownedField])).filter((r) => (user.credits || 0) < r.credits).sort((a, b) => a.credits - b.credits)[0];
+    elBarLabel.textContent = nextReward ? fmt(user.credits || 0) + " / " + fmt(nextReward.credits) + " credits \u2192 " + nextReward.name : st.totalRounds + " practice round" + (st.totalRounds === 1 ? "" : "s") + " saved", elBarFill.style.width = nextReward ? Math.min(100, (user.credits || 0) / nextReward.credits * 100) + "%" : "100%", elBarWrap.style.display = "block";
+  } catch {
+    elBest.textContent = "", elStreak.textContent = "", elBarWrap.style.display = "none";
   }
-  document.getElementById('certificate-button').addEventListener('click',()=>window.print());
-
-  /* ---------- tabs ---------- */
-  document.querySelectorAll('.tab').forEach(t=>{
-    t.addEventListener('click',()=>{
-      document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
-      t.setAttribute('aria-selected','true');
-      const name=t.getAttribute('data-tab');
-      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-      document.getElementById('panel-'+name).classList.add('active');
-      if(name==='portfolio')loadPortfolio();
-    });
-  });
-
-/* ---------- round result from the embedded game → save to server ---------- */
-  window.addEventListener('message', async (ev)=>{
-    if(ev.origin!==location.origin)return;
-    if(ev.data && ev.data.type==='velta_result'){
-      try{
-        const res = await Velta.apiSubmitScore({
-          symbol: ev.data.symbol,
-          roundIndex: ev.data.roundIndex,
-          optionType: ev.data.optionType,
-          accuracy: ev.data.accuracy,
-          direction: ev.data.direction,
-          meanErrPct: ev.data.meanErrPct,
-        });
-        user.credits = res.credits;
-        user.simRunsLeft = res.simRunsLeft;
-        user.unlimitedSims = res.unlimitedSims;
-        document.getElementById('credit-earned').textContent = '+'+fmt(res.earned)+' learning credits · '+fmt(res.credits)+' total';
-        document.getElementById('game-frame')?.contentWindow?.postMessage(
-          {type:'velta_earned',earned:res.earned,total:res.credits,portfolio:res.portfolio,optionOutcome:res.optionOutcome},location.origin
-        );
-        portfolioLoaded=false;
-        refresh();
-
-
-
-
-
-      }catch(err){
-        if(String(err.message||'').includes('out_of_runs')){
-          alert("You're out of simulation runs. Upgrade to keep playing.");
-        }else{
-          console.error('Score submit failed:', err);
-        }
-      }
+}
+const CHAPTER_LIMITS = { trial: 5, starter: 10, standard: 15, premium: 15 };
+let COURSE = null;
+async function buildVideos(p) {
+  const grid = document.getElementById("video-grid");
+  grid.innerHTML = "";
+  const limit = user.advancedUnlocked ? 15 : CHAPTER_LIMITS[user.plan] || 0;
+  if (!COURSE)
+    try {
+      COURSE = await fetch("course.json").then((r) => r.json());
+    } catch {
+      grid.innerHTML = '<p style="color:var(--muted)">Course is loading. Refresh in a moment.</p>';
+      return;
     }
+  COURSE.chapters.forEach((ch) => {
+    const locked = ch.n > limit, v = el("div", { class: "video" + (locked ? " locked" : "") });
+    v.innerHTML = '<div class="thumb">' + (locked ? '<span class="lock-badge">\u{1F512} Upgrade to unlock</span>' : '<span class="ch-num">Chapter ' + ch.n + "</span>") + '</div><div class="meta"><h3>' + ch.title + "</h3><p>" + ch.summary + "</p></div>", locked || (v.style.cursor = "pointer", v.addEventListener("click", () => openLesson(ch.n))), grid.appendChild(v);
   });
-
-  /* ---------- log out (real) ---------- */
-  document.getElementById('reset-link').textContent='Log out';
-  document.getElementById('reset-link').addEventListener('click',async e=>{
-    e.preventDefault(); await Velta.apiLogout(); window.location.href='index.html';
+}
+function openLesson(n) {
+  const ch = COURSE.chapters.find((c) => c.n === n);
+  if (!ch) return;
+  const total = COURSE.chapters.length, limit = user.advancedUnlocked ? COURSE.chapters.length : CHAPTER_LIMITS[user.plan] || 0;
+  closeLesson();
+  const sections = ch.sections.map(
+    (s2) => '<h3 class="lesson-h">' + s2.h + '</h3><p class="lesson-p">' + s2.p + "</p>"
+  ).join(""), sideItems = COURSE.chapters.map((c) => {
+    const locked = c.n > limit, active = c.n === ch.n ? " active" : "", lk = locked ? " locked" : "";
+    return '<button class="side-item' + active + lk + '" data-go="' + c.n + '"' + (locked ? " disabled" : "") + '><span class="side-n">' + c.n + "</span>" + c.title + "</button>";
+  }).join(""), readMins = Math.max(2, Math.round(ch.sections.reduce((a, s2) => a + s2.p.length, 0) / 900)), prevOk = ch.n > 1 && ch.n - 1 <= limit, nextOk = ch.n < total && ch.n + 1 <= limit, fs = el("div", { class: "lesson-fs", id: "lesson-fs" });
+  fs.innerHTML = '<div class="lesson-fs-top"><span class="brand">\u{1F4C8} VeltaCapital Course</span><span class="unit-tag">Chapter ' + ch.n + " of " + total + '</span><button class="lesson-fs-close" id="lesson-close">Close \u2715</button></div><div class="lesson-fs-body"><nav class="lesson-sidebar"><div class="side-label">Chapters</div>' + sideItems + '</nav><div class="lesson-main"><div class="lesson-main-inner"><div class="lesson-meta"><span>\u23F1 Reading time: <b>' + readMins + " min</b></span><span>\u{1F4DA} Sections: <b>" + ch.sections.length + '</b></span></div><h1 class="lesson-title">' + ch.title + '</h1><p class="lesson-sum">' + ch.summary + '</p><p class="lesson-verified">Learning objective: ' + (ch.objective || ch.summary) + "</p>" + sections + '<h3 class="lesson-h">Guided practice</h3><p class="lesson-p">' + (ch.practice || "Summarize the lesson in your own words and identify one uncertainty.") + '</p><h3 class="lesson-h">Assessment prompt</h3><p class="lesson-p">' + (ch.assessment || "What evidence would change your conclusion?") + '</p><div class="lesson-navrow">' + (prevOk ? '<button class="lesson-navbtn ghost" data-go="' + (ch.n - 1) + '">\u2190 Chapter ' + (ch.n - 1) + "</button>" : "<span></span>") + (nextOk ? '<button class="lesson-navbtn" data-go="' + (ch.n + 1) + '">Chapter ' + (ch.n + 1) + " \u2192</button>" : "<span></span>") + '</div><p class="lesson-disc">' + (COURSE.note || "Educational content only. Not financial advice.") + '</p></div></div><aside class="lesson-rail"><div class="rail-label">Key terms</div>' + (ch.terms && ch.terms.length ? ch.terms.map((t) => '<div class="rail-term"><div class="t">' + t.term + '</div><div class="d">' + t.def + "</div></div>").join("") : '<div class="rail-empty">No key terms for this chapter.</div>') + "</aside></div>", document.body.appendChild(fs), document.body.style.overflow = "hidden", document.getElementById("lesson-close").addEventListener("click", closeLesson), fs.querySelectorAll("[data-go]").forEach((b) => {
+    b.disabled || b.addEventListener("click", () => openLesson(parseInt(b.dataset.go)));
+  }), fs.querySelector(".lesson-main").scrollTop = 0;
+}
+function closeLesson() {
+  const o = document.getElementById("lesson-fs");
+  o && o.remove(), document.body.style.overflow = "";
+}
+const REWARDS = [
+  { id: "extra_run", name: "+1 historical-chart exercise", description: "Add one more scored practice round.", credits: 25, kind: "runs" },
+  { id: "extra_runs", name: "+5 historical-chart exercises", description: "A small practice refill at a lower per-round cost.", credits: 100, kind: "runs" },
+  { id: "practice_pack", name: "+15 historical-chart exercises", description: "A larger pack for continued chart-reading practice.", credits: 250, kind: "runs" },
+  { id: "practice_bundle", name: "+30 historical-chart exercises", description: "A long-form practice bundle for sustained learning.", credits: 450, kind: "runs" },
+  { id: "mastery_pack", name: "+60 historical-chart exercises", description: "The largest finite practice bundle.", credits: 800, kind: "runs" },
+  { id: "badge", name: "Learning profile badge", description: "Display a learning badge beside your member profile.", credits: 300, once: !0, ownedField: "hasBadge" },
+  { id: "advanced_module", name: "Advanced learning module", description: "Unlock every remaining course chapter and flashcard deck.", credits: 500, once: !0, ownedField: "advancedUnlocked" }
+];
+function buildRewards() {
+  const grid = document.getElementById("reward-grid");
+  grid && (grid.innerHTML = "", REWARDS.forEach((reward) => {
+    const owned = reward.once && reward.ownedField && user[reward.ownedField], included = reward.kind === "runs" && user.unlimitedSims, affordable = (user.credits || 0) >= reward.credits, usable = user.plan !== "none" && affordable && !owned && !included, card = el("div", { class: "reward" + (usable ? "" : " locked") }), label = owned ? "\u2713 Owned" : included ? "Included with Premium" : affordable ? "Redeem" : "Need " + fmt(reward.credits - (user.credits || 0)) + " more";
+    card.innerHTML = "<h3>" + reward.name + "</h3><p>" + reward.description + '</p><div class="cost">Cost: <b>' + fmt(reward.credits) + '</b> credits</div><button class="btn' + (usable ? " amber" : "") + '" ' + (usable ? "" : "disabled") + ' style="justify-content:center">' + label + "</button>", usable && card.querySelector("button").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = !0, button.textContent = "Redeeming\u2026";
+      try {
+        const result = await Velta.apiRedeem(reward.id);
+        user.credits = result.credits, user.simRunsLeft = result.simRunsLeft, user.advancedUnlocked = result.advancedUnlocked, user.hasBadge = result.hasBadge, refresh();
+      } catch (error) {
+        button.disabled = !1, button.textContent = "Redeem", alert(error.message);
+      }
+    }), grid.appendChild(card);
+  }));
+}
+function setupCourseToggle() {
+  const btnL = document.getElementById("ct-lessons"), btnF = document.getElementById("ct-flashcards"), viewL = document.getElementById("course-lessons-view"), viewF = document.getElementById("course-flashcards-view");
+  if (!btnL || !btnF) return;
+  const canFlash = user.plan !== "none";
+  canFlash ? (btnF.classList.remove("locked"), btnF.textContent = "Flashcards") : (btnF.classList.add("locked"), btnF.textContent = "\u{1F512} Flashcards"), btnL.onclick = () => {
+    btnL.classList.add("active"), btnF.classList.remove("active"), viewL.style.display = "", viewF.style.display = "none";
+  }, btnF.onclick = () => {
+    if (!canFlash) {
+      alert("Flashcards are available with course access.");
+      return;
+    }
+    btnF.classList.add("active"), btnL.classList.remove("active"), viewF.style.display = "", viewL.style.display = "none", buildFlashcards();
+  };
+}
+function buildFlashcards() {
+  const host = document.getElementById("fc-picker");
+  if (!host) return;
+  if (host.innerHTML = "", !COURSE) {
+    host.innerHTML = '<p style="color:var(--muted)">Loading\u2026</p>';
+    return;
+  }
+  const limit = user.advancedUnlocked ? COURSE.chapters.length : CHAPTER_LIMITS[user.plan] || 0;
+  COURSE.chapters.forEach((ch) => {
+    const locked = ch.n > limit, count = (ch.terms || []).length, c = el("div", { class: "fc-card-pick" + (locked ? " locked" : "") });
+    c.innerHTML = '<div class="fc-pick-n">Chapter ' + ch.n + '</div><div class="fc-pick-t">' + ch.title + '</div><div class="fc-pick-meta">' + (locked ? "\u{1F512} Upgrade to unlock" : count + " cards") + "</div>", !locked && count > 0 ? (c.style.cursor = "pointer", c.addEventListener("click", () => openDeck(ch.n))) : !locked && count === 0 && (c.querySelector(".fc-pick-meta").textContent = "No cards"), host.appendChild(c);
   });
-
-  init();   // load the real user, then render
+}
+let deckState = { cards: [], i: 0, flipped: !1 };
+function openDeck(n) {
+  const ch = COURSE.chapters.find((c) => c.n === n);
+  if (!ch || !ch.terms || !ch.terms.length) return;
+  closeDeck(), deckState = { cards: ch.terms.slice(), i: 0, flipped: !1, title: ch.title, n: ch.n };
+  const fs = el("div", { class: "lesson-fs", id: "deck-fs" });
+  fs.innerHTML = '<div class="lesson-fs-top"><span class="brand">\u{1F0CF} Flashcards</span><span class="unit-tag">Chapter ' + ch.n + " \xB7 " + ch.title + '</span><button class="lesson-fs-close" id="deck-close">Close \u2715</button></div><div class="deck-body"><div class="deck-counter" id="deck-counter"></div><div class="deck-card" id="deck-card"><div class="deck-card-inner" id="deck-inner"><div class="deck-face deck-front" id="deck-front"></div><div class="deck-face deck-back" id="deck-back"></div></div></div><div class="deck-hint">Click the card to flip</div><div class="deck-nav"><button class="deck-btn" id="deck-prev">\u2190 Prev</button><button class="deck-btn ghost" id="deck-shuffle">\u2928 Shuffle</button><button class="deck-btn" id="deck-next">Next \u2192</button></div></div>', document.body.appendChild(fs), document.body.style.overflow = "hidden", document.getElementById("deck-close").addEventListener("click", closeDeck), document.getElementById("deck-card").addEventListener("click", flipCard), document.getElementById("deck-prev").addEventListener("click", () => moveCard(-1)), document.getElementById("deck-next").addEventListener("click", () => moveCard(1)), document.getElementById("deck-shuffle").addEventListener("click", shuffleDeck), renderCard();
+}
+function renderCard() {
+  const s2 = deckState, card = s2.cards[s2.i];
+  document.getElementById("deck-front").textContent = card.term, document.getElementById("deck-back").textContent = card.def, document.getElementById("deck-inner").classList.toggle("flipped", s2.flipped), document.getElementById("deck-counter").textContent = s2.i + 1 + " / " + s2.cards.length;
+}
+function flipCard() {
+  deckState.flipped = !deckState.flipped, renderCard();
+}
+function moveCard(d) {
+  const s2 = deckState;
+  s2.i = (s2.i + d + s2.cards.length) % s2.cards.length, s2.flipped = !1, renderCard();
+}
+function shuffleDeck() {
+  deckState.cards.sort(() => Math.random() - 0.5), deckState.i = 0, deckState.flipped = !1, renderCard();
+}
+function closeDeck() {
+  const o = document.getElementById("deck-fs");
+  o && o.remove(), document.body.style.overflow = "";
+}
+const usd = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(value) || 0), safe = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+let portfolioLoaded = !1;
+async function loadPortfolio(force = !1) {
+  if (portfolioLoaded && !force) return;
+  const body = document.getElementById("portfolio-body");
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Loading portfolio\u2026</td></tr>';
+  try {
+    const data = await Velta.apiPortfolio(), summary = data.summary;
+    portfolioLoaded = !0, document.getElementById("portfolio-rounds").textContent = fmt(summary.rounds), document.getElementById("portfolio-deployed").textContent = usd(summary.deployed), document.getElementById("portfolio-ending").textContent = usd(summary.endingValue);
+    const net = document.getElementById("portfolio-net");
+    net.textContent = (summary.netProfitLoss > 0 ? "+" : "") + usd(summary.netProfitLoss), net.className = summary.netProfitLoss >= 0 ? "positive" : "negative";
+    const profitProgress = Math.max(0, Math.min(1, summary.netProfitLoss / summary.certificateThreshold)), roundProgress = Math.min(1, summary.rounds / summary.certificateMinRounds);
+    document.getElementById("certificate-bar").style.width = Math.round(Math.min(profitProgress, roundProgress) * 100) + "%";
+    const copy = document.getElementById("certificate-copy"), button = document.getElementById("certificate-button");
+    summary.certificateEligible ? (copy.textContent = "Milestone reached: " + fmt(summary.rounds) + " rounds and " + usd(summary.netProfitLoss) + " lifetime simulated net P&L.", button.hidden = !1) : (copy.textContent = "Reach at least " + fmt(summary.certificateMinRounds) + " logged rounds and " + usd(summary.certificateThreshold) + " lifetime simulated net P&L. Current: " + fmt(summary.rounds) + " rounds and " + usd(summary.netProfitLoss) + ".", button.hidden = !0), document.getElementById("certificate-name").textContent = data.ownerName, document.getElementById("certificate-rounds").textContent = fmt(summary.rounds), document.getElementById("certificate-amount").textContent = usd(summary.netProfitLoss), document.getElementById("certificate-date").textContent = "Generated " + (/* @__PURE__ */ new Date()).toLocaleDateString(), body.innerHTML = data.records.length ? data.records.map((record) => "<tr><td>" + safe(record.symbol) + '<br><span class="mono" style="color:var(--muted);font-size:10px">' + new Date(record.createdAt).toLocaleDateString() + "</span></td><td>" + safe(record.optionType) + "</td><td>" + usd(record.optionStrike) + "</td><td>" + usd(record.optionClosingPrice) + "</td><td>" + usd(record.optionFinalValue) + '</td><td style="color:' + (record.optionProfitLoss >= 0 ? "#0F8A54" : "#C74242") + '">' + (record.optionProfitLoss >= 0 ? "+" : "") + usd(record.optionProfitLoss) + "</td></tr>").join("") : '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Complete an authenticated round to start your simulation portfolio.</td></tr>';
+  } catch (error) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#C74242">' + safe(error.message) + "</td></tr>";
+  }
+}
+document.getElementById("certificate-button").addEventListener("click", () => window.print()), document.querySelectorAll(".tab").forEach((t) => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", "false")), t.setAttribute("aria-selected", "true");
+    const name = t.getAttribute("data-tab");
+    document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active")), document.getElementById("panel-" + name).classList.add("active"), name === "portfolio" && loadPortfolio();
+  });
+}), window.addEventListener("message", async (ev) => {
+  if (ev.origin === location.origin && ev.data && ev.data.type === "velta_result")
+    try {
+      const res = await Velta.apiSubmitScore({
+        symbol: ev.data.symbol,
+        roundIndex: ev.data.roundIndex,
+        optionType: ev.data.optionType,
+        accuracy: ev.data.accuracy,
+        direction: ev.data.direction,
+        meanErrPct: ev.data.meanErrPct
+      });
+      user.credits = res.credits, user.simRunsLeft = res.simRunsLeft, user.unlimitedSims = res.unlimitedSims, document.getElementById("credit-earned").textContent = "+" + fmt(res.earned) + " learning credits \xB7 " + fmt(res.credits) + " total", document.getElementById("game-frame")?.contentWindow?.postMessage(
+        { type: "velta_earned", earned: res.earned, total: res.credits, portfolio: res.portfolio, optionOutcome: res.optionOutcome },
+        location.origin
+      ), portfolioLoaded = !1, refresh();
+    } catch (err) {
+      String(err.message || "").includes("out_of_runs") ? alert("You're out of simulation runs. Upgrade to keep playing.") : console.error("Score submit failed:", err);
+    }
+}), document.getElementById("reset-link").textContent = "Log out", document.getElementById("reset-link").addEventListener("click", async (e) => {
+  e.preventDefault(), await Velta.apiLogout(), window.location.href = "index.html";
+}), init();
 </script>
 </body>
 </html>
