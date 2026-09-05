@@ -4,7 +4,6 @@ const Velta = (() => {
     loggedIn: false,
     name: "",
     email: "",
-    plan: "none",
     trialRoundsUsed: 0,
   });
 
@@ -134,33 +133,6 @@ const Velta = (() => {
     return postJson("/api/rewards/redeem", { rewardId }, "Could not redeem reward");
   }
 
-  async function apiBuy(plan, knownUser) {
-    const selectedPlan = PLANS[plan];
-    if (!selectedPlan?.paymentLink) {
-      throw new Error("This payment option is not configured");
-    }
-
-    const user = knownUser || (await apiMe());
-    if (!user) throw new Error("Sign in before choosing a plan");
-    if (user.plan && user.plan !== "none") {
-      throw new Error(
-        "This account already has course access. Contact support before buying another plan."
-      );
-    }
-    if (!user.id || !user.email) {
-      throw new Error("Your account is missing the information required for checkout");
-    }
-
-    const checkout = new URL(selectedPlan.paymentLink);
-    checkout.searchParams.set("client_reference_id", user.id);
-    checkout.searchParams.set("locked_prefilled_email", user.email);
-    window.location.assign(checkout.toString());
-  }
-
-  async function apiConfirmCheckout(sessionId) {
-    return postJson("/api/stripe/confirm", { sessionId }, "Could not confirm payment");
-  }
-
   async function apiPortfolio() {
     return responseData(
       await fetch("/api/portfolio"),
@@ -179,43 +151,10 @@ const Velta = (() => {
     apiLogout,
     apiSubmitScore,
     apiRedeem,
-    apiBuy,
-    apiConfirmCheckout,
     apiPortfolio,
     apiStats,
   };
 })();
-
-function planDetails(name, price, blurb, paymentLink, simRuns, unlimited, features) {
-  return { name, price, cadence: "one-time", blurb, paymentLink, simRuns, unlimited, features };
-}
-
-const PLANS = {
-  trial: planDetails(
-    "Course Trial", "$9",
-    "A low-cost introduction to the written course and historical chart practice.",
-    "https://buy.stripe.com/5kQ3cv06e2zEfSHfil5sA01", 5, false,
-    ["First 5 course chapters", "5 historical chart exercises", "$100 option comparisons and portfolio history", "Earn and redeem non-cash learning credits"]
-  ),
-  starter: planDetails(
-    "Starter", "$19",
-    "More lessons and practice for learners building their foundation.",
-    "https://buy.stripe.com/bJeeVdg5cgqufSHb255sA03", 15, false,
-    ["First 10 course chapters", "15 historical chart exercises", "$100 option comparisons and portfolio history", "Earn and redeem non-cash learning credits"]
-  ),
-  standard: planDetails(
-    "Standard", "$39",
-    "The full written curriculum with enough practice for structured repetition.",
-    "https://buy.stripe.com/aFadR9aKS2zEaynfil5sA04", 50, false,
-    ["All 15 course chapters", "50 historical chart exercises", "$100 option comparisons and lifetime portfolio", "Certificate eligibility and learning rewards"]
-  ),
-  premium: planDetails(
-    "Premium", "$69",
-    "Full curriculum access with unlimited historical chart practice.",
-    "https://buy.stripe.com/28E5kD9GOdei8qfdad5sA05", 0, true,
-    ["All 15 course chapters", "Unlimited historical chart exercises", "$100 option comparisons and lifetime portfolio", "Certificate eligibility and learning rewards"]
-  ),
-};
 
 function el(tag, attrs = {}, html) {
   const element = document.createElement(tag);

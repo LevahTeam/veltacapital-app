@@ -1,6 +1,6 @@
 # VeltaCapital
 
-VeltaCapital runs on [Next.js](https://nextjs.org). The project was originally created with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+VeltaCapital is a free, non-commercial financial education project for students. It combines a written curriculum with historical-chart exercises and runs on [Next.js](https://nextjs.org).
 
 ## Run the project locally
 

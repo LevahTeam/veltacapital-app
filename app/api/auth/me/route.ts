@@ -7,26 +7,16 @@ function publicUser(user: NonNullable<Awaited<ReturnType<typeof prisma.user.find
     id,
     email,
     name,
-    plan,
     credits,
-    simRunsLeft,
-    unlimitedSims,
-    canRedeem,
     agreedToTermsAt,
-    advancedUnlocked,
     hasBadge,
   } = user;
   return {
     id,
     email,
     name,
-    plan,
     credits,
-    simRunsLeft,
-    unlimitedSims,
-    canRedeem,
     agreedToTermsAt,
-    advancedUnlocked,
     hasBadge,
   };
 }

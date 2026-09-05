@@ -4,8 +4,8 @@ const courseUrl = new URL("../public/course.json", import.meta.url);
 const course = JSON.parse(await readFile(courseUrl, "utf8"));
 
 course.author = "VeltaCapital educational team";
-course.reviewStatus = "Draft curriculum. Independent professional review is required before paid launch.";
-course.updatedAt = "2026-08-09";
+course.reviewStatus = "Draft curriculum. Independent professional review is required before formal classroom use.";
+course.updatedAt = "2026-09-05";
 course.note =
   "Educational content only, not financial, investment, tax, or legal advice. Verify time-sensitive figures with primary sources. Historical examples do not predict future results.";
 

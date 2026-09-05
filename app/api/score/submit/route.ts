@@ -40,13 +40,6 @@ export async function POST(req: Request) {
     const user = await prisma.user.findUnique({ where: { id: uid } });
     if (!user) return errorResponse("No user", 404);
 
-    if (!user.unlimitedSims && user.simRunsLeft <= 0) {
-      return jsonResponse(
-        { ok: false, error: "out_of_runs", message: "You're out of simulation runs." },
-        402
-      );
-    }
-
     const body = (await req.json()) as ScoreSubmission;
     const symbol = String(body.symbol || "Unknown").slice(0, 12);
     const accuracy = boundedAccuracy(body.accuracy);
@@ -89,7 +82,6 @@ export async function POST(req: Request) {
         where: { id: uid },
         data: {
           credits: { increment: creditAward },
-          simRunsLeft: user.unlimitedSims ? undefined : { decrement: 1 },
           creditEvents: {
             create: { amount: creditAward, reason: "learning_round" },
           },
@@ -109,8 +101,6 @@ export async function POST(req: Request) {
       earned: creditAward,
       optionOutcome,
       portfolio: summarizePortfolio(portfolioRows),
-      simRunsLeft: updated.simRunsLeft,
-      unlimitedSims: updated.unlimitedSims,
     });
   } catch (err) {
     return errorResponse(String(err), 500);
