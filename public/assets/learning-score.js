@@ -1,53 +1,61 @@
-(function (root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api;
-  root.VeltaLearning = api;
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+(function exposeLearningApi(root, createApi) {
+  const learningApi = createApi();
+  if (typeof module === "object" && module.exports) {
+    module.exports = learningApi;
+  }
+  root.VeltaLearning = learningApi;
+})(typeof globalThis === "undefined" ? this : globalThis, function createLearningApi() {
   "use strict";
 
-  function finitePositive(value, label) {
-    const number = Number(value);
-    if (!Number.isFinite(number) || number <= 0) {
+  function positiveNumber(value, label) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
       throw new TypeError(label + " must be a positive finite number");
     }
-    return number;
+    return parsed;
   }
 
-  function calculatePredictionScore(input) {
-    const guesses = input && input.guesses;
-    const actuals = input && input.actuals;
+  function predictionArrays(input) {
+    const guesses = input?.guesses;
+    const actuals = input?.actuals;
     if (!Array.isArray(guesses) || !Array.isArray(actuals) || guesses.length === 0) {
       throw new TypeError("guesses and actuals must be non-empty arrays");
     }
     if (guesses.length !== actuals.length) {
       throw new RangeError("guesses and actuals must have the same length");
     }
+    return { guesses, actuals };
+  }
 
-    const bandFraction = finitePositive(input.bandFraction, "bandFraction");
-    const startValue = finitePositive(input.startValue, "startValue");
-    let shapeTotal = 0;
-    let errorTotal = 0;
-    let inBand = 0;
+  function movement(end, start) {
+    if (end > start) return "up";
+    if (end < start) return "down";
+    return "flat";
+  }
 
-    for (let i = 0; i < guesses.length; i += 1) {
-      const guess = finitePositive(guesses[i], "guess");
-      const actual = finitePositive(actuals[i], "actual");
+  function calculatePredictionScore(input) {
+    const { guesses, actuals } = predictionArrays(input);
+    const bandFraction = positiveNumber(input.bandFraction, "bandFraction");
+    const startValue = positiveNumber(input.startValue, "startValue");
+    const totals = { shape: 0, relativeError: 0, inBand: 0 };
+
+    guesses.forEach((guessValue, index) => {
+      const guess = positiveNumber(guessValue, "guess");
+      const actual = positiveNumber(actuals[index], "actual");
       const distance = Math.abs(guess - actual);
       const tolerance = actual * bandFraction;
-      if (distance <= tolerance) inBand += 1;
-      shapeTotal += Math.max(0, 1 - distance / (tolerance * 3));
-      errorTotal += distance / actual;
-    }
+      totals.inBand += distance <= tolerance ? 1 : 0;
+      totals.shape += Math.max(0, 1 - distance / (tolerance * 3));
+      totals.relativeError += distance / actual;
+    });
 
-    const actualEnd = actuals[actuals.length - 1];
-    const guessEnd = guesses[guesses.length - 1];
-    const actualDirection = actualEnd > startValue ? "up" : actualEnd < startValue ? "down" : "flat";
-    const guessedDirection = guessEnd > startValue ? "up" : guessEnd < startValue ? "down" : "flat";
+    const actualDirection = movement(actuals.at(-1), startValue);
+    const guessedDirection = movement(guesses.at(-1), startValue);
 
     return {
-      pathScore: Math.round((shapeTotal / guesses.length) * 100),
-      meanErrorPct: (errorTotal / guesses.length) * 100,
-      inBand,
+      pathScore: Math.round((totals.shape / guesses.length) * 100),
+      meanErrorPct: (totals.relativeError / guesses.length) * 100,
+      inBand: totals.inBand,
       total: guesses.length,
       actualDirection,
       guessedDirection,
@@ -56,17 +64,18 @@
   }
 
   function calculateOptionOutcome(input) {
-    const type = input && input.type;
-    if (type !== "call" && type !== "put") throw new TypeError("type must be call or put");
-    const strike = finitePositive(input.strike, "strike");
-    const closingPrice = finitePositive(input.closingPrice, "closingPrice");
-    const premium = finitePositive(input.premium, "premium");
-    const budget = finitePositive(input.budget, "budget");
+    const type = input?.type;
+    if (type !== "call" && type !== "put") {
+      throw new TypeError("type must be call or put");
+    }
 
-    const intrinsicPerShare =
-      type === "call" ? Math.max(0, closingPrice - strike) : Math.max(0, strike - closingPrice);
-    const shareEquivalent = budget / premium;
-    const finalValue = shareEquivalent * intrinsicPerShare;
+    const strike = positiveNumber(input.strike, "strike");
+    const closingPrice = positiveNumber(input.closingPrice, "closingPrice");
+    const premium = positiveNumber(input.premium, "premium");
+    const budget = positiveNumber(input.budget, "budget");
+    const priceDifference = type === "call" ? closingPrice - strike : strike - closingPrice;
+    const intrinsicPerShare = Math.max(0, priceDifference);
+    const finalValue = (budget / premium) * intrinsicPerShare;
     const profitLoss = finalValue - budget;
 
     return {

@@ -29,12 +29,14 @@ model User {
   accounts        Account[]
   sessions        Session[]
 
-  plan          String   @default("none")   // none | trial | starter | standard | premium
-  simRunsLeft   Int      @default(0)        // simulation runs remaining (bucket, not per-day)
-  unlimitedSims Boolean  @default(false)    // premium
-  canRedeem     Boolean  @default(false)    // standard and above
-  earnMult      Float    @default(1.0)      // 1.5 for premium
-  advancedUnlocked Boolean @default(false)  // redeemed the advanced module
+  // Legacy access fields remain temporarily so existing deployments can adopt
+  // the free-access release without a destructive database migration.
+  plan             String  @default("none")
+  simRunsLeft      Int     @default(0)
+  unlimitedSims    Boolean @default(false)
+  canRedeem        Boolean @default(false)
+  earnMult         Float   @default(1.0)
+  advancedUnlocked Boolean @default(false)
   hasBadge         Boolean @default(false)  // redeemed the leaderboard badge
 
 
@@ -72,7 +74,7 @@ model CreditEvent {
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   amount      Int                               // + earned, - spent
-  reason      String                            // "round_reward" | "purchase_grant" | "redemption" ...
+  reason      String                            // "learning_round" | "learning_redemption" ...
   createdAt   DateTime @default(now())
 
   @@index([userId])
@@ -127,6 +129,8 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// Legacy event identifiers are retained for compatibility with databases that
+// handled payments before the free-access release. Runtime payment code is gone.
 model ProcessedStripeEvent {
   id          String   @id
   processedAt DateTime @default(now())

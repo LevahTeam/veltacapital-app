@@ -76,34 +76,25 @@ header.top{border-bottom:1px solid var(--line);padding:20px 0;position:sticky;to
 </div></div>
 
 <script>
-async function loadReports(){
-  const host = document.getElementById('reports');
-  const loading = document.getElementById('loading');
-  try{
-    const r = await fetch('/api/reports');
-    const data = await r.json();
-    loading.remove();
-    if(!data.ok || !data.reports || !data.reports.length){
+async function loadReports() {
+  const host = document.getElementById("reports"), loading = document.getElementById("loading");
+  try {
+    const data = await (await fetch("/api/reports")).json();
+    if (loading.remove(), !data.ok || !data.reports || !data.reports.length) {
       host.innerHTML = '<div class="empty"><strong>No reports are currently published.</strong><br>Reports remain out of the main navigation until at least three sourced, reviewed pieces are ready.</div>';
       return;
     }
-    host.innerHTML = data.reports.map(rep=>{
-      const d = new Date(rep.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
-      return '<article class="report">'+
-        '<div class="report-top">'+
-          '<span class="ticker">'+esc(rep.ticker)+'</span>'+
-          '<span class="date">'+d+'</span>'+
-        '</div>'+
-        '<h2>'+esc(rep.title)+'</h2>'+
-        '<div class="body">'+esc(rep.body)+'</div>'+
-      '</article>';
-    }).join('');
-  }catch(err){
-    loading.textContent = 'Could not load reports. Please refresh.';
+    host.innerHTML = data.reports.map((rep) => {
+      const d = new Date(rep.createdAt).toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" });
+      return '<article class="report"><div class="report-top"><span class="ticker">' + esc(rep.ticker) + '</span><span class="date">' + d + "</span></div><h2>" + esc(rep.title) + '</h2><div class="body">' + esc(rep.body) + "</div></article>";
+    }).join("");
+  } catch {
+    loading.textContent = "Could not load reports. Please refresh.";
   }
 }
-// escape user/admin text so report content can't inject HTML
-function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
 loadReports();
 </script>
 </body>

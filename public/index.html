@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VeltaCapital: Financial reasoning practice with historical charts</title>
-<meta name="description" content="Practice interpreting historical stock charts, record your reasoning, and review what the data showed, all without trading real money.">
+<meta name="description" content="Use a free course and historical-chart exercises to practice financial reasoning without trading real money.">
 <link rel="canonical" href="https://www.veltacapital.net/">
 <meta property="og:type" content="website"><meta property="og:url" content="https://www.veltacapital.net/">
 <meta property="og:site_name" content="VeltaCapital"><meta property="og:title" content="VeltaCapital: Financial reasoning practice">
-<meta property="og:description" content="A financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
+<meta property="og:description" content="A free financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="VeltaCapital: Financial reasoning practice">
-<meta name="twitter:description" content="A financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"EducationalOrganization","name":"VeltaCapital","url":"https://www.veltacapital.net/","description":"Historical-chart reasoning practice and risk-first financial education.","sameAs":["https://www.instagram.com/veltacapital"]}</script>
+<meta name="twitter:description" content="A free financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"VeltaCapital","url":"https://www.veltacapital.net/","description":"Free historical-chart reasoning practice and risk-first financial education."}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -210,12 +210,45 @@ main,header,footer{position:relative;z-index:1}
 .trial-gate h3{font-size:26px;color:var(--fg)}
 .trial-gate .btn{margin-top:18px}
 
-/* ---------- PRICING ---------- */
-.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:48px}
-@media(max-width:1080px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){.tiers{grid-template-columns:1fr}}
+/* ---------- FREE ACCESS ---------- */
+.access-experience{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);
+  gap:18px;margin-top:48px;align-items:stretch}
+.learning-explorer{position:relative;min-width:0;background:linear-gradient(145deg,var(--bg-2),var(--bg-1));
+  border:1px solid var(--line-2);border-radius:18px;padding:28px;overflow:hidden}
+.learning-explorer::after{content:"";position:absolute;width:260px;height:260px;right:-130px;bottom:-150px;
+  border-radius:50%;background:rgba(43,211,127,.1);filter:blur(45px);pointer-events:none}
+.explorer-top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
+.explorer-kicker{font:11px 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--up)}
+.explorer-top h3{font-size:clamp(24px,3vw,34px);margin-top:9px}
+.explorer-progress{flex:none;font:11px 'JetBrains Mono',monospace;color:var(--fg-mute);text-align:right}
+.progress-track{width:116px;height:4px;margin-top:9px;background:var(--line-2);border-radius:10px;overflow:hidden}
+.progress-fill{display:block;width:25%;height:100%;background:linear-gradient(90deg,var(--up),var(--up-2));
+  border-radius:inherit;transition:width .3s ease}
+.learning-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:28px 0 22px}
+.learning-tab{position:relative;border:1px solid var(--line-2);border-radius:10px;background:rgba(6,8,9,.5);
+  color:var(--fg-dim);font:12px 'JetBrains Mono',monospace;padding:12px 10px;cursor:pointer;text-align:left;
+  transition:border-color .2s ease,background .2s ease,color .2s ease,transform .2s ease}
+.learning-tab::before{content:attr(data-step);display:block;color:var(--fg-dim);font-size:10px;letter-spacing:.12em;margin-bottom:5px}
+.learning-tab:hover{border-color:var(--up);color:var(--fg);transform:translateY(-2px)}
+.learning-tab[aria-selected="true"]{border-color:rgba(43,211,127,.65);background:rgba(43,211,127,.09);color:var(--up)}
+.learning-panel{position:relative;z-index:1;min-height:248px;border-top:1px solid var(--line);padding-top:23px}
+.learning-panel h4{font:600 22px 'Fraunces',serif;letter-spacing:-.01em;margin:0}
+.learning-panel>p{color:var(--fg-dim);font-size:14.5px;max-width:60ch;margin:10px 0 18px}
+.thinking-prompt{display:grid;grid-template-columns:auto 1fr;gap:12px;background:rgba(6,8,9,.58);
+  border:1px solid var(--line);border-radius:12px;padding:16px}
+.prompt-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(43,211,127,.12);
+  color:var(--up);font:600 12px 'JetBrains Mono',monospace}
+.thinking-prompt strong{display:block;font:10px 'JetBrains Mono',monospace;letter-spacing:.11em;text-transform:uppercase;color:var(--up)}
+.thinking-prompt p{font-size:13.5px;color:var(--fg);margin:5px 0 0;line-height:1.55}
+.explorer-note{display:flex;align-items:center;gap:8px;color:var(--fg-dim);font:11px 'JetBrains Mono',monospace;margin:16px 0 0}
+.explorer-note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 12px var(--up)}
+.tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tiers.free-access{grid-template-columns:1fr;margin:0}
+@media(max-width:1080px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}.access-experience{grid-template-columns:1fr}.tiers.free-access{grid-template-columns:1fr}}
+@media(max-width:620px){.tiers{grid-template-columns:1fr}.learning-explorer{padding:22px 18px}.learning-tabs{grid-template-columns:1fr 1fr}.learning-panel{min-height:290px}.explorer-top{display:block}.explorer-progress{text-align:left;margin-top:18px}.progress-track{width:100%}}
 .tier{position:relative;background:linear-gradient(180deg,var(--bg-1),var(--bg));
-  border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:border-color .3s,transform .3s}
+  border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;
+  transition:border-color .3s,transform .3s}
 .tier:hover{border-color:var(--line-2);transform:translateY(-4px)}
 .tier.feature{border-color:var(--up);box-shadow:var(--glow)}
 .tier .ribbon{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
@@ -223,10 +256,11 @@ main,header,footer{position:relative;z-index:1}
 .tier h3{font-size:20px;margin:8px 0}
 .tier .price{font-family:'Fraunces',serif;font-size:32px;color:var(--fg)}
 .tier .price small{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg-mute)}
-.tier ul{list-style:none;padding:0;margin:18px 0;display:grid;gap:9px}
+.tier ul{list-style:none;padding:0;margin:18px 0;display:grid;gap:9px;flex:1}
 .tier li{display:flex;gap:9px;font-size:13.5px;color:var(--fg-dim)}
 .tier li .ic{color:var(--up)}
 .tier .btn{width:100%;justify-content:center}
+@media(prefers-reduced-motion:reduce){.progress-fill,.learning-tab{transition:none}.learning-tab:hover{transform:none}}
 
 /* ---------- CONTACT / FOOTER ---------- */
 .contact{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px}
@@ -269,7 +303,7 @@ main,header,footer{position:relative;z-index:1}
     <a href="#how">How it works</a>
     <a href="#course">Course</a>
     <a href="#try">Try it</a>
-    <a href="#pricing">Pricing</a>
+    <a href="#access">Free access</a>
     <a href="methodology.html">Methodology</a>
     <a class="btn ghost" href="#" id="login-top">Log in</a>
   </nav>
@@ -324,7 +358,7 @@ main,header,footer{position:relative;z-index:1}
   <div class="section-head reveal">
     <p class="eyebrow">The course</p>
     <h2>A visible, risk-first beginner curriculum.</h2>
-    <p class="lead">Every unit has a clear objective and practice focus. Before paid launch, the complete course and calculations require documented independent professional review.</p>
+    <p class="lead">Every unit has a clear objective and practice focus. The complete course and calculations require documented independent professional review before formal classroom use.</p>
   </div>
 
   <div class="curriculum reveal" aria-label="Curriculum outline">
@@ -356,7 +390,7 @@ main,header,footer{position:relative;z-index:1}
         <span class="tag">Finance club president</span>
       </div>
       <p class="bio">Designs the written lessons and historical-chart exercises from a student educator's perspective. His background includes school finance leadership and educational market simulations; it is not professional investment-advisory experience.</p>
-      <div class="bio full" id="bio-s">Saechan has completed educational Forage job simulations based on investment banking, risk analysis, and quantitative research tasks. These programs are learning experiences and do not represent employment by their affiliated companies. Course material requires independent professional review before paid launch.</div>
+      <div class="bio full" id="bio-s">Saechan has completed educational Forage job simulations based on investment banking, risk analysis, and quantitative research tasks. These programs are learning experiences and do not represent employment by their affiliated companies. Course material requires independent professional review before formal classroom use.</div>
       <button class="more" data-target="bio-s">Read more <span>↓</span></button>
     </div>
 
@@ -404,21 +438,67 @@ main,header,footer{position:relative;z-index:1}
     </div>
     <div class="trial-gate" id="trial-gate" style="display:none">
       <h3>Nice reads. Want to keep going?</h3>
-      <p>Log in with Google to save your trial reflections and continue when enrollment opens.</p>
-      <button class="btn solid lg" id="trial-login">Continue with Google</button>
+      <p>Log in with Google to save your reflections and continue with the complete course and unlimited practice.</p>
+      <button class="btn solid lg" id="trial-login">Continue for free</button>
     </div>
   </div>
 </div></section>
 
-<!-- PRICING -->
-<section class="section" id="pricing"><div class="wrap">
+<!-- FREE ACCESS -->
+<section class="section" id="access"><div class="wrap">
   <div class="section-head reveal">
-    <p class="eyebrow">Course access</p>
-    <h2>Choose the amount of practice you need.</h2>
-    <p class="lead">All four options are one-time purchases. Higher tiers add chapters and historical chart exercises, but they do not improve scores, provide cash rewards, or claim investment performance.</p>
+    <p class="eyebrow">Free educational access</p>
+    <h2>The complete learning lab is free.</h2>
+    <p class="lead">VeltaCapital is a non-commercial educational project for students. There are no paid plans, subscriptions, checkout pages, or payment details to provide.</p>
   </div>
-  <div class="tiers" id="tiers" aria-label="Course access options"></div>
-  <p class="hero-note" style="margin-top:22px">Prices are in USD. Sign in first, then complete payment securely through Stripe using the email locked to your account. <a href="refunds.html" style="color:var(--up)">Read purchase and refund details →</a></p>
+  <div class="access-experience reveal">
+    <section class="learning-explorer" aria-labelledby="explorer-title">
+      <div class="explorer-top">
+        <div>
+          <div class="explorer-kicker">Interactive learning preview</div>
+          <h3 id="explorer-title">Follow an idea from lesson to reflection.</h3>
+        </div>
+        <div class="explorer-progress" aria-hidden="true">
+          <span id="explorer-count">01 / 04</span>
+          <div class="progress-track"><span class="progress-fill" id="explorer-progress"></span></div>
+        </div>
+      </div>
+
+      <div class="learning-tabs" role="tablist" aria-label="Learning stages">
+        <button class="learning-tab" id="learning-tab-0" type="button" role="tab" aria-selected="true" aria-controls="learning-panel" tabindex="0" data-stage="0" data-step="01">Learn</button>
+        <button class="learning-tab" id="learning-tab-1" type="button" role="tab" aria-selected="false" aria-controls="learning-panel" tabindex="-1" data-stage="1" data-step="02">Observe</button>
+        <button class="learning-tab" id="learning-tab-2" type="button" role="tab" aria-selected="false" aria-controls="learning-panel" tabindex="-1" data-stage="2" data-step="03">Reason</button>
+        <button class="learning-tab" id="learning-tab-3" type="button" role="tab" aria-selected="false" aria-controls="learning-panel" tabindex="-1" data-stage="3" data-step="04">Reflect</button>
+      </div>
+
+      <div class="learning-panel" id="learning-panel" role="tabpanel" tabindex="0" aria-labelledby="learning-tab-0" aria-live="polite" aria-atomic="true">
+        <h4 id="learning-title">Build the vocabulary first.</h4>
+        <p id="learning-copy">Begin with what the chart actually records: open, high, low, close, and volume. Description comes before interpretation.</p>
+        <div class="thinking-prompt">
+          <span class="prompt-mark" aria-hidden="true">?</span>
+          <div><strong>Think about it</strong><p id="learning-prompt">Can you explain what one candle shows without guessing why the price moved?</p></div>
+        </div>
+        <p class="explorer-note" id="learning-note">Short lessons establish the terms used in each exercise.</p>
+      </div>
+    </section>
+
+    <div class="tiers free-access" aria-label="Free course access">
+      <article class="tier feature">
+        <div class="ribbon">Free educational access</div>
+        <h3>Complete course and practice lab</h3>
+        <div class="price">$0 <small>no subscription</small></div>
+        <p style="color:var(--fg-dim);font-size:14px">Sign in once to save your progress and use every learning feature.</p>
+        <ul>
+          <li><span class="ic">✓</span><span>All 15 course chapters and flashcard decks</span></li>
+          <li><span class="ic">✓</span><span>Unlimited historical chart exercises</span></li>
+          <li><span class="ic">✓</span><span>Simulation portfolio and milestone certificate</span></li>
+          <li><span class="ic">✓</span><span>Non-cash learning credits and profile badge</span></li>
+        </ul>
+        <button class="btn solid" id="free-access-login" type="button">Sign in for free access</button>
+      </article>
+    </div>
+  </div>
+  <p class="hero-note" style="margin-top:22px">No payment method is requested or stored. VeltaCapital does not claim nonprofit or tax-exempt legal status.</p>
 </div></section>
 
 <!-- CONTACT -->
@@ -448,14 +528,14 @@ main,header,footer{position:relative;z-index:1}
       <p style="margin:8px 0"><a href="#course">Course</a></p>
       <p style="margin:8px 0"><a href="#try">Try the game</a></p>
       <p style="margin:8px 0"><a href="methodology.html">Methodology</a></p>
-      <p style="margin:8px 0"><a href="#pricing">Pricing</a></p>
+      <p style="margin:8px 0"><a href="#access">Free access</a></p>
     </div>
     <div>
       <p class="lbl">Contact</p>
       <p style="margin:8px 0"><a href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener">Instagram</a></p>
       <p style="margin:8px 0"><a href="mailto:veltacapitalhq@gmail.com">Email</a></p>
       <p style="margin:8px 0"><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a></p>
-      <p style="margin:8px 0"><a href="refunds.html">Enrollment &amp; refunds</a></p>
+      <p style="margin:8px 0"><a href="refunds.html">Free access &amp; previous payment support</a></p>
     </div>
   </div>
   <div class="disclaim" style="margin-top:40px">
@@ -483,131 +563,141 @@ main,header,footer{position:relative;z-index:1}
 
 <script src="assets/velta.js"></script>
 <script>
-  // brand marks (real veltaMark from velta.js)
-  document.getElementById('brand').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
-  document.getElementById('brand-foot').innerHTML = veltaMark()+'<span>VeltaCapital</span>';
-
-  // ---- hero animated candle strip ----
-  (function(){
-    const svg=document.getElementById('heroChart');
-    const NS="http://www.w3.org/2000/svg", W=420,H=240;
-    let seed=7; const r=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
-    const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.283*r());
-    const n=22; let price=120, data=[];
-    for(let i=0;i<n;i++){const o=price,c=Math.max(20,o*Math.exp(0.004+0.05*g()));
-      const hi=Math.max(o,c)*(1+Math.abs(g())*0.02), lo=Math.min(o,c)*(1-Math.abs(g())*0.02);
-      data.push([o,hi,lo,c]); price=c;}
-    const lo=Math.min(...data.map(d=>d[2])), hi=Math.max(...data.map(d=>d[1]));
-    const pad=18, cw=(W-pad*2)/n;
-    const y=v=>pad+(1-(v-lo)/(hi-lo))*(H-pad*2);
-    function rect(x,yy,w,h,f,o){const e=document.createElementNS(NS,'rect');
-      e.setAttribute('x',x);e.setAttribute('y',yy);e.setAttribute('width',w);e.setAttribute('height',h);
-      e.setAttribute('rx',1);e.setAttribute('fill',f);if(o!=null)e.setAttribute('opacity',o);svg.appendChild(e);return e;}
-    function line(x1,y1,x2,y2,s){const e=document.createElementNS(NS,'line');
-      e.setAttribute('x1',x1);e.setAttribute('y1',y1);e.setAttribute('x2',x2);e.setAttribute('y2',y2);
-      e.setAttribute('stroke',s);e.setAttribute('stroke-width',1.2);svg.appendChild(e);}
-    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-    data.forEach((d,i)=>{
-      const x=pad+i*cw+cw*0.5, up=d[3]>=d[0], col=up?'#2BD37F':'#E5573C';
-      const future=i>=Math.floor(n*0.6);
-      const fill=future?'#3a4a52':col;
-      line(x,y(d[1]),x,y(d[2]),fill);
-      const top=Math.min(y(d[0]),y(d[3])), bh=Math.max(2,Math.abs(y(d[3])-y(d[0])));
-      const bar=rect(x-cw*0.3,top,cw*0.6,bh,fill,future?0.5:1);
-      if(future && !reduce){ bar.style.opacity=0;
-        bar.animate([{opacity:0},{opacity:0.5}],{duration:500,delay:600+(i-Math.floor(n*0.6))*180,fill:'forwards'}); }
-    });
-    line(pad+Math.floor(n*0.6)*cw, pad, pad+Math.floor(n*0.6)*cw, H-pad, '#273139');
-  })();
-
-  // ---- scroll reveal (redesign) ----
-  (function(){
-    const els=document.querySelectorAll('.reveal');
-    if(!('IntersectionObserver'in window)){els.forEach(e=>e.classList.add('in'));return;}
-    const io=new IntersectionObserver((ents)=>{
-      ents.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('in'),i*70);io.unobserve(e.target);}});
-    },{threshold:.12});
-    els.forEach(e=>io.observe(e));
-  })();
-
-  // ---- founder read-more (redesign) ----
-  document.querySelectorAll('.more').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const t=document.getElementById(btn.dataset.target);
-      const open=t.classList.toggle('open');
-      btn.innerHTML= open ? 'Read less <span>&uarr;</span>' : 'Read more <span>&darr;</span>';
-    });
-  });
-
-  // ---- responsive navigation ----
-  const navToggle=document.getElementById('nav-toggle');
-  const primaryNav=document.getElementById('primary-nav');
-  navToggle.addEventListener('click',()=>{const open=primaryNav.classList.toggle('open');navToggle.setAttribute('aria-expanded',String(open));});
-  primaryNav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{primaryNav.classList.remove('open');navToggle.setAttribute('aria-expanded','false');}));
-
-  // ---- login modal (real Velta.apiLogin) ----
-  const modal=document.getElementById('login-modal');
-  function openLogin(){ modal.classList.add('open'); document.getElementById('login-x').focus(); }
-  function closeLogin(){ modal.classList.remove('open'); document.getElementById('login-top').focus(); }
-  document.getElementById('login-top').addEventListener('click',e=>{e.preventDefault();openLogin();});
-  document.getElementById('login-x').addEventListener('click',closeLogin);
-  modal.addEventListener('click',e=>{ if(e.target===modal)closeLogin(); });
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeLogin();});
-
-  function doLogin(){ Velta.apiLogin(); }
-  document.getElementById('google-btn').addEventListener('click',doLogin);
-
-  // ---- one-time course price options ----
-  (function(){
-    const host=document.getElementById('tiers');
-    ['trial','starter','standard','premium'].forEach(key=>{
-      const p=PLANS[key];
-      const featured=key==='standard';
-      const card=el('article',{class:'tier'+(featured?' feature':'')});
-      card.innerHTML=
-        '<div class="ribbon">'+(featured?'Most popular':'One-time access')+'</div>'+
-        '<h3>'+p.name+'</h3>'+
-        '<div class="price">'+p.price+' <small>'+p.cadence+'</small></div>'+
-        '<p style="color:var(--fg-dim);font-size:14px">'+p.blurb+'</p>'+
-        '<ul>'+p.features.map(f=>'<li><span class="ic">✓</span><span>'+f+'</span></li>').join('')+'</ul>'+
-        '<button class="btn '+(featured?'solid':'ghost')+'" type="button">Choose '+p.name+'</button>';
-      const button=card.querySelector('button');
-      button.addEventListener('click',async()=>{
-        const original=button.textContent;
-        button.disabled=true;
-        button.textContent='Preparing checkout…';
-        try{
-          const me=await Velta.apiMe();
-          if(!me){ Velta.apiLogin('/member.html?plan='+encodeURIComponent(key)); return; }
-          await Velta.apiBuy(key,me);
-        }catch(err){
-          window.alert(err instanceof Error ? err.message : 'Could not start checkout');
-          button.disabled=false;
-          button.textContent=original;
-        }
-      });
-      host.appendChild(card);
-    });
-  })();
-
-  // ---- trial gating: after 3 rounds, swap iframe for the login gate ----
-  let trialRounds = Velta.get().trialRoundsUsed;
-  updateTrialCount();
-  window.addEventListener('message',(ev)=>{
-    if(ev.origin!==location.origin)return;
-    if(ev.data && ev.data.type==='velta_round_done'){
-      trialRounds++; Velta.useTrialRound(); updateTrialCount();
-      if(trialRounds>=3){
-        document.getElementById('trial-frame').style.display='none';
-        document.getElementById('trial-gate').style.display='block';
-      }
-    }
-  });
-  function updateTrialCount(){
-    const left=Math.max(0,3-trialRounds);
-    document.getElementById('trial-count').textContent = left+' free round'+(left===1?'':'s')+' left';
+document.getElementById("brand").innerHTML = veltaMark() + "<span>VeltaCapital</span>", document.getElementById("brand-foot").innerHTML = veltaMark() + "<span>VeltaCapital</span>", (function() {
+  const svg = document.getElementById("heroChart"), NS = "http://www.w3.org/2000/svg", W = 420, H = 240;
+  let seed = 7;
+  const r = () => (seed = seed * 1103515245 + 12345 & 2147483647, seed / 2147483647), g = () => Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(6.283 * r()), n = 22;
+  let price = 120, data = [];
+  for (let i = 0; i < n; i++) {
+    const o = price, c = Math.max(20, o * Math.exp(4e-3 + 0.05 * g())), hi2 = Math.max(o, c) * (1 + Math.abs(g()) * 0.02), lo2 = Math.min(o, c) * (1 - Math.abs(g()) * 0.02);
+    data.push([o, hi2, lo2, c]), price = c;
   }
-  document.getElementById('trial-login').addEventListener('click',openLogin);
+  const lo = Math.min(...data.map((d) => d[2])), hi = Math.max(...data.map((d) => d[1])), pad = 18, cw = (W - pad * 2) / n, y = (v) => pad + (1 - (v - lo) / (hi - lo)) * (H - pad * 2);
+  function rect(x, yy, w, h, f, o) {
+    const e = document.createElementNS(NS, "rect");
+    return e.setAttribute("x", x), e.setAttribute("y", yy), e.setAttribute("width", w), e.setAttribute("height", h), e.setAttribute("rx", 1), e.setAttribute("fill", f), o != null && e.setAttribute("opacity", o), svg.appendChild(e), e;
+  }
+  function line(x1, y1, x2, y2, s) {
+    const e = document.createElementNS(NS, "line");
+    e.setAttribute("x1", x1), e.setAttribute("y1", y1), e.setAttribute("x2", x2), e.setAttribute("y2", y2), e.setAttribute("stroke", s), e.setAttribute("stroke-width", 1.2), svg.appendChild(e);
+  }
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  data.forEach((d, i) => {
+    const x = pad + i * cw + cw * 0.5, up = d[3] >= d[0], col = up ? "#2BD37F" : "#E5573C", future = i >= Math.floor(n * 0.6), fill = future ? "#3a4a52" : col;
+    line(x, y(d[1]), x, y(d[2]), fill);
+    const top = Math.min(y(d[0]), y(d[3])), bh = Math.max(2, Math.abs(y(d[3]) - y(d[0]))), bar = rect(x - cw * 0.3, top, cw * 0.6, bh, fill, future ? 0.5 : 1);
+    future && !reduce && (bar.style.opacity = 0, bar.animate([{ opacity: 0 }, { opacity: 0.5 }], { duration: 500, delay: 600 + (i - Math.floor(n * 0.6)) * 180, fill: "forwards" }));
+  }), line(pad + Math.floor(n * 0.6) * cw, pad, pad + Math.floor(n * 0.6) * cw, H - pad, "#273139");
+})(), (function() {
+  const els = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window)) {
+    els.forEach((e) => e.classList.add("in"));
+    return;
+  }
+  const io = new IntersectionObserver((ents) => {
+    ents.forEach((e, i) => {
+      e.isIntersecting && (setTimeout(() => e.target.classList.add("in"), i * 70), io.unobserve(e.target));
+    });
+  }, { threshold: 0.12 });
+  els.forEach((e) => io.observe(e));
+})(), document.querySelectorAll(".more").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const open = document.getElementById(btn.dataset.target).classList.toggle("open");
+    btn.innerHTML = open ? "Read less <span>&uarr;</span>" : "Read more <span>&darr;</span>";
+  });
+});
+const navToggle = document.getElementById("nav-toggle"), primaryNav = document.getElementById("primary-nav");
+navToggle.addEventListener("click", () => {
+  const open = primaryNav.classList.toggle("open");
+  navToggle.setAttribute("aria-expanded", String(open));
+}), primaryNav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+  primaryNav.classList.remove("open"), navToggle.setAttribute("aria-expanded", "false");
+}));
+const modal = document.getElementById("login-modal");
+function openLogin() {
+  modal.classList.add("open"), document.getElementById("login-x").focus();
+}
+function closeLogin() {
+  modal.classList.remove("open"), document.getElementById("login-top").focus();
+}
+document.getElementById("login-top").addEventListener("click", (e) => {
+  e.preventDefault(), openLogin();
+}), document.getElementById("login-x").addEventListener("click", closeLogin), modal.addEventListener("click", (e) => {
+  e.target === modal && closeLogin();
+}), document.addEventListener("keydown", (e) => {
+  e.key === "Escape" && modal.classList.contains("open") && closeLogin();
+});
+function doLogin() {
+  Velta.apiLogin();
+}
+document.getElementById("google-btn").addEventListener("click", doLogin), document.getElementById("free-access-login").addEventListener("click", openLogin);
+let trialRounds = Velta.get().trialRoundsUsed;
+updateTrialCount(), window.addEventListener("message", (ev) => {
+  ev.origin === location.origin && ev.data && ev.data.type === "velta_round_done" && (trialRounds++, Velta.useTrialRound(), updateTrialCount(), trialRounds >= 3 && (document.getElementById("trial-frame").style.display = "none", document.getElementById("trial-gate").style.display = "block"));
+});
+function updateTrialCount() {
+  const left = Math.max(0, 3 - trialRounds);
+  document.getElementById("trial-count").textContent = left + " free round" + (left === 1 ? "" : "s") + " left";
+}
+document.getElementById("trial-login").addEventListener("click", openLogin);
+
+const learningStages = [
+  {
+    title: "Build the vocabulary first.",
+    copy: "Begin with what the chart actually records: open, high, low, close, and volume. Description comes before interpretation.",
+    prompt: "Can you explain what one candle shows without guessing why the price moved?",
+    note: "Short lessons establish the terms used in each exercise."
+  },
+  {
+    title: "Separate the signal from the story.",
+    copy: "Study the visible price structure, timeframe, and volume. Record observations without assigning motives to buyers or sellers.",
+    prompt: "Which details can you point to on the chart, and which ideas are only assumptions?",
+    note: "Historical charts provide evidence to examine, not a promise about the future."
+  },
+  {
+    title: "Make uncertainty part of the answer.",
+    copy: "Estimate a possible path, name the evidence behind it, and record your confidence before revealing what happened next.",
+    prompt: "What evidence supports your view, and what observation would make you reconsider it?",
+    note: "Reasoning, direction, path accuracy, and confidence are reviewed separately."
+  },
+  {
+    title: "Review the process, not imaginary profit.",
+    copy: "Compare your estimate with the historical candles. Look for gaps between your confidence, your reasoning, and the outcome.",
+    prompt: "Was your process careful even if the outcome differed from your estimate?",
+    note: "Reflection turns each round into practice rather than a trading recommendation."
+  }
+];
+const learningTabs = Array.from(document.querySelectorAll(".learning-tab"));
+const learningPanel = document.getElementById("learning-panel");
+function selectLearningStage(index, moveFocus) {
+  const stage = learningStages[index];
+  learningTabs.forEach((tab, tabIndex) => {
+    const selected = tabIndex === index;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+  });
+  learningPanel.setAttribute("aria-labelledby", learningTabs[index].id);
+  document.getElementById("learning-title").textContent = stage.title;
+  document.getElementById("learning-copy").textContent = stage.copy;
+  document.getElementById("learning-prompt").textContent = stage.prompt;
+  document.getElementById("learning-note").textContent = stage.note;
+  document.getElementById("explorer-count").textContent = String(index + 1).padStart(2, "0") + " / 04";
+  document.getElementById("explorer-progress").style.width = (index + 1) * 25 + "%";
+  if (moveFocus) learningTabs[index].focus();
+}
+learningTabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => selectLearningStage(index, false));
+  tab.addEventListener("keydown", (event) => {
+    let next = index;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % learningTabs.length;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + learningTabs.length) % learningTabs.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = learningTabs.length - 1;
+    else return;
+    event.preventDefault();
+    selectLearningStage(next, true);
+  });
+});
 </script>
 </body>
 </html>

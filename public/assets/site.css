@@ -96,7 +96,7 @@ h3{font-size:21px}
 .sheet-pad{padding:28px}
 .x{float:right;background:none;border:none;font-size:15px;color:var(--muted);cursor:pointer;font-family:inherit}
 
-/* ---- pricing ---- */
+/* ---- access cards ---- */
 .tiers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
 @media(max-width:1100px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.tiers{grid-template-columns:1fr}}

@@ -125,147 +125,220 @@
 
 <script src="assets/learning-score.js"></script>
 <script>
-(function(){
-  'use strict';
-  const IS_TRIAL=new URLSearchParams(location.search).get('mode')==='trial';
-  if(IS_TRIAL){
-    document.body.classList.add('trial-mode');
-    document.querySelector('.ptg>h1').textContent='Make your chart estimate';
-    document.querySelector('.ptg>.sub').textContent='Place five estimates, reveal the historical candles, then review the result and explanation.';
-    document.getElementById('chart-instructions').textContent='Tap five points in the shaded area. A keyboard alternative is available below.';
-    document.querySelector('#keyboard-details summary').textContent='Keyboard alternative';
+(function() {
+  "use strict";
+  const IS_TRIAL = new URLSearchParams(location.search).get("mode") === "trial";
+  IS_TRIAL && (document.body.classList.add("trial-mode"), document.querySelector(".ptg>h1").textContent = "Make your chart estimate", document.querySelector(".ptg>.sub").textContent = "Place five estimates, reveal the historical candles, then review the result and explanation.", document.getElementById("chart-instructions").textContent = "Tap five points in the shaded area. A keyboard alternative is available below.", document.querySelector("#keyboard-details summary").textContent = "Keyboard alternative");
+  const NS = "http://www.w3.org/2000/svg", W = 760, H = 420, PADL = 10, PADR = 54, PADT = 12, PRICE_H = 300, VOL_TOP = 320, VOL_H = 88, NEED = 5, svg = document.getElementById("svg"), stage = document.getElementById("stage"), chartStatus = document.getElementById("chart-status"), revealBtn = document.getElementById("reveal"), clearBtn = document.getElementById("clear"), nextBtn = document.getElementById("next"), verdict = document.getElementById("verdict"), observations = document.getElementById("observations"), scoreEl = document.getElementById("score");
+  let DATA, order = [], ptr = 0, candles = [], closes = [], splitIdx = 0, yMin = 0, yMax = 1, vMax = 1, guessPts = [], scores = [], revealed = !1, sessionRounds = [];
+  const SAVE_KEY = "velta_game_progress_v2";
+  function fakeWindow(seed, n2, start, drift, vol) {
+    let s = seed;
+    const r = () => (s = s * 1103515245 + 12345 & 2147483647, s / 2147483647), g = () => Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(6.283 * r());
+    let price = start, out = [];
+    for (let i = 0; i < n2; i++) {
+      const o = price, c = Math.max(0.5, o * Math.exp(drift + vol * g())), hi = Math.max(o, c) * (1 + Math.abs(g()) * vol * 0.5), lo = Math.min(o, c) * (1 - Math.abs(g()) * vol * 0.5);
+      out.push([o, hi, lo, c, Math.floor(Math.abs(g()) * 8e6) + 1e6]), price = c;
+    }
+    return out;
   }
-  const NS='http://www.w3.org/2000/svg';
-  const W=760,H=420,PADL=10,PADR=54,PADT=12,PRICE_H=300,VOL_TOP=320,VOL_H=88,NEED=5;
-  const svg=document.getElementById('svg'),stage=document.getElementById('stage'),chartStatus=document.getElementById('chart-status');
-  const revealBtn=document.getElementById('reveal'),clearBtn=document.getElementById('clear'),nextBtn=document.getElementById('next');
-  const verdict=document.getElementById('verdict'),observations=document.getElementById('observations'),scoreEl=document.getElementById('score');
-  let DATA,order=[],ptr=0,candles=[],closes=[],splitIdx=0,yMin=0,yMax=1,vMax=1,guessPts=[],scores=[],revealed=false,sessionRounds=[];
-  const SAVE_KEY='velta_game_progress_v2';
-
-  function fakeWindow(seed,n,start,drift,vol){let s=seed;const r=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff};const g=()=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.283*r());let price=start,out=[];for(let i=0;i<n;i++){const o=price,c=Math.max(.5,o*Math.exp(drift+vol*g()));const hi=Math.max(o,c)*(1+Math.abs(g())*vol*.5),lo=Math.min(o,c)*(1-Math.abs(g())*vol*.5);out.push([o,hi,lo,c,Math.floor(Math.abs(g())*8e6)+1e6]);price=c}return out}
-  function fallbackRound(asset,seed,start,drift,vol){const c=fakeWindow(seed,60,start,drift,vol);return{asset,window:'60 synthetic sessions',candles:c,series:c.map(k=>k[3]),startDate:'synthetic',endDate:'synthetic'}}
-  const FALLBACK={history_frac:.6,source:'Synthetic fallback: not market data',provider:'VeltaCapital deterministic generator',timeframe:'1D',generatedAt:'runtime',limitations:'Used only when the historical dataset cannot load.',rounds:[fallbackRound('DEMO',7,100,.0005,.018)]};
-
-  const n=()=>candles.length,xCenter=i=>PADL+(i+.5)*((W-PADL-PADR)/n()),cw=()=>(W-PADL-PADR)/n()*.64;
-  const yToPx=v=>PADT+(1-(v-yMin)/(yMax-yMin))*PRICE_H,pxToVal=py=>yMin+(1-(py-PADT)/PRICE_H)*(yMax-yMin);
-  const xToIdx=px=>(px-PADL)/((W-PADL-PADR)/n())-.5,volY=v=>VOL_TOP+(1-v/vMax)*VOL_H;
-  const el=(tag,attrs)=>{const node=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,v));return node};
-  const path=pts=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
-  const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-  fetch('rounds.json').then(r=>r.ok?r.json():Promise.reject(new Error('dataset unavailable'))).then(data=>{
-    DATA=data&&Array.isArray(data.rounds)&&data.rounds.length?data:FALLBACK;boot();
-  }).catch(()=>{DATA=FALLBACK;boot()});
-
-  async function boot(){
-    const saved=await loadProgress();
-    if(saved&&validSaved(saved)){order=saved.order;ptr=saved.ptr;sessionRounds=Array.isArray(saved.sessionRounds)?saved.sessionRounds:[]}
-    else{order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-.5);ptr=0}
-    loadRound();
+  function fallbackRound(asset, seed, start, drift, vol) {
+    const c = fakeWindow(seed, 60, start, drift, vol);
+    return { asset, window: "60 synthetic sessions", candles: c, series: c.map((k) => k[3]), startDate: "synthetic", endDate: "synthetic" };
   }
-
-  function validSaved(saved){return saved&&Array.isArray(saved.order)&&saved.order.length===DATA.rounds.length&&saved.order.every(i=>Number.isInteger(i)&&i>=0&&i<DATA.rounds.length)&&Number.isInteger(saved.ptr)&&saved.ptr>=0&&saved.ptr<saved.order.length}
-  function snapshot(){return{order,ptr,sessionRounds:sessionRounds.slice(-20)}}
-  async function saveProgress(){const state=snapshot();try{const r=await fetch('/api/game/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({gameState:state})});const d=await r.json();if(d.anon)localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(_){}}}
-  async function loadProgress(){try{const r=await fetch('/api/game/save');const d=await r.json();if(d.ok&&d.gameState)return d.gameState;if(d.anon){const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw):null}}catch(e){try{const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw):null}catch(_){}}return null}
-
-  function loadRound(){
-    const round=DATA.rounds[order[ptr]];candles=round.candles.map(c=>c.slice());closes=round.series?round.series.slice():candles.map(c=>c[3]);splitIdx=Math.floor(candles.length*(DATA.history_frac||.6));
-    let lo=Infinity,hi=-Infinity,vm=0;candles.forEach(c=>{lo=Math.min(lo,c[2]);hi=Math.max(hi,c[1]);vm=Math.max(vm,c[4])});const pad=(hi-lo)*.08;yMin=lo-pad;yMax=hi+pad;vMax=vm*1.05;
-    document.getElementById('ticker').innerHTML='<b>'+escapeHtml(round.asset)+'</b> · '+escapeHtml(DATA.timeframe||'1D')+' · historical exercise';
-    document.getElementById('m-window').textContent=round.window||candles.length+' sessions';document.getElementById('m-round').textContent=(ptr+1)+' / '+order.length;
-    document.getElementById('m-dates').textContent=round.startDate&&round.endDate?round.startDate+' – '+round.endDate:'not preserved in legacy dataset';
-    document.getElementById('m-source').textContent=DATA.provider||DATA.source||'not documented';
-    document.getElementById('provenance').innerHTML='<strong>Data note.</strong> '+escapeHtml(DATA.source||'Historical OHLCV')+'. '+escapeHtml(DATA.limitations||'Charts are selected for practice, not as representative evidence of predictive performance.')+(round.startDate?'':' <span class="caution">This legacy export lacks dates; regenerate it with the updated build script before production.</span>');
-    guessPts=[];revealed=false;revealBtn.disabled=true;clearBtn.disabled=true;nextBtn.hidden=true;verdict.style.display='none';observations.style.display='none';document.getElementById('ohlc').textContent='';
-    chartStatus.textContent='';buildSliders();render();
+  const FALLBACK = { history_frac: 0.6, source: "Synthetic fallback: not market data", provider: "VeltaCapital deterministic generator", timeframe: "1D", generatedAt: "runtime", limitations: "Used only when the historical dataset cannot load.", rounds: [fallbackRound("DEMO", 7, 100, 5e-4, 0.018)] }, n = () => candles.length, xCenter = (i) => PADL + (i + 0.5) * ((W - PADL - PADR) / n()), cw = () => (W - PADL - PADR) / n() * 0.64, yToPx = (v) => PADT + (1 - (v - yMin) / (yMax - yMin)) * PRICE_H, pxToVal = (py) => yMin + (1 - (py - PADT) / PRICE_H) * (yMax - yMin), xToIdx = (px) => (px - PADL) / ((W - PADL - PADR) / n()) - 0.5, volY = (v) => VOL_TOP + (1 - v / vMax) * VOL_H, el = (tag, attrs) => {
+    const node = document.createElementNS(NS, tag);
+    return Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v)), node;
+  }, path = (pts) => pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" "), escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  fetch("rounds.json").then((r) => r.ok ? r.json() : Promise.reject(new Error("dataset unavailable"))).then((data) => {
+    DATA = data && Array.isArray(data.rounds) && data.rounds.length ? data : FALLBACK, boot();
+  }).catch(() => {
+    DATA = FALLBACK, boot();
+  });
+  async function boot() {
+    const saved = await loadProgress();
+    saved && validSaved(saved) ? (order = saved.order, ptr = saved.ptr, sessionRounds = Array.isArray(saved.sessionRounds) ? saved.sessionRounds : []) : (order = DATA.rounds.map((_, i) => i).sort(() => Math.random() - 0.5), ptr = 0), loadRound();
   }
-
-  function drawCandle(c,i){const x=xCenter(i),w=cw(),up=c[3]>=c[0],col=up?'var(--up)':'var(--down)',o=yToPx(c[0]),cl=yToPx(c[3]),hi=yToPx(c[1]),lo=yToPx(c[2]);svg.appendChild(el('line',{x1:x,y1:hi,x2:x,y2:lo,stroke:col,'stroke-width':1.3}));svg.appendChild(el('rect',{x:x-w/2,y:Math.min(o,cl),width:w,height:Math.max(1.4,Math.abs(cl-o)),fill:col,rx:.5}));svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:VOL_TOP+VOL_H-volY(c[4]),fill:col,opacity:.48}))}
-  function render(upTo){svg.innerHTML='';const shown=upTo===undefined?splitIdx:upTo;for(let g=0;g<=4;g++){const y=PADT+g*PRICE_H/4;svg.appendChild(el('line',{x1:PADL,y1:y,x2:W-PADR,y2:y,stroke:'var(--grid)','stroke-width':1}));const value=yMax-(yMax-yMin)*g/4;const label=el('text',{x:W-PADR+4,y:y+3,fill:'var(--axis)','font-size':10,'font-family':'monospace'});label.textContent=value.toFixed(value>50?0:2);svg.appendChild(label)}const zx=xCenter(splitIdx)-cw()/2-2;svg.appendChild(el('rect',{x:zx,y:PADT,width:W-PADR-zx,height:PRICE_H,fill:'#1b2736','fill-opacity':.58}));svg.appendChild(el('line',{x1:zx,y1:PADT,x2:zx,y2:VOL_TOP+VOL_H,stroke:'var(--muted)','stroke-width':1,'stroke-dasharray':'4 4'}));for(let i=0;i<shown;i++)drawCandle(candles[i],i);for(let i=shown;i<candles.length;i++){const c=candles[i],x=xCenter(i),w=cw();svg.appendChild(el('rect',{x:x-w/2,y:volY(c[4]),width:w,height:VOL_TOP+VOL_H-volY(c[4]),fill:'#7c8696',opacity:.4}))}if(guessPts.length){const sorted=guessPts.slice().sort((a,b)=>a.x-b.x),bf=Number(document.getElementById('diff').value);sorted.forEach(p=>{const b=p.y*bf;svg.appendChild(el('rect',{x:xCenter(p.x)-6,y:yToPx(p.y+b),width:12,height:Math.abs(yToPx(p.y-b)-yToPx(p.y+b)),fill:'var(--band)','fill-opacity':.2,rx:2}))});const anchored=[{x:splitIdx-1,y:closes[splitIdx-1]}].concat(sorted).map(p=>[xCenter(p.x),yToPx(p.y)]);svg.appendChild(el('path',{d:path(anchored),fill:'none',stroke:'var(--guess)','stroke-width':2.4,'stroke-dasharray':'3 4','stroke-linecap':'round'}));sorted.forEach(p=>svg.appendChild(el('circle',{cx:xCenter(p.x),cy:yToPx(p.y),r:5,fill:'var(--guess)',stroke:'#06100B','stroke-width':1.5})))} }
-
-  function pointerCoordinates(event){const rect=stage.getBoundingClientRect();return{x:(event.clientX-rect.left)/rect.width*W,y:(event.clientY-rect.top)/rect.height*H}}
-  function placePoint(event){if(revealed)return;const p=pointerCoordinates(event);let x=Math.round(xToIdx(p.x));if(x<splitIdx||p.y<PADT||p.y>PADT+PRICE_H)return;x=Math.max(splitIdx,Math.min(candles.length-1,x));const value=Math.max(yMin,Math.min(yMax,pxToVal(p.y)));const existing=guessPts.findIndex(item=>item.x===x);if(existing>=0)guessPts[existing].y=value;else if(guessPts.length<NEED)guessPts.push({x,y:value});updateState();syncSliders();render()}
-  stage.addEventListener('click',placePoint);
-  function futureIndexes(){const count=candles.length-splitIdx;return Array.from({length:NEED},(_,i)=>splitIdx+Math.round(i*(count-1)/(NEED-1)))}
-  function buildSliders(){
-    const host=document.getElementById('slider-grid');
-    host.innerHTML='';
-    futureIndexes().forEach((x,i)=>{
-      const row=document.createElement('label');
-      row.className='slider-row';
-      const value=closes[splitIdx-1];
-      row.innerHTML='<span>Point '+(i+1)+'</span><input type="range" min="'+yMin+'" max="'+yMax+'" step="'+Math.max(.01,(yMax-yMin)/500)+'" value="'+value+'" data-x="'+x+'" aria-label="Future closing estimate '+(i+1)+'"><output>'+value.toFixed(2)+'</output>';
-      const input=row.querySelector('input'),output=row.querySelector('output');
-      const syncPrediction=()=>{
-        if(revealed)return;
-        const indexes=futureIndexes();
-        if(guessPts.length!==NEED)guessPts=indexes.map((idx,j)=>({x:idx,y:Number(host.querySelectorAll('input')[j].value)}));
-        const point=guessPts.find(item=>item.x===Number(input.dataset.x));
-        if(point)point.y=Number(input.value);
-        output.textContent=Number(input.value).toFixed(2);
-        updateState();
-        render();
-      };
-      input.addEventListener('input',syncPrediction);
-      input.addEventListener('change',syncPrediction);
-      input.addEventListener('keyup',event=>{
-        if(event.key.startsWith('Arrow')||event.key==='Home'||event.key==='End')syncPrediction();
+  function validSaved(saved) {
+    return saved && Array.isArray(saved.order) && saved.order.length === DATA.rounds.length && saved.order.every((i) => Number.isInteger(i) && i >= 0 && i < DATA.rounds.length) && Number.isInteger(saved.ptr) && saved.ptr >= 0 && saved.ptr < saved.order.length;
+  }
+  function snapshot() {
+    return { order, ptr, sessionRounds: sessionRounds.slice(-20) };
+  }
+  async function saveProgress() {
+    const state = snapshot();
+    try {
+      (await (await fetch("/api/game/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gameState: state }) })).json()).anon && localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    } catch {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+      } catch {
+      }
+    }
+  }
+  async function loadProgress() {
+    try {
+      const d = await (await fetch("/api/game/save")).json();
+      if (d.ok && d.gameState) return d.gameState;
+      if (d.anon) {
+        const raw = localStorage.getItem(SAVE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      }
+    } catch {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+      }
+    }
+    return null;
+  }
+  function loadRound() {
+    const round = DATA.rounds[order[ptr]];
+    candles = round.candles.map((c) => c.slice()), closes = round.series ? round.series.slice() : candles.map((c) => c[3]), splitIdx = Math.floor(candles.length * (DATA.history_frac || 0.6));
+    let lo = 1 / 0, hi = -1 / 0, vm = 0;
+    candles.forEach((c) => {
+      lo = Math.min(lo, c[2]), hi = Math.max(hi, c[1]), vm = Math.max(vm, c[4]);
+    });
+    const pad = (hi - lo) * 0.08;
+    yMin = lo - pad, yMax = hi + pad, vMax = vm * 1.05, document.getElementById("ticker").innerHTML = "<b>" + escapeHtml(round.asset) + "</b> \xB7 " + escapeHtml(DATA.timeframe || "1D") + " \xB7 historical exercise", document.getElementById("m-window").textContent = round.window || candles.length + " sessions", document.getElementById("m-round").textContent = ptr + 1 + " / " + order.length, document.getElementById("m-dates").textContent = round.startDate && round.endDate ? round.startDate + " \u2013 " + round.endDate : "not preserved in legacy dataset", document.getElementById("m-source").textContent = DATA.provider || DATA.source || "not documented", document.getElementById("provenance").innerHTML = "<strong>Data note.</strong> " + escapeHtml(DATA.source || "Historical OHLCV") + ". " + escapeHtml(DATA.limitations || "Charts are selected for practice, not as representative evidence of predictive performance.") + (round.startDate ? "" : ' <span class="caution">This legacy export lacks dates; regenerate it with the updated build script before production.</span>'), guessPts = [], revealed = !1, revealBtn.disabled = !0, clearBtn.disabled = !0, nextBtn.hidden = !0, verdict.style.display = "none", observations.style.display = "none", document.getElementById("ohlc").textContent = "", chartStatus.textContent = "", buildSliders(), render();
+  }
+  function drawCandle(c, i) {
+    const x = xCenter(i), w = cw(), up = c[3] >= c[0], col = up ? "var(--up)" : "var(--down)", o = yToPx(c[0]), cl = yToPx(c[3]), hi = yToPx(c[1]), lo = yToPx(c[2]);
+    svg.appendChild(el("line", { x1: x, y1: hi, x2: x, y2: lo, stroke: col, "stroke-width": 1.3 })), svg.appendChild(el("rect", { x: x - w / 2, y: Math.min(o, cl), width: w, height: Math.max(1.4, Math.abs(cl - o)), fill: col, rx: 0.5 })), svg.appendChild(el("rect", { x: x - w / 2, y: volY(c[4]), width: w, height: VOL_TOP + VOL_H - volY(c[4]), fill: col, opacity: 0.48 }));
+  }
+  function render(upTo) {
+    svg.innerHTML = "";
+    const shown = upTo === void 0 ? splitIdx : upTo;
+    for (let g = 0; g <= 4; g++) {
+      const y = PADT + g * PRICE_H / 4;
+      svg.appendChild(el("line", { x1: PADL, y1: y, x2: W - PADR, y2: y, stroke: "var(--grid)", "stroke-width": 1 }));
+      const value = yMax - (yMax - yMin) * g / 4, label = el("text", { x: W - PADR + 4, y: y + 3, fill: "var(--axis)", "font-size": 10, "font-family": "monospace" });
+      label.textContent = value.toFixed(value > 50 ? 0 : 2), svg.appendChild(label);
+    }
+    const zx = xCenter(splitIdx) - cw() / 2 - 2;
+    svg.appendChild(el("rect", { x: zx, y: PADT, width: W - PADR - zx, height: PRICE_H, fill: "#1b2736", "fill-opacity": 0.58 })), svg.appendChild(el("line", { x1: zx, y1: PADT, x2: zx, y2: VOL_TOP + VOL_H, stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "4 4" }));
+    for (let i = 0; i < shown; i++) drawCandle(candles[i], i);
+    for (let i = shown; i < candles.length; i++) {
+      const c = candles[i], x = xCenter(i), w = cw();
+      svg.appendChild(el("rect", { x: x - w / 2, y: volY(c[4]), width: w, height: VOL_TOP + VOL_H - volY(c[4]), fill: "#7c8696", opacity: 0.4 }));
+    }
+    if (guessPts.length) {
+      const sorted = guessPts.slice().sort((a, b) => a.x - b.x), bf = Number(document.getElementById("diff").value);
+      sorted.forEach((p) => {
+        const b = p.y * bf;
+        svg.appendChild(el("rect", { x: xCenter(p.x) - 6, y: yToPx(p.y + b), width: 12, height: Math.abs(yToPx(p.y - b) - yToPx(p.y + b)), fill: "var(--band)", "fill-opacity": 0.2, rx: 2 }));
       });
-      host.appendChild(row);
+      const anchored = [{ x: splitIdx - 1, y: closes[splitIdx - 1] }].concat(sorted).map((p) => [xCenter(p.x), yToPx(p.y)]);
+      svg.appendChild(el("path", { d: path(anchored), fill: "none", stroke: "var(--guess)", "stroke-width": 2.4, "stroke-dasharray": "3 4", "stroke-linecap": "round" })), sorted.forEach((p) => svg.appendChild(el("circle", { cx: xCenter(p.x), cy: yToPx(p.y), r: 5, fill: "var(--guess)", stroke: "#06100B", "stroke-width": 1.5 })));
+    }
+  }
+  function pointerCoordinates(event) {
+    const rect = stage.getBoundingClientRect();
+    return { x: (event.clientX - rect.left) / rect.width * W, y: (event.clientY - rect.top) / rect.height * H };
+  }
+  function placePoint(event) {
+    if (revealed) return;
+    const p = pointerCoordinates(event);
+    let x = Math.round(xToIdx(p.x));
+    if (x < splitIdx || p.y < PADT || p.y > PADT + PRICE_H) return;
+    x = Math.max(splitIdx, Math.min(candles.length - 1, x));
+    const value = Math.max(yMin, Math.min(yMax, pxToVal(p.y))), existing = guessPts.findIndex((item) => item.x === x);
+    existing >= 0 ? guessPts[existing].y = value : guessPts.length < NEED && guessPts.push({ x, y: value }), updateState(), syncSliders(), render();
+  }
+  stage.addEventListener("click", placePoint);
+  function futureIndexes() {
+    const count = candles.length - splitIdx;
+    return Array.from({ length: NEED }, (_, i) => splitIdx + Math.round(i * (count - 1) / (NEED - 1)));
+  }
+  function buildSliders() {
+    const host = document.getElementById("slider-grid");
+    host.innerHTML = "", futureIndexes().forEach((x, i) => {
+      const row = document.createElement("label");
+      row.className = "slider-row";
+      const value = closes[splitIdx - 1];
+      row.innerHTML = "<span>Point " + (i + 1) + '</span><input type="range" min="' + yMin + '" max="' + yMax + '" step="' + Math.max(0.01, (yMax - yMin) / 500) + '" value="' + value + '" data-x="' + x + '" aria-label="Future closing estimate ' + (i + 1) + '"><output>' + value.toFixed(2) + "</output>";
+      const input = row.querySelector("input"), output = row.querySelector("output"), syncPrediction = () => {
+        if (revealed) return;
+        const indexes = futureIndexes();
+        guessPts.length !== NEED && (guessPts = indexes.map((idx, j) => ({ x: idx, y: Number(host.querySelectorAll("input")[j].value) })));
+        const point = guessPts.find((item) => item.x === Number(input.dataset.x));
+        point && (point.y = Number(input.value)), output.textContent = Number(input.value).toFixed(2), updateState(), render();
+      };
+      input.addEventListener("input", syncPrediction), input.addEventListener("change", syncPrediction), input.addEventListener("keyup", (event) => {
+        (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End") && syncPrediction();
+      }), host.appendChild(row);
     });
   }
-  function syncSliders(){document.querySelectorAll('#slider-grid input').forEach(input=>{const point=guessPts.find(item=>item.x===Number(input.dataset.x));if(point){input.value=point.y;input.nextElementSibling.textContent=point.y.toFixed(2)}})}
-  function updateState(){const left=NEED-guessPts.length;clearBtn.disabled=guessPts.length===0;revealBtn.disabled=left>0;if(revealed){chartStatus.textContent='Round complete.'}else if(left===NEED){chartStatus.textContent=''}else if(left>0){chartStatus.textContent=left+' more estimate'+(left===1?'':'s')+' needed.'}else{chartStatus.textContent='Prediction ready. Record your reasoning, then reveal the historical candles.'}}
-  clearBtn.addEventListener('click',()=>{guessPts=[];buildSliders();updateState();render()});
-
-  function actualAt(x){return closes[Math.max(0,Math.min(closes.length-1,Math.round(x)))]}
-  function reveal(){revealed=true;updateState();revealBtn.disabled=true;clearBtn.disabled=true;let i=splitIdx;const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;function step(){i++;render(i);const c=candles[i-1];document.getElementById('ohlc').textContent='O '+c[0].toFixed(2)+' H '+c[1].toFixed(2)+' L '+c[2].toFixed(2)+' C '+c[3].toFixed(2);if(i<candles.length)setTimeout(step,reduce?0:80);else finish()}if(reduce){render(candles.length);finish()}else step()}
-  revealBtn.addEventListener('click',reveal);
-
-  function money(value){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value)}
-
-  function optionResult(result){
-    const budget=100,start=closes[splitIdx-1],closingPrice=closes[closes.length-1];
-    const type=result.guessedDirection==='down'?'put':'call';
-    const premium=Math.max(.01,start*.05);
-    const outcome=VeltaLearning.calculateOptionOutcome({type,strike:start,closingPrice,premium,budget});
-    const contractCost=premium*100,wholeContracts=Math.floor(budget/contractCost);
-    const status=outcome.isProfitable?'hypothetical gain':outcome.isInTheMoney?'in the money, but a hypothetical loss':'out of the money';
-    return '<div class="option-card"><h3>Hypothetical $100 '+type+' comparison</h3><div class="option-grid">'+
-      '<div class="option-metric"><span>$100 becomes</span><b>'+money(outcome.finalValue)+'</b></div>'+
-      '<div class="option-metric"><span>Hypothetical P/L</span><b>'+(outcome.profitLoss>=0?'+':'')+money(outcome.profitLoss)+'</b></div>'+
-      '<div class="option-metric"><span>Outcome</span><b>'+status+'</b></div></div>'+
-      '<div class="detail" style="margin-top:10px">Simplified intrinsic-value model: '+type+', strike '+money(start)+', ending price '+money(closingPrice)+', and an assumed premium of 5% of the strike ('+money(premium)+' per share). It models a fractional equivalent so the starting amount stays at $100. Standard listed options usually represent 100 shares; at this assumed premium one contract would cost '+money(contractCost)+', so $100 could purchase '+wholeContracts+' whole contract'+(wholeContracts===1?'':'s')+'. Real option prices also reflect time, volatility, spreads, fees, liquidity, and exercise rules.</div></div>';
+  function syncSliders() {
+    document.querySelectorAll("#slider-grid input").forEach((input) => {
+      const point = guessPts.find((item) => item.x === Number(input.dataset.x));
+      point && (input.value = point.y, input.nextElementSibling.textContent = point.y.toFixed(2));
+    });
   }
-
-  function finish(){
-    const sorted=guessPts.slice().sort((a,b)=>a.x-b.x),actuals=sorted.map(p=>actualAt(p.x));
-    const result=VeltaLearning.calculatePredictionScore({guesses:sorted.map(p=>p.y),actuals,startValue:closes[splitIdx-1],bandFraction:Number(document.getElementById('diff').value)});
-    scores.push(result.pathScore);scoreEl.textContent=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-    const confidence=document.getElementById('confidence').value,structure=document.getElementById('structure').value,evidence=document.getElementById('evidence').value;
-    const optionType=result.guessedDirection==='down'?'put':'call';
-    verdict.style.display='block';
-    const reasoningSummary=IS_TRIAL?'':'<div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> '+escapeHtml(structure)+' · '+escapeHtml(evidence)+' · '+escapeHtml(confidence)+' confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>';
-    verdict.innerHTML='<h2>Path score: '+result.pathScore+'/100</h2><div class="detail">Average estimate error: <b>'+result.meanErrorPct.toFixed(1)+'%</b> · '+result.inBand+' of '+result.total+' estimates inside the selected tolerance · final direction '+(result.directionCorrect?'matched':'did not match')+'.</div>'+reasoningSummary+optionResult(result)+'<div class="credit-result" id="credit-result" aria-live="polite"></div>';
-    showObservations(result);
-    sessionRounds.push({symbol:DATA.rounds[order[ptr]].asset,pathScore:result.pathScore,meanErrorPct:result.meanErrorPct,directionCorrect:result.directionCorrect,confidence,structure,evidence});
-    nextBtn.hidden=false;saveProgress();
-    try{if(parent&&parent!==window){parent.postMessage({type:'velta_round_done'},location.origin);parent.postMessage({type:'velta_result',symbol:DATA.rounds[order[ptr]].asset,roundIndex:order[ptr],optionType,accuracy:result.pathScore,direction:result.directionCorrect?1:0,meanErrPct:result.meanErrorPct,reasoning:{confidence,structure,evidence}},location.origin)}}catch(e){}
+  function updateState() {
+    const left = NEED - guessPts.length;
+    clearBtn.disabled = guessPts.length === 0, revealBtn.disabled = left > 0, revealed ? chartStatus.textContent = "Round complete." : left === NEED ? chartStatus.textContent = "" : left > 0 ? chartStatus.textContent = left + " more estimate" + (left === 1 ? "" : "s") + " needed." : chartStatus.textContent = "Prediction ready. Record your reasoning, then reveal the historical candles.";
   }
-
-  function sma(values,end,length){let total=0,count=0;for(let i=Math.max(0,end-length);i<end;i++){total+=values[i];count++}return count?total/count:values[end-1]}
-  function showObservations(result){const future=candles.slice(splitIdx),start=closes[splitIdx-1],end=closes[closes.length-1],change=(end-start)/start*100,historicalHigh=Math.max(...closes.slice(0,splitIdx)),historicalLow=Math.min(...closes.slice(0,splitIdx)),medianVolume=candles.map(c=>c[4]).sort((a,b)=>a-b)[Math.floor(candles.length/2)],largest=future.reduce((best,c,i)=>c[1]-c[2]>best.range?{range:c[1]-c[2],c,i}:best,{range:-1}),points=[];points.push('Price '+(change>=0?'rose':'fell')+' '+Math.abs(change).toFixed(1)+'% across the hidden window. This describes the outcome; it does not identify a cause.');if(end>historicalHigh)points.push('The final close finished above the earlier visible high near '+historicalHigh.toFixed(2)+'. That is a breakout observation, not proof that the breakout caused later buying.');else if(end<historicalLow)points.push('The final close finished below the earlier visible low near '+historicalLow.toFixed(2)+'. That is a breakdown observation, not proof that the level caused later selling.');else points.push('The final close remained inside the earlier visible range between approximately '+historicalLow.toFixed(2)+' and '+historicalHigh.toFixed(2)+'.');if(largest.c[4]>medianVolume*1.4)points.push('The widest future candle occurred with about '+(largest.c[4]/medianVolume).toFixed(1)+'× median volume. Higher volume indicates more activity, but does not by itself reveal investor intent or guarantee continuation.');else points.push('No widest-range session exceeded 1.4× the dataset median volume; the chart does not show an obvious volume spike under this simple rule.');const before=sma(closes,splitIdx,20),after=sma(closes,closes.length,20);points.push('The 20-session average '+(after>before?'increased':'decreased')+' across the window. Moving averages summarize past prices and are lagging indicators.');observations.style.display='block';observations.innerHTML='<h2>What the chart showed</h2><ul>'+points.map(p=>'<li>'+p+'</li>').join('')+'</ul><div class="detail">Short-horizon outcomes contain substantial noise. These observations are descriptive, not investment recommendations or evidence that a pattern will repeat.</div>'}
-
-  nextBtn.addEventListener('click',()=>{ptr++;if(ptr>=order.length){order=DATA.rounds.map((_,i)=>i).sort(()=>Math.random()-.5);ptr=0}saveProgress();loadRound()});
-  document.getElementById('diff').addEventListener('change',()=>{if(guessPts.length&&!revealed)render()});
-  window.addEventListener('message',event=>{
-    if(event.origin!==location.origin||!event.data||event.data.type!=='velta_earned')return;
-    const creditResult=document.getElementById('credit-result');
-    if(creditResult){
-      const portfolio=event.data.portfolio;
-      creditResult.textContent='+'+Number(event.data.earned||0).toLocaleString()+' learning credits · '+Number(event.data.total||0).toLocaleString()+' total'+(portfolio?' · saved to portfolio (lifetime net '+money(portfolio.netProfitLoss)+')':'');
+  clearBtn.addEventListener("click", () => {
+    guessPts = [], buildSliders(), updateState(), render();
+  });
+  function actualAt(x) {
+    return closes[Math.max(0, Math.min(closes.length - 1, Math.round(x)))];
+  }
+  function reveal() {
+    revealed = !0, updateState(), revealBtn.disabled = !0, clearBtn.disabled = !0;
+    let i = splitIdx;
+    const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+    function step() {
+      i++, render(i);
+      const c = candles[i - 1];
+      document.getElementById("ohlc").textContent = "O " + c[0].toFixed(2) + " H " + c[1].toFixed(2) + " L " + c[2].toFixed(2) + " C " + c[3].toFixed(2), i < candles.length ? setTimeout(step, reduce ? 0 : 80) : finish();
+    }
+    reduce ? (render(candles.length), finish()) : step();
+  }
+  revealBtn.addEventListener("click", reveal);
+  function money(value) {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+  }
+  function optionResult(result) {
+    const start = closes[splitIdx - 1], closingPrice = closes[closes.length - 1], type = result.guessedDirection === "down" ? "put" : "call", premium = Math.max(0.01, start * 0.05), outcome = VeltaLearning.calculateOptionOutcome({ type, strike: start, closingPrice, premium, budget: 100 }), contractCost = premium * 100, wholeContracts = Math.floor(100 / contractCost), status = outcome.isProfitable ? "hypothetical gain" : outcome.isInTheMoney ? "in the money, but a hypothetical loss" : "out of the money";
+    return '<div class="option-card"><h3>Hypothetical $100 ' + type + ' comparison</h3><div class="option-grid"><div class="option-metric"><span>$100 becomes</span><b>' + money(outcome.finalValue) + '</b></div><div class="option-metric"><span>Hypothetical P/L</span><b>' + (outcome.profitLoss >= 0 ? "+" : "") + money(outcome.profitLoss) + '</b></div><div class="option-metric"><span>Outcome</span><b>' + status + '</b></div></div><div class="detail" style="margin-top:10px">Simplified intrinsic-value model: ' + type + ", strike " + money(start) + ", ending price " + money(closingPrice) + ", and an assumed premium of 5% of the strike (" + money(premium) + " per share). It models a fractional equivalent so the starting amount stays at $100. Standard listed options usually represent 100 shares; at this assumed premium one contract would cost " + money(contractCost) + ", so $100 could purchase " + wholeContracts + " whole contract" + (wholeContracts === 1 ? "" : "s") + ". Real option prices also reflect time, volatility, spreads, fees, liquidity, and exercise rules.</div></div>";
+  }
+  function finish() {
+    const sorted = guessPts.slice().sort((a, b) => a.x - b.x), actuals = sorted.map((p) => actualAt(p.x)), result = VeltaLearning.calculatePredictionScore({ guesses: sorted.map((p) => p.y), actuals, startValue: closes[splitIdx - 1], bandFraction: Number(document.getElementById("diff").value) });
+    scores.push(result.pathScore), scoreEl.textContent = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    const confidence = document.getElementById("confidence").value, structure = document.getElementById("structure").value, evidence = document.getElementById("evidence").value, optionType = result.guessedDirection === "down" ? "put" : "call";
+    verdict.style.display = "block";
+    const reasoningSummary = IS_TRIAL ? "" : '<div class="detail" style="margin-top:8px"><b>Your recorded reasoning:</b> ' + escapeHtml(structure) + " \xB7 " + escapeHtml(evidence) + " \xB7 " + escapeHtml(confidence) + " confidence. Outcome accuracy and reasoning quality are separate; this score measures only the plotted path.</div>";
+    verdict.innerHTML = "<h2>Path score: " + result.pathScore + '/100</h2><div class="detail">Average estimate error: <b>' + result.meanErrorPct.toFixed(1) + "%</b> \xB7 " + result.inBand + " of " + result.total + " estimates inside the selected tolerance \xB7 final direction " + (result.directionCorrect ? "matched" : "did not match") + ".</div>" + reasoningSummary + optionResult(result) + '<div class="credit-result" id="credit-result" aria-live="polite"></div>', showObservations(result), sessionRounds.push({ symbol: DATA.rounds[order[ptr]].asset, pathScore: result.pathScore, meanErrorPct: result.meanErrorPct, directionCorrect: result.directionCorrect, confidence, structure, evidence }), nextBtn.hidden = !1, saveProgress();
+    try {
+      parent && parent !== window && (parent.postMessage({ type: "velta_round_done" }, location.origin), parent.postMessage({ type: "velta_result", symbol: DATA.rounds[order[ptr]].asset, roundIndex: order[ptr], optionType, accuracy: result.pathScore, direction: result.directionCorrect ? 1 : 0, meanErrPct: result.meanErrorPct, reasoning: { confidence, structure, evidence } }, location.origin));
+    } catch {
+    }
+  }
+  function sma(values, end, length) {
+    let total = 0, count = 0;
+    for (let i = Math.max(0, end - length); i < end; i++)
+      total += values[i], count++;
+    return count ? total / count : values[end - 1];
+  }
+  function showObservations(result) {
+    const future = candles.slice(splitIdx), start = closes[splitIdx - 1], end = closes[closes.length - 1], change = (end - start) / start * 100, historicalHigh = Math.max(...closes.slice(0, splitIdx)), historicalLow = Math.min(...closes.slice(0, splitIdx)), medianVolume = candles.map((c) => c[4]).sort((a, b) => a - b)[Math.floor(candles.length / 2)], largest = future.reduce((best, c, i) => c[1] - c[2] > best.range ? { range: c[1] - c[2], c, i } : best, { range: -1 }), points = [];
+    points.push("Price " + (change >= 0 ? "rose" : "fell") + " " + Math.abs(change).toFixed(1) + "% across the hidden window. This describes the outcome; it does not identify a cause."), end > historicalHigh ? points.push("The final close finished above the earlier visible high near " + historicalHigh.toFixed(2) + ". That is a breakout observation, not proof that the breakout caused later buying.") : end < historicalLow ? points.push("The final close finished below the earlier visible low near " + historicalLow.toFixed(2) + ". That is a breakdown observation, not proof that the level caused later selling.") : points.push("The final close remained inside the earlier visible range between approximately " + historicalLow.toFixed(2) + " and " + historicalHigh.toFixed(2) + "."), largest.c[4] > medianVolume * 1.4 ? points.push("The widest future candle occurred with about " + (largest.c[4] / medianVolume).toFixed(1) + "\xD7 median volume. Higher volume indicates more activity, but does not by itself reveal investor intent or guarantee continuation.") : points.push("No widest-range session exceeded 1.4\xD7 the dataset median volume; the chart does not show an obvious volume spike under this simple rule.");
+    const before = sma(closes, splitIdx, 20), after = sma(closes, closes.length, 20);
+    points.push("The 20-session average " + (after > before ? "increased" : "decreased") + " across the window. Moving averages summarize past prices and are lagging indicators."), observations.style.display = "block", observations.innerHTML = "<h2>What the chart showed</h2><ul>" + points.map((p) => "<li>" + p + "</li>").join("") + '</ul><div class="detail">Short-horizon outcomes contain substantial noise. These observations are descriptive, not investment recommendations or evidence that a pattern will repeat.</div>';
+  }
+  nextBtn.addEventListener("click", () => {
+    ptr++, ptr >= order.length && (order = DATA.rounds.map((_, i) => i).sort(() => Math.random() - 0.5), ptr = 0), saveProgress(), loadRound();
+  }), document.getElementById("diff").addEventListener("change", () => {
+    guessPts.length && !revealed && render();
+  }), window.addEventListener("message", (event) => {
+    if (event.origin !== location.origin || !event.data || event.data.type !== "velta_earned") return;
+    const creditResult = document.getElementById("credit-result");
+    if (creditResult) {
+      const portfolio = event.data.portfolio;
+      creditResult.textContent = "+" + Number(event.data.earned || 0).toLocaleString() + " learning credits \xB7 " + Number(event.data.total || 0).toLocaleString() + " total" + (portfolio ? " \xB7 saved to portfolio (lifetime net " + money(portfolio.netProfitLoss) + ")" : "");
     }
   });
 })();
