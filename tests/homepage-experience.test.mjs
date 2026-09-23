@@ -130,25 +130,21 @@ test("curriculum explorer is semantic and keyboard navigable", () => {
   assert.match(clientScript, /ArrowUp/);
 });
 
-test("learning sequence keeps a correct tabs contract", () => {
-  const stageTabs = openingTags("button", "data-learning-stage");
-  assert.equal(stageTabs.length, 4);
+test("open lab provides a concise interactive classification challenge", () => {
+  const answerButtons = openingTags("button", "data-lab-answer");
+  assert.equal(answerButtons.length, 2);
   assert.deepEqual(
-    stageTabs.map((tag) => tag.match(/\bdata-learning-stage=(?:"([^"]+)"|'([^']+)')/i)?.slice(1).find(Boolean)).sort(),
-    ["learn", "observe", "reason", "reflect"]
+    answerButtons.map((tag) => tag.match(/\bdata-lab-answer=(?:"([^"]+)"|'([^']+)')/i)?.slice(1).find(Boolean)).sort(),
+    ["assumption", "evidence"]
   );
-  assert.ok(stageTabs.every((tag) => hasAttribute(tag, "role", "tab")));
-  assert.ok(stageTabs.every((tag) => hasAttribute(tag, "aria-controls", "learning-panel")));
-  assert.equal(stageTabs.filter((tag) => hasAttribute(tag, "aria-selected", "true")).length, 1);
-  assert.ok(stageTabs.every((tag) => /\btabindex=(?:"(?:0|-1)"|'(?:0|-1)')/i.test(tag)));
-
-  const panel = openingTags("div", "id").find((tag) => hasAttribute(tag, "id", "learning-panel"));
-  assert.ok(panel, "missing #learning-panel");
-  assert.ok(hasAttribute(panel, "role", "tabpanel"));
-  assert.match(clientScript, /ArrowRight/);
-  assert.match(clientScript, /ArrowLeft/);
-  assert.match(clientScript, /event\.key\s*===\s*["']Home["']/);
-  assert.match(clientScript, /event\.key\s*===\s*["']End["']/);
+  assert.ok(answerButtons.every((tag) => /\baria-pressed=(?:"false"|'false')/i.test(tag)));
+  assert.match(homepage, /id="claim-feedback"[^>]*aria-live="polite"/i);
+  assert.match(homepage, /id="claim-next"/i);
+  assert.match(clientScript, /const labClaims\s*=/);
+  assert.match(clientScript, /data-lab-answer/);
+  assert.match(clientScript, /renderClaim\(\)/);
+  assert.doesNotMatch(homepage, /class="evidence-chart"/);
+  assert.doesNotMatch(homepage, /id="course-sketch"/);
 });
 
 test("free access does not regress to legacy prices or checkout behavior", () => {
