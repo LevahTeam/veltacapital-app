@@ -127,8 +127,22 @@
 <script>
 (function() {
   "use strict";
-  const IS_TRIAL = new URLSearchParams(location.search).get("mode") === "trial";
-  IS_TRIAL && (document.body.classList.add("trial-mode"), document.querySelector(".ptg>h1").textContent = "Make your chart estimate", document.querySelector(".ptg>.sub").textContent = "Place five estimates, reveal the historical candles, then review the result and explanation.", document.getElementById("chart-instructions").textContent = "Tap five points in the shaded area. A keyboard alternative is available below.", document.querySelector("#keyboard-details summary").textContent = "Keyboard alternative");
+  const pageParams = new URLSearchParams(location.search), IS_TRIAL = pageParams.get("mode") === "trial", LANGUAGE = pageParams.get("lang") === "ko" ? "ko" : "en", KO = LANGUAGE === "ko";
+  document.documentElement.lang = LANGUAGE;
+  if (KO) {
+    document.title = "VeltaCapital: 과거 차트 추론 연습";
+    document.querySelector(".eyebrow").textContent = "수업 학습실 · 과거 차트 추론";
+    document.querySelector(".ptg>h1").textContent = "차트를 해석하세요";
+    document.querySelector(".ptg>.sub").textContent = "다섯 개의 종가 예상값을 표시하고 근거를 기록한 뒤, 실제 과거 결과와 나의 추론을 비교하세요. 결과가 틀려도 근거를 찾는 과정은 합리적일 수 있습니다.";
+    const metaLabels = ["구간 ", "라운드 ", "날짜 ", "출처 "];
+    document.querySelectorAll(".meta span").forEach((element, index) => { element.childNodes[0].nodeValue = metaLabels[index]; });
+    document.getElementById("svg").setAttribute("aria-label", "예측 구간이 표시된 과거 캔들 차트입니다. 포인터 또는 아래의 키보드 조절 기능으로 다섯 개의 예상값을 표시하세요.");
+    document.getElementById("chart-instructions").textContent = "포인터: 음영 구간에 다섯 점을 표시하세요. 키보드: 아래의 ‘키보드 예측 조절’을 여세요.";
+    document.getElementById("reveal").textContent = "과거 캔들 열기"; document.getElementById("clear").textContent = "지우기"; document.getElementById("next").textContent = "다음 차트 →";
+    document.querySelector("#keyboard-details summary").textContent = "키보드 예측 조절";
+    document.querySelector("#keyboard-details p").textContent = "방향키로 다섯 개의 미래 종가 예상값을 조절하세요. 슬라이더를 하나라도 사용하면 다섯 점이 모두 생성됩니다.";
+  }
+  IS_TRIAL && (document.body.classList.add("trial-mode"), document.querySelector(".ptg>h1").textContent = KO ? "나의 차트 예상 표시하기" : "Make your chart estimate", document.querySelector(".ptg>.sub").textContent = KO ? "다섯 개의 예상값을 표시하고 과거 캔들을 연 뒤 결과와 설명을 검토하세요." : "Place five estimates, reveal the historical candles, then review the result and explanation.", document.getElementById("chart-instructions").textContent = KO ? "음영 구간을 눌러 다섯 점을 표시하세요. 아래에서 키보드 대체 기능도 이용할 수 있습니다." : "Tap five points in the shaded area. A keyboard alternative is available below.", document.querySelector("#keyboard-details summary").textContent = KO ? "키보드 대체 기능" : "Keyboard alternative");
   const NS = "http://www.w3.org/2000/svg", W = 760, H = 420, PADL = 10, PADR = 54, PADT = 12, PRICE_H = 300, VOL_TOP = 320, VOL_H = 88, NEED = 5, svg = document.getElementById("svg"), stage = document.getElementById("stage"), chartStatus = document.getElementById("chart-status"), revealBtn = document.getElementById("reveal"), clearBtn = document.getElementById("clear"), nextBtn = document.getElementById("next"), verdict = document.getElementById("verdict"), observations = document.getElementById("observations"), scoreEl = document.getElementById("score");
   let DATA, order = [], ptr = 0, candles = [], closes = [], splitIdx = 0, yMin = 0, yMax = 1, vMax = 1, guessPts = [], scores = [], revealed = !1, sessionRounds = [];
   const SAVE_KEY = "velta_game_progress_v2";
@@ -201,7 +215,7 @@
       lo = Math.min(lo, c[2]), hi = Math.max(hi, c[1]), vm = Math.max(vm, c[4]);
     });
     const pad = (hi - lo) * 0.08;
-    yMin = lo - pad, yMax = hi + pad, vMax = vm * 1.05, document.getElementById("ticker").innerHTML = "<b>" + escapeHtml(round.asset) + "</b> \xB7 " + escapeHtml(DATA.timeframe || "1D") + " \xB7 historical exercise", document.getElementById("m-window").textContent = round.window || candles.length + " sessions", document.getElementById("m-round").textContent = ptr + 1 + " / " + order.length, document.getElementById("m-dates").textContent = round.startDate && round.endDate ? round.startDate + " \u2013 " + round.endDate : "not preserved in legacy dataset", document.getElementById("m-source").textContent = DATA.provider || DATA.source || "not documented", document.getElementById("provenance").innerHTML = "<strong>Data note.</strong> " + escapeHtml(DATA.source || "Historical OHLCV") + ". " + escapeHtml(DATA.limitations || "Charts are selected for practice, not as representative evidence of predictive performance.") + (round.startDate ? "" : ' <span class="caution">This legacy export lacks dates; regenerate it with the updated build script before production.</span>'), guessPts = [], revealed = !1, revealBtn.disabled = !0, clearBtn.disabled = !0, nextBtn.hidden = !0, verdict.style.display = "none", observations.style.display = "none", document.getElementById("ohlc").textContent = "", chartStatus.textContent = "", buildSliders(), render();
+    yMin = lo - pad, yMax = hi + pad, vMax = vm * 1.05, document.getElementById("ticker").innerHTML = "<b>" + escapeHtml(round.asset) + "</b> \xB7 " + escapeHtml(DATA.timeframe || "1D") + " \xB7 " + (KO ? "과거 데이터 연습" : "historical exercise"), document.getElementById("m-window").textContent = round.window || candles.length + (KO ? "개 세션" : " sessions"), document.getElementById("m-round").textContent = ptr + 1 + " / " + order.length, document.getElementById("m-dates").textContent = round.startDate && round.endDate ? round.startDate + " \u2013 " + round.endDate : (KO ? "기존 데이터에 날짜가 보존되지 않음" : "not preserved in legacy dataset"), document.getElementById("m-source").textContent = DATA.provider || DATA.source || (KO ? "기록되지 않음" : "not documented"), document.getElementById("provenance").innerHTML = (KO ? "<strong>데이터 안내.</strong> " : "<strong>Data note.</strong> ") + escapeHtml(DATA.source || "Historical OHLCV") + ". " + escapeHtml(DATA.limitations || (KO ? "차트는 예측 성과를 대표하기 위한 것이 아니라 연습을 위해 선택됩니다." : "Charts are selected for practice, not as representative evidence of predictive performance.")) + (round.startDate ? "" : (KO ? ' <span class="caution">기존 데이터에는 날짜가 없습니다.</span>' : ' <span class="caution">This legacy export lacks dates; regenerate it with the updated build script before production.</span>')), guessPts = [], revealed = !1, revealBtn.disabled = !0, clearBtn.disabled = !0, nextBtn.hidden = !0, verdict.style.display = "none", observations.style.display = "none", document.getElementById("ohlc").textContent = "", chartStatus.textContent = "", buildSliders(), render();
   }
   function drawCandle(c, i) {
     const x = xCenter(i), w = cw(), up = c[3] >= c[0], col = up ? "var(--up)" : "var(--down)", o = yToPx(c[0]), cl = yToPx(c[3]), hi = yToPx(c[1]), lo = yToPx(c[2]);
@@ -257,7 +271,7 @@
       const row = document.createElement("label");
       row.className = "slider-row";
       const value = closes[splitIdx - 1];
-      row.innerHTML = "<span>Point " + (i + 1) + '</span><input type="range" min="' + yMin + '" max="' + yMax + '" step="' + Math.max(0.01, (yMax - yMin) / 500) + '" value="' + value + '" data-x="' + x + '" aria-label="Future closing estimate ' + (i + 1) + '"><output>' + value.toFixed(2) + "</output>";
+      row.innerHTML = "<span>" + (KO ? "예상값 " : "Point ") + (i + 1) + '</span><input type="range" min="' + yMin + '" max="' + yMax + '" step="' + Math.max(0.01, (yMax - yMin) / 500) + '" value="' + value + '" data-x="' + x + '" aria-label="' + (KO ? "미래 종가 예상값 " : "Future closing estimate ") + (i + 1) + '"><output>' + value.toFixed(2) + "</output>";
       const input = row.querySelector("input"), output = row.querySelector("output"), syncPrediction = () => {
         if (revealed) return;
         const indexes = futureIndexes();
@@ -278,7 +292,7 @@
   }
   function updateState() {
     const left = NEED - guessPts.length;
-    clearBtn.disabled = guessPts.length === 0, revealBtn.disabled = left > 0, revealed ? chartStatus.textContent = "Round complete." : left === NEED ? chartStatus.textContent = "" : left > 0 ? chartStatus.textContent = left + " more estimate" + (left === 1 ? "" : "s") + " needed." : chartStatus.textContent = "Prediction ready. Record your reasoning, then reveal the historical candles.";
+    clearBtn.disabled = guessPts.length === 0, revealBtn.disabled = left > 0, revealed ? chartStatus.textContent = KO ? "라운드가 끝났습니다." : "Round complete." : left === NEED ? chartStatus.textContent = "" : left > 0 ? chartStatus.textContent = KO ? "예상값 " + left + "개를 더 표시하세요." : left + " more estimate" + (left === 1 ? "" : "s") + " needed." : chartStatus.textContent = KO ? "예상이 준비되었습니다. 근거를 기록한 뒤 과거 캔들을 여세요." : "Prediction ready. Record your reasoning, then reveal the historical candles.";
   }
   clearBtn.addEventListener("click", () => {
     guessPts = [], buildSliders(), updateState(), render();
