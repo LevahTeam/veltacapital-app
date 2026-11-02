@@ -12,281 +12,27 @@
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="VeltaCapital: Financial reasoning practice">
 <meta name="twitter:description" content="A free financial reasoning lab using historical charts, transparent scoring, and risk-first education.">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"VeltaCapital","url":"https://www.veltacapital.net/","description":"Free historical-chart reasoning practice and risk-first financial education."}</script>
+<script>document.documentElement.classList.add("js");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
-<style>
-/* ============================================================
-   VeltaCapital: True Dark / Market Signal
-   Display: Fraunces (optical serif)  Body: Inter  Data: JetBrains Mono
-   Base: near-black ink   Accent: emerald→cyan (a *market* up-signal)
-   ============================================================ */
-:root{
-  --bg:#060809;              /* near-black base */
-  --bg-1:#0B0F12;            /* raised surface */
-  --bg-2:#12181D;            /* card surface */
-  --line:#1B2329;            /* hairline */
-  --line-2:#273139;          /* stronger hairline */
-  --fg:#EAF2F0;              /* primary text */
-  --fg-dim:#9FB0AE;          /* secondary text */
-  --fg-mute:#7C8D8A;         /* muted / captions: AA contrast on dark surfaces */
-  --up:#2BD37F;              /* emerald: up candle & primary accent */
-  --up-2:#19E6C3;            /* cyan: glow shift */
-  --down:#E5573C;            /* down candle */
-  --glow:0 0 40px rgba(43,211,127,.18);
-  --glow-strong:0 0 60px rgba(25,230,195,.28);
-  --maxw:1180px;
-  --r:14px;
-  --font-body:'Inter',system-ui,sans-serif;
-  --font-display:'Fraunces',serif;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;background:var(--bg);color:var(--fg);
-  font-family:var(--font-body);line-height:1.6;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;
-}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
-a{color:inherit;text-decoration:none}
-a:focus-visible,button:focus-visible{outline:3px solid var(--up-2);outline-offset:4px}
-h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.05;letter-spacing:-.02em;margin:0}
-html[lang="ko"]{--font-body:'Noto Sans KR',system-ui,sans-serif;--font-display:'Noto Serif KR',serif;word-break:keep-all}
-html[lang="ko"] h1,html[lang="ko"] h2,html[lang="ko"] h3{line-height:1.24;letter-spacing:-.025em}
-html[lang="ko"] .eyebrow,html[lang="ko"] .mono{letter-spacing:.04em}
-.mono{font-family:'JetBrains Mono',monospace}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--fg-mute)}
-
-/* ambient background: faint moving grid + glow blooms */
-.atmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.atmos .grid{position:absolute;inset:-2px;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:64px 64px;opacity:.35;
-  mask-image:radial-gradient(ellipse 80% 60% at 70% 0%,#000 20%,transparent 75%);
-  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 70% 0%,#000 20%,transparent 75%);}
-.atmos .bloom{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5}
-.atmos .b1{width:520px;height:520px;top:-160px;right:-80px;
-  background:radial-gradient(circle,rgba(43,211,127,.22),transparent 65%)}
-.atmos .b2{width:420px;height:420px;top:640px;left:-140px;
-  background:radial-gradient(circle,rgba(25,230,195,.14),transparent 65%)}
-main,header,footer{position:relative;z-index:1}
-
-/* proto flag */
-.proto-flag{position:relative;z-index:2;text-align:center;font-family:'JetBrains Mono',monospace;
-  font-size:12px;letter-spacing:.04em;color:#04110B;background:var(--up);padding:7px 14px}
-.proto-flag .mono{opacity:.75}
-
-/* nav */
-.nav{position:sticky;top:0;z-index:40;backdrop-filter:blur(12px);
-  background:rgba(6,8,9,.72);border-bottom:1px solid var(--line)}
-.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
-.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:600;font-size:19px}
-.brand svg{filter:drop-shadow(0 0 6px rgba(43,211,127,.5))}
-.nav-links{display:flex;align-items:center;gap:30px;font-size:14px;color:var(--fg-dim)}
-.nav-links a:hover{color:var(--fg)}
-.nav-links .btn{margin-left:6px}
-.nav-toggle{display:none;background:transparent;border:1px solid var(--line-2);color:var(--fg);border-radius:8px;padding:8px 11px;font-weight:600}
-.language-switch{display:inline-flex;align-items:center;padding:3px;border:1px solid var(--line-2);border-radius:100px;background:rgba(11,15,18,.82)}
-.language-switch button{min-width:42px;border:0;border-radius:100px;padding:6px 9px;background:transparent;color:var(--fg-mute);font:600 11px 'JetBrains Mono',monospace;cursor:pointer}
-.language-switch button[aria-pressed="true"]{background:var(--fg);color:var(--bg);box-shadow:0 0 0 1px var(--fg)}
-.language-switch button:focus-visible{outline-offset:2px}
-@media(max-width:760px){
-  .wrap{padding-left:18px;padding-right:18px}.nav-in{height:64px;position:relative}.nav-toggle{display:block}
-  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;margin:0 -18px;padding:18px;background:#0B0F12;border-bottom:1px solid var(--line-2);flex-direction:column;align-items:stretch;gap:8px}
-  .nav-links.open{display:flex}.nav-links a{padding:10px 12px}.nav-links .btn{margin:0;justify-content:center}.language-switch{align-self:flex-start;margin:8px 12px}
-}
-
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;
-  font-size:14px;font-weight:600;padding:12px 22px;border-radius:100px;
-  border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .25s ease,background .2s ease,border-color .2s ease}
-.btn:hover{transform:translateY(-2px)}
-.btn.solid{background:var(--up);color:#04110B;box-shadow:var(--glow)}
-.btn.solid:hover{box-shadow:var(--glow-strong)}
-.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--fg)}
-.btn.ghost:hover{border-color:var(--up);color:var(--up)}
-.btn.lg{padding:15px 28px;font-size:15px}
-
-/* reveal on scroll */
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
-.reveal.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
-
-/* ---------- HERO ---------- */
-.hero{padding:90px 0 60px}
-.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
-@media(max-width:940px){.hero-grid{grid-template-columns:1fr;gap:40px}}
-.hero h1{font-size:clamp(44px,6.4vw,82px)}
-.hero h1 .am{color:var(--up);font-style:italic;position:relative}
-.hero h1 .am::after{content:"";position:absolute;left:0;right:0;bottom:.08em;height:.5em;
-  background:radial-gradient(ellipse at center,rgba(43,211,127,.35),transparent 70%);filter:blur(6px);z-index:-1}
-.hero .lead{color:var(--fg-dim);font-size:clamp(16px,1.5vw,19px);max-width:33em;margin:26px 0 32px}
-.hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.hero-note{font-size:13px;color:var(--fg-mute);margin-top:18px;font-family:'JetBrains Mono',monospace}
-
-/* hero chart signature */
-.chart-card{position:relative;background:linear-gradient(160deg,var(--bg-2),var(--bg-1));
-  border:1px solid var(--line-2);border-radius:var(--r);padding:20px;
-  box-shadow:0 30px 80px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.03)}
-.chart-card::before{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
-  background:linear-gradient(160deg,rgba(43,211,127,.4),transparent 40%);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.chart-card svg{display:block;width:100%;height:auto}
-.chart-cap{display:flex;justify-content:space-between;align-items:center;margin-top:14px;
-  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg-mute)}
-.chart-cap b{color:var(--up);font-weight:500}
-
-/* ---------- KPIS ---------- */
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:64px}
-@media(max-width:720px){.kpis{grid-template-columns:1fr}}
-.kpi{background:var(--bg-1);padding:26px 28px}
-.kpi .n{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--fg)}
-.kpi .n.accent{color:var(--up)}
-.kpi .l{font-size:13px;color:var(--fg-dim);margin-top:2px}
-
-/* ---------- SECTION SHELL ---------- */
-.section{padding:96px 0}
-.section-head{max-width:44em}
-.section-head h2{font-size:clamp(30px,4vw,46px);margin:14px 0 0}
-.section-head .lead{color:var(--fg-dim);font-size:17px;margin:18px 0 0}
-
-/* ---------- HOW ---------- */
-.how{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:52px}
-@media(max-width:820px){.how{grid-template-columns:1fr}}
-.step{background:linear-gradient(180deg,var(--bg-1),var(--bg));border:1px solid var(--line);
-  border-radius:var(--r);padding:28px;transition:border-color .3s,transform .3s,box-shadow .3s}
-.step:hover{border-color:var(--line-2);transform:translateY(-4px);box-shadow:0 24px 50px -30px rgba(0,0,0,.9)}
-.step .num{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.15em;color:var(--up)}
-.step h3{font-size:22px;margin:16px 0 8px}
-.step p{color:var(--fg-dim);font-size:15px;margin:0}
-.course-browser{margin-top:38px;border:1px solid var(--line-2);border-radius:16px;background:var(--bg-1);overflow:hidden}
-.course-index{display:grid;grid-template-columns:repeat(9,1fr);gap:0;border-bottom:1px solid var(--line)}
-.course-unit{min-height:64px;border:0;border-right:1px solid var(--line);background:transparent;color:var(--fg-mute);cursor:pointer;font:600 12px 'JetBrains Mono',monospace;transition:background .18s,color .18s}
-.course-unit:last-child{border-right:0}.course-unit:hover{color:var(--fg);background:rgba(255,255,255,.025)}
-.course-unit[aria-pressed="true"]{color:#04110b;background:var(--up)}
-.course-preview{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:36px;align-items:center;padding:34px 38px}
-.course-copy{max-width:680px}.detail-index{color:var(--up);font:11px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
-.course-preview h3{margin-top:10px;font-size:clamp(27px,3vw,38px)}.detail-objective{margin:13px 0 0;color:var(--fg-dim);font-size:15px;max-width:60ch}
-.course-takeaway{margin-top:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.takeaway-btn{border:1px solid var(--line-2);border-radius:100px;background:transparent;color:var(--fg);padding:10px 16px;cursor:pointer;font-weight:600}.takeaway-btn:hover{border-color:var(--up);color:var(--up)}
-.takeaway-text{color:var(--fg-dim);font-size:13px;opacity:0;transform:translateY(3px);transition:.18s}.takeaway-text.visible{opacity:1;transform:none}
-.course-controls{display:flex;gap:9px}.course-controls button{width:42px;height:42px;border:1px solid var(--line-2);border-radius:50%;background:transparent;color:var(--fg);cursor:pointer}.course-controls button:hover{border-color:var(--up);color:var(--up)}
-@media(max-width:720px){.course-index{grid-template-columns:repeat(5,1fr)}.course-unit:nth-child(5){border-right:0}.course-preview{grid-template-columns:1fr;padding:26px 20px}.course-controls{justify-content:flex-end}}
-
-/* ---------- FOUNDERS (the signature redesign) ---------- */
-.people{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
-@media(max-width:820px){.people{grid-template-columns:1fr}}
-.person{position:relative;background:linear-gradient(180deg,var(--bg-2),var(--bg-1));
-  border:1px solid var(--line);border-radius:18px;padding:28px;overflow:hidden;
-  transition:border-color .35s,transform .35s,box-shadow .35s}
-.person:hover{border-color:var(--up);transform:translateY(-4px);box-shadow:var(--glow)}
-.person-top{display:flex;align-items:center;gap:18px}
-.portrait{width:84px;height:84px;border-radius:16px;flex:none;position:relative;
-  background:
-    radial-gradient(120% 120% at 30% 20%,rgba(43,211,127,.25),transparent 60%),
-    linear-gradient(145deg,#1a2620,#0c1512);
-  border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;
-  font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--up)}
-.portrait::after{content:"";position:absolute;inset:0;border-radius:16px;
-  box-shadow:inset 0 0 24px rgba(43,211,127,.15);pointer-events:none;z-index:2}
-.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  border-radius:16px;z-index:1;opacity:0;transition:opacity .6s ease,transform .45s ease}
-.portrait img.loaded{opacity:1}
-.person:hover .portrait img{transform:scale(1.08)}
-.person h3{font-size:23px}
-.person .role{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;
-  color:var(--up);margin-top:5px;text-transform:uppercase}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}
-.tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.03em;
-  color:var(--fg-dim);background:rgba(43,211,127,.07);border:1px solid var(--line-2);
-  padding:6px 11px;border-radius:100px}
-.person .bio{color:var(--fg-dim);font-size:14.5px;margin:20px 0 0;line-height:1.65}
-.person .bio.full{max-height:0;opacity:0;overflow:hidden;margin-top:0;
-  transition:max-height .5s ease,opacity .4s ease,margin-top .4s ease}
-.person .bio.full.open{max-height:520px;opacity:1;margin-top:14px}
-.more{background:none;border:none;cursor:pointer;color:var(--up);font-family:'JetBrains Mono',monospace;
-  font-size:12px;letter-spacing:.05em;padding:16px 0 0;display:inline-flex;align-items:center;gap:6px}
-.more:hover{color:var(--up-2)}
-.pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:22px}
-.pstat{background:var(--bg-1);padding:14px 12px;text-align:center}
-.pstat .v{font-family:'Fraunces',serif;font-size:20px;color:var(--up);font-weight:600}
-.pstat .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;
-  color:var(--fg-mute);text-transform:uppercase;margin-top:3px}
-
-/* ---------- TRY ---------- */
-#try .trial-wrap{background:var(--bg-1);border:1px solid var(--line-2);border-radius:var(--r);
-  padding:8px;margin-top:44px;box-shadow:0 40px 90px -40px rgba(0,0,0,.9)}
-.trial-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;flex-wrap:wrap;gap:10px}
-.trial-head .t{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--fg)}
-.trial-head .s{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--up)}
-.trial-frame{width:100%;border:none;border-radius:10px;background:#0A0E11;height:900px;display:block}
-@media(max-width:640px){#try .trial-wrap{margin-left:-18px;margin-right:-18px;padding:0;border-radius:0}.trial-head{padding:10px 14px}.trial-head .s{display:none}.trial-frame{height:840px;border-radius:0}}
-.trial-gate{padding:48px 24px;text-align:center;color:var(--fg-dim)}
-.trial-gate h3{font-size:26px;color:var(--fg)}
-.trial-gate .btn{margin-top:18px}
-
-/* ---------- OPEN LAB ---------- */
-.open-lab{margin-top:38px;border:1px solid var(--line-2);border-radius:16px;background:var(--bg-1);overflow:hidden}
-.lab-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr)}
-.lab-challenge{padding:38px;border-right:1px solid var(--line)}.lab-kicker{color:var(--up);font:11px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
-.lab-challenge h3{font-size:clamp(28px,3.5vw,42px);margin-top:10px}.lab-intro{color:var(--fg-dim);font-size:14px;margin:10px 0 24px}
-.claim-card{padding:25px;border:1px solid var(--line-2);border-radius:12px;background:var(--bg)}.claim-meta{display:flex;justify-content:space-between;color:var(--fg-mute);font:10px 'JetBrains Mono',monospace;letter-spacing:.08em}.claim-text{font:600 clamp(20px,2.5vw,28px) var(--font-display);line-height:1.3;margin:20px 0 22px;min-height:74px}
-.claim-actions{display:flex;gap:10px}.claim-answer{flex:1;min-height:46px;border:1px solid var(--line-2);border-radius:8px;background:transparent;color:var(--fg);cursor:pointer;font-weight:600}.claim-answer:hover{border-color:var(--up)}.claim-answer[aria-pressed="true"]{border-color:var(--up);background:rgba(43,211,127,.1);color:var(--up)}
-.claim-feedback{min-height:42px;margin:14px 0 0;color:var(--fg-dim);font-size:13px}.claim-next{border:0;background:transparent;color:var(--up);padding:6px 0;cursor:pointer;font-weight:600}.claim-next[hidden]{display:none}
-.lab-summary{padding:38px;display:flex;flex-direction:column;justify-content:center}.lab-summary h4{font-size:25px}.lab-summary-list{display:grid;gap:13px;margin:22px 0 28px}.lab-summary-item{display:flex;align-items:center;gap:11px;color:var(--fg-dim);font-size:14px}.lab-summary-item::before{content:"✓";color:var(--up);font-weight:700}.lab-cta{display:grid;gap:8px}.lab-cta .btn{justify-content:center}.lab-cta .text-action{border:0;background:transparent;color:var(--fg-dim);padding:9px;cursor:pointer}.lab-cta .text-action:hover{color:var(--up)}
-.access-note{margin-top:16px;color:var(--fg-mute);font-size:11px}
-@media(max-width:820px){.lab-layout{grid-template-columns:1fr}.lab-challenge{padding:26px 20px;border-right:0;border-bottom:1px solid var(--line)}.lab-summary{padding:26px 20px}.claim-actions{flex-direction:column}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal,.btn,.step,.person,.course-unit,.takeaway-text{transition:none!important;animation:none!important}.btn:hover,.step:hover,.person:hover{transform:none}}
-
-/* ---------- CONTACT / FOOTER ---------- */
-.contact{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px}
-.contact a{display:inline-flex;align-items:center;gap:9px;padding:12px 18px;
-  border:1px solid var(--line-2);border-radius:100px;font-size:14px;color:var(--fg-dim);transition:.2s}
-.contact a:hover{border-color:var(--up);color:var(--up)}
-.foot{border-top:1px solid var(--line);padding:56px 0 30px;margin-top:40px}
-.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px}
-@media(max-width:720px){.foot-grid{grid-template-columns:1fr}}
-.foot .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--fg-mute);margin:0 0 12px}
-.foot a{color:var(--fg-dim);font-size:14px}.foot a:hover{color:var(--up)}
-.disclaim{border-top:1px solid var(--line);padding:22px 0;font-size:12px;color:var(--fg-mute);line-height:1.7}
-.disclaim strong{color:var(--fg-dim)}
-
-/* modal */
-.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
-  background:rgba(2,4,4,.7);backdrop-filter:blur(6px);padding:20px}
-.modal.open{display:flex}
-.sheet{background:var(--bg-1);border:1px solid var(--line-2);border-radius:18px;max-width:420px;width:100%;
-  box-shadow:0 40px 100px -30px rgba(0,0,0,.9)}
-.sheet-pad{padding:32px}
-.sheet h2{font-size:26px;margin:6px 0 0}
-.sheet .x{background:none;border:none;color:var(--fg-mute);cursor:pointer;float:right;font-size:13px}
-.sheet .x:hover{color:var(--fg)}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/home.css">
 </head>
 <body>
-
-<div class="atmos" aria-hidden="true">
-  <div class="grid"></div><div class="bloom b1"></div><div class="bloom b2"></div>
-</div>
-
-
 
 <header class="nav"><div class="wrap nav-in">
   <a class="brand" href="#top" id="brand"></a>
   <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="primary-nav" data-i18n="nav.menu">Menu</button>
   <nav class="nav-links" id="primary-nav" aria-label="Primary navigation">
-    <a href="#how" data-i18n="nav.how">How it works</a>
-    <a href="#course" data-i18n="nav.course">Course</a>
     <a href="#try" data-i18n="nav.try">Try it</a>
-    <a href="#access" data-i18n="nav.access">Open lab</a>
+    <a href="#how" data-i18n="nav.how">How it works</a>
+    <a href="#course" data-i18n="nav.course">Field Guide</a>
+    <a href="#access" data-i18n="nav.access">Evidence Desk</a>
     <a href="methodology.html" data-i18n="nav.methodology">Methodology</a>
     <div class="language-switch" role="group" aria-label="Language / 언어">
       <button type="button" data-language="en" aria-pressed="true">EN</button>
       <button type="button" data-language="ko" aria-pressed="false">한국어</button>
+      <button type="button" data-language="fr" aria-pressed="false">FR</button>
     </div>
     <a class="btn ghost" href="#" id="login-top" data-i18n="nav.login">Log in</a>
   </nav>
@@ -295,82 +41,385 @@ main,header,footer{position:relative;z-index:1}
 <main id="top">
 
 <!-- HERO -->
-<section class="hero"><div class="wrap hero-grid">
-  <div class="reveal">
-    <p class="eyebrow" data-i18n="hero.eyebrow">Financial reasoning practice</p>
-    <h1 style="margin-top:18px" data-i18n-html="hero.title">Learn to <span class="am">reason</span> from a chart before risking a cent.</h1>
-    <p class="lead" data-i18n="hero.lead">VeltaCapital pairs a written beginner curriculum with historical-chart exercises. Record the evidence behind your interpretation, reveal the actual candles, and review what the data showed without placing a trade.</p>
-    <div class="hero-cta">
-      <a class="btn solid lg" href="#try" data-i18n="hero.primary">Try 3 practice rounds</a>
-      <a class="btn ghost lg" href="#how" data-i18n="hero.secondary">See how it works</a>
+<section class="hero"><div class="wrap">
+  <div class="hero-grid">
+    <div class="hero-copy reveal">
+      <p class="eyebrow" data-i18n="hero.eyebrow">Financial reasoning practice</p>
+      <h1 data-i18n-html="hero.title">Learn to <span class="am">reason</span> from a chart before risking a cent.</h1>
+      <p class="lead" data-i18n="hero.lead">VeltaCapital pairs a written beginner curriculum with historical-chart exercises. Record the evidence behind your interpretation, reveal the actual candles, and review what the data showed without placing a trade.</p>
+      <div class="hero-cta">
+        <a class="btn solid lg" href="#try" data-i18n="hero.primary">Try 3 practice rounds</a>
+        <a class="btn lg" href="#course" data-i18n="hero.secondary">Open the Field Guide</a>
+      </div>
+      <p class="hero-note" data-i18n="hero.note">No account needed to try. No trading, no profit promises, no real money at risk.</p>
     </div>
-    <p class="hero-note" data-i18n="hero.note">No account needed to try. No trading, no profit promises, no real money at risk.</p>
+
+    <figure class="hero-plate">
+      <span class="hand hero-window-note" aria-hidden="true" data-i18n="hero.windowNote">a price you can read from the pavement</span>
+      <div class="hero-photo photo-reveal">
+        <img src="assets/img/photos/grocer-1200.webp" srcset="assets/img/photos/grocer-800.webp 800w, assets/img/photos/grocer-1200.webp 1200w, assets/img/photos/grocer-1800.webp 1800w" sizes="(max-width:1020px) 100vw, 60vw" width="1800" height="1329" fetchpriority="high" alt="A grocery shop window with oranges and grapefruit behind hand-painted prices, and a chalkboard listing potatoes and apples." data-i18n-alt="hero.photoAlt">
+      </div>
+      <div class="hero-lower">
+      <div class="fragment">
+        <div class="fragment-head"><span data-i18n="hero.fragmentTitle">The same idea, as a record</span><b data-i18n="hero.fragmentTag">ILLUSTRATIVE</b></div>
+        <div id="hero-fragment"></div>
+      </div>
+      <div class="plate-caption">
+        <b data-i18n="hero.capTitle">A shop writes prices on glass. A market writes them trade by trade.</b>
+        <span data-i18n="hero.capBody">The candles describe no real company and are not this grocer's data. They show the kind of record a listed business leaves behind.</span>
+        <span class="credit" data-i18n="hero.capCredit">Grand Grocery Co., Lincoln, Nebraska, 1942. Photograph: John Vachon, Library of Congress. Public domain.</span>
+      </div>
+      </div>
+    </figure>
   </div>
 
-  <div class="chart-card reveal" aria-hidden="true">
-    <svg id="heroChart" viewBox="0 0 420 240" preserveAspectRatio="none"></svg>
-    <div class="chart-cap"><span data-i18n="hero.chartStart">Record the evidence →</span><b data-i18n="hero.chartEnd">Compare with history</b></div>
+  <div class="ledger reveal">
+    <div class="kpi"><div class="n accent" data-i18n="kpi.historical">Historical</div><div class="l" data-i18n="kpi.historicalCopy">OHLCV exercises with public methodology</div></div>
+    <div class="kpi"><div class="n" data-i18n="kpi.separate">Separate</div><div class="l" data-i18n="kpi.separateCopy">path accuracy, direction, confidence, and reasoning</div></div>
+    <div class="kpi"><div class="n">0</div><div class="l" data-i18n="kpi.risk">real money at risk, ever</div></div>
   </div>
 </div></section>
 
-<!-- KPIS -->
-<div class="wrap"><div class="kpis reveal">
-  <div class="kpi"><div class="n accent mono" data-i18n="kpi.historical">Historical</div><div class="l" data-i18n="kpi.historicalCopy">OHLCV exercises with public methodology</div></div>
-  <div class="kpi"><div class="n mono" data-i18n="kpi.separate">Separate</div><div class="l" data-i18n="kpi.separateCopy">path accuracy, direction, confidence, and reasoning</div></div>
-  <div class="kpi"><div class="n mono">0</div><div class="l" data-i18n="kpi.risk">real money at risk, ever</div></div>
-</div></div>
+<div style="height:72px" aria-hidden="true"></div>
+
+<!-- TRY -->
+<section class="section spread-dark" id="try"><div class="wrap try-grid">
+  <div class="section-head reveal">
+    <span class="folio" aria-hidden="true">01</span>
+    <div>
+      <p class="eyebrow" data-i18n="try.eyebrow">Try it now</p>
+      <h2 data-i18n="try.title">Three rounds. No sign-up to play.</h2>
+      <p class="lead" data-i18n="try.lead">Place five estimates on the visible chart, reveal the historical candles, then review the result and plain-language explanation. The full course adds structured reasoning and portfolio tracking.</p>
+      <p class="hand try-note" aria-hidden="true" data-i18n="try.note">write your estimate before you see the answer</p>
+    </div>
+  </div>
+  <div class="trial-wrap reveal">
+    <div class="trial-head">
+      <span class="t" data-i18n="try.frameTitle">Historical Chart Reasoning: Trial</span>
+      <span class="s" id="trial-count">3 free rounds</span>
+    </div>
+    <div id="trial-host">
+      <iframe class="trial-frame" id="trial-frame" title="Predict the Graph trial" src="predict-the-graph.html?mode=trial"></iframe>
+    </div>
+    <div class="trial-gate" id="trial-gate" style="display:none">
+      <h3 data-i18n="try.gateTitle">Nice reads. Want to keep going?</h3>
+      <p data-i18n="try.gateCopy">Log in with Google to save your reflections and continue with the complete course and unlimited practice.</p>
+      <button class="btn solid lg" id="trial-login" data-i18n="try.gateButton">Continue learning</button>
+    </div>
+  </div>
+</div></section>
 
 <!-- HOW -->
 <section class="section" id="how"><div class="wrap">
   <div class="section-head reveal">
-    <p class="eyebrow" data-i18n="how.eyebrow">How it works</p>
-    <h2 data-i18n="how.title">Learn, interpret, reflect.</h2>
+    <span class="folio" aria-hidden="true">02</span>
+    <div>
+      <p class="eyebrow" data-i18n="how.eyebrow">How it works</p>
+      <h2 data-i18n="how.title">Learn, interpret, reflect.</h2>
+    </div>
   </div>
-  <div class="how">
-    <div class="step reveal"><div class="num" data-i18n="how.step1">STEP 01</div><h3 data-i18n="how.step1Title">Learn the concept</h3>
+  <div class="how reveal">
+    <div class="step"><div class="num" data-i18n="how.step1">STEP 01</div><h3 data-i18n="how.step1Title">Learn the concept</h3>
       <p data-i18n="how.step1Copy">Written lessons cover market structure, chart mechanics, risk, uncertainty, and the limitations of technical signals.</p></div>
-    <div class="step reveal"><div class="num" data-i18n="how.step2">STEP 02</div><h3 data-i18n="how.step2Title">Record your interpretation</h3>
+    <div class="step"><div class="num" data-i18n="how.step2">STEP 02</div><h3 data-i18n="how.step2Title">Record your interpretation</h3>
       <p data-i18n="how.step2Copy">Estimate a future path and record the structure, evidence, and confidence behind your view before seeing the outcome.</p></div>
-    <div class="step reveal"><div class="num" data-i18n="how.step3">STEP 03</div><h3 data-i18n="how.step3Title">Reflect on the result</h3>
-      <p data-i18n="how.step3Copy">Compare path accuracy separately from direction and review descriptive observations while avoiding claims that a chart caused the move.</p></div>
+    <div class="step"><div class="num" data-i18n="how.step3">STEP 03</div><h3 data-i18n="how.step3Title">Reflect on the result</h3>
+      <p data-i18n="how.step3Copy">Compare path accuracy separately from direction and review descriptive observations without claiming that a chart caused the move.</p></div>
+  </div>
+
+  <div class="plates-head reveal">
+    <h3 data-i18n="plates.title">Every number on a chart started somewhere ordinary.</h3>
+    <p data-i18n="plates.lead">A business is shelves, freight, machines, and bills long before it is a line on a screen. Keep these in mind when a chart starts to feel abstract.</p>
+  </div>
+  <div class="plates">
+    <figure class="plate plate-shelves">
+      <div class="plate-frame photo-reveal">
+        <img src="assets/img/photos/shelves-1000.webp" srcset="assets/img/photos/shelves-640.webp 640w, assets/img/photos/shelves-1000.webp 1000w" sizes="(max-width:720px) 100vw, 56vw" width="1000" height="598" loading="lazy" alt="Grocery shelves stacked with jars and bottles, with hand-lettered price cards along the rows." data-i18n-alt="plates.shelvesAlt">
+        <svg class="plate-overlay" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true"><ellipse class="overlay-ring" vector-effect="non-scaling-stroke" cx="44" cy="44" rx="7" ry="9"/></svg>
+        <span class="plate-tag" data-i18n="plates.shelvesTag">PRICE</span>
+      </div>
+      <figcaption><span data-i18n="plates.shelvesCopy">A shelf card is a price anyone can check. Whether it earns a profit is a separate question.</span><span class="plate-credit" data-i18n="plates.shelvesCredit">Minnesota, 1979. Gary Hoover, CC BY 4.0, cropped.</span></figcaption>
+    </figure>
+    <figure class="plate plate-cranes">
+      <div class="plate-frame photo-reveal">
+        <img src="assets/img/photos/cranes-1000.webp" srcset="assets/img/photos/cranes-640.webp 640w, assets/img/photos/cranes-1000.webp 1000w" sizes="(max-width:720px) 100vw, 42vw" width="1000" height="460" loading="lazy" alt="Two container cranes lit orange at night above stacks of shipping containers." data-i18n-alt="plates.cranesAlt">
+        <span class="plate-tag" data-i18n="plates.cranesTag">COST</span>
+      </div>
+      <figcaption><span data-i18n="plates.cranesCopy">Freight is a cost long before it appears in a report.</span><span class="plate-credit" data-i18n="plates.cranesCredit">Tokyo Bay, 2023. Syced, CC0.</span></figcaption>
+    </figure>
+    <figure class="plate plate-line">
+      <div class="plate-frame photo-reveal">
+        <img src="assets/img/photos/line-1000.webp" srcset="assets/img/photos/line-640.webp 640w, assets/img/photos/line-1000.webp 1000w" sizes="(max-width:720px) 100vw, 42vw" width="1000" height="841" loading="lazy" alt="Workers fitting a car on a 1920s assembly line, in black and white." data-i18n-alt="plates.lineAlt">
+        <span class="plate-tag" data-i18n="plates.lineTag">OWNERSHIP</span>
+      </div>
+      <figcaption><span data-i18n="plates.lineCopy">A share is a claim on a working business, not on its chart.</span><span class="plate-credit" data-i18n="plates.lineCredit">Ford assembly line, Copenhagen, 1923. Peter Elfelt. Public domain.</span></figcaption>
+    </figure>
+    <figure class="plate plate-bill">
+      <div class="plate-frame photo-reveal">
+        <img src="assets/img/photos/bill-640.webp" width="640" height="418" loading="lazy" alt="A handwritten restaurant bill with items, prices and a total." data-i18n-alt="plates.billAlt">
+        <svg class="plate-overlay" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true"><ellipse class="overlay-ring" vector-effect="non-scaling-stroke" cx="86" cy="42" rx="11" ry="7"/></svg>
+        <span class="plate-tag" data-i18n="plates.billTag">RECORD</span>
+      </div>
+      <figcaption><span data-i18n="plates.billCopy">A bill records what was bought and what it cost. Like a candle, it does not say why.</span><span class="plate-credit" data-i18n="plates.billCredit">Restaurant bill, 2024. Ladabohac, CC0, cropped.</span></figcaption>
+    </figure>
   </div>
 </div></section>
 
-<!-- COURSE / FOUNDERS -->
-<section class="section" id="course"><div class="wrap">
+<!-- FIELD GUIDE -->
+<section class="section spread-dark" id="course"><div class="wrap">
   <div class="section-head reveal">
-    <p class="eyebrow" data-i18n="course.eyebrow">Course preview</p>
-    <h2 data-i18n="course.title">Explore the course.</h2>
-    <p class="lead" data-i18n="course.lead">Choose a lesson to see its focus.</p>
+    <span class="folio" aria-hidden="true">03</span>
+    <div>
+      <p class="eyebrow" data-i18n="course.eyebrow">Course preview</p>
+      <h2 data-i18n="course.title">The Field Guide.</h2>
+      <p class="lead" data-i18n="course.lead">Nine illustrated guides drawn from the 15-chapter course. Pick a cover and its workspace opens below.</p>
+    </div>
   </div>
 
-  <div class="course-browser reveal">
-    <div class="course-index" role="group" aria-label="Course units">
-      <button class="course-unit" type="button" data-course-unit="1" aria-pressed="true" aria-controls="course-detail" aria-label="Lesson 1">01</button>
-      <button class="course-unit" type="button" data-course-unit="2" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 2">02</button>
-      <button class="course-unit" type="button" data-course-unit="3" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 3">03</button>
-      <button class="course-unit" type="button" data-course-unit="4" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 4">04</button>
-      <button class="course-unit" type="button" data-course-unit="5" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 5">05</button>
-      <button class="course-unit" type="button" data-course-unit="6" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 6">06</button>
-      <button class="course-unit" type="button" data-course-unit="7" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 7">07</button>
-      <button class="course-unit" type="button" data-course-unit="8" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 8">08</button>
-      <button class="course-unit" type="button" data-course-unit="9" aria-pressed="false" aria-controls="course-detail" aria-label="Lesson 9">09</button>
+  <div class="guide-bar">
+    <p class="guide-count" id="guide-count">02 / 09</p>
+    <div class="rail-controls">
+      <button type="button" id="course-prev" aria-label="Previous covers" aria-controls="cover-rail">←</button>
+      <button type="button" id="course-next" aria-label="Next covers" aria-controls="cover-rail">→</button>
     </div>
-    <section class="course-preview" id="course-detail" aria-live="polite" tabindex="0">
-      <div class="course-copy">
-        <div class="detail-index" id="course-detail-index">LESSON 01 / 09</div>
-        <h3 id="course-detail-title">Markets &amp; ownership</h3>
-        <p class="detail-objective" id="course-detail-objective">Understand what a share represents and how it differs from a company.</p>
+  </div>
+
+  <div class="cover-rail" id="cover-rail" role="group" aria-label="Course units">
+
+    <button class="course-unit cv-1" type="button" data-course-unit="1" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 01</span><span class="cover-badge" data-i18n="cover.diagram">Diagram</span></span>
+      <span class="cover-art">
+        <img src="assets/img/photos/storefront-520.webp" alt="" width="520" height="467" loading="lazy">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <g fill="none" stroke="#FBF7EE" stroke-width="1.4"><rect x="14" y="14" width="120" height="120"/><path d="M44 14v120M74 14v120M104 14v120M14 44h120M14 74h120M14 104h120"/></g>
+          <rect x="74" y="44" width="30" height="30" fill="#0B7A53" stroke="#FBF7EE" stroke-width="1.4"/>
+          <path d="M104 59 C150 56 170 74 178 112" fill="none" stroke="#FBF7EE" stroke-width="1.6"/>
+          <rect x="146" y="114" width="104" height="24" fill="#1D1E1B"/><text class="cv-text" x="198" y="130" text-anchor="middle" fill="#FBF7EE" data-i18n="cover.1.note">one share</text>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Markets &amp; ownership</span><span class="cover-invite">See what a share owns</span></span>
+    </button>
+
+    <button class="course-unit cv-2" type="button" data-course-unit="2" aria-pressed="true" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 02</span><span class="cover-badge" data-i18n="cover.tryIt">Try it</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <g stroke="#F4EEE1" fill="none">
+            <path d="M0 40H262M0 80H262M0 120H262M0 160H262M50 0V216M100 0V216M150 0V216M200 0V216" stroke-opacity=".12"/>
+            <line x1="120" y1="14" x2="120" y2="202" stroke-width="3"/>
+            <rect x="92" y="58" width="56" height="102" fill="#F4EEE1"/>
+            <path d="M120 14H190M148 58H190M148 160H190M120 202H190" stroke-dasharray="3 3"/>
+            <path d="M212 58V160M207 64l5-7 5 7M207 154l5 7 5-7" stroke-width="1.2"/>
+            <circle cx="120" cy="14" r="3" fill="#F4EEE1"/><circle cx="120" cy="202" r="3" fill="#F4EEE1"/>
+          </g>
+          <g fill="#F4EEE1"><text class="cv-text" x="194" y="18" data-i18n="demo.candle.high">High</text><text class="cv-text" x="194" y="206" data-i18n="demo.candle.low">Low</text><text class="cv-text" x="84" y="62" text-anchor="end" data-i18n="demo.candle.close">Close</text><text class="cv-text" x="84" y="164" text-anchor="end" data-i18n="demo.candle.open">Open</text></g>
+          <text class="cv-hand" x="16" y="116" fill="#F2B98E" data-i18n="cover.2.note">body</text>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">OHLCV &amp; candles</span><span class="cover-invite">Build a candle</span></span>
+    </button>
+
+    <button class="course-unit cv-3" type="button" data-course-unit="3" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 03</span><span class="cover-badge" data-i18n="cover.tryIt">Try it</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <path d="M0 36H262M0 72H262M0 108H262M0 144H262M0 180H262M44 0V216M88 0V216M132 0V216M176 0V216M220 0V216" stroke="#CFE0D8" fill="none"/>
+          <polyline points="10,178 34,152 52,164 80,120 100,134 128,94 150,110 176,66 196,84 226,44 250,58" fill="none" stroke="#22231F" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M6 190 C70 158 150 124 256 74" fill="none" stroke="#B4531F" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="8 3 12 4"/>
+          <path d="M8 160 C70 118 150 70 256 22" fill="none" stroke="#B4531F" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="11 4 7 3"/>
+          <circle cx="52" cy="164" r="7" fill="none" stroke="#B4531F" stroke-width="1.6"/><circle cx="100" cy="134" r="7" fill="none" stroke="#B4531F" stroke-width="1.6"/><circle cx="150" cy="110" r="7" fill="none" stroke="#B4531F" stroke-width="1.6"/>
+          <text class="cv-hand" x="256" y="172" text-anchor="end" fill="#B4531F" data-i18n="cover.3.note">higher lows, or luck?</text>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Trend &amp; range</span><span class="cover-invite">Change the frame</span></span>
+    </button>
+
+    <button class="course-unit cv-4" type="button" data-course-unit="4" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 04</span><span class="cover-badge" data-i18n="cover.tryIt">Try it</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <rect x="0" y="82" width="262" height="24" fill="#E8935B" fill-opacity=".18"/>
+          <line x1="0" y1="94" x2="262" y2="94" stroke="#E8935B" stroke-width="2" stroke-dasharray="9 6"/>
+          <polyline points="4,190 34,166 54,176 84,136 104,146 128,108 142,58 158,40 176,72 192,120 214,150 236,136 258,170" fill="none" stroke="#F1ECDF" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="135" cy="94" r="8" fill="none" stroke="#3DD68C" stroke-width="2"/><circle cx="183" cy="94" r="8" fill="none" stroke="#3DD68C" stroke-width="2"/>
+          <text class="cv-text" x="6" y="76" fill="#E8935B" data-i18n="demo.break.level">Marked level</text>
+          <text class="cv-hand" x="192" y="66" fill="#3DD68C" data-i18n="cover.4.note">...and back</text>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Levels &amp; false breaks</span><span class="cover-invite">Find the false break</span></span>
+    </button>
+
+    <button class="course-unit cv-5" type="button" data-course-unit="5" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 05</span><span class="cover-badge" data-i18n="cover.diagram">Diagram</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <line x1="131" y1="8" x2="131" y2="208" stroke="#22231F"/>
+          <polyline points="12,64 26,60 40,66 54,61 68,65 82,60 96,64 110,62 122,63" fill="none" stroke="#0B7A53" stroke-width="2.6"/>
+          <g fill="#22231F"><rect x="14" y="110" width="12" height="90"/><rect x="32" y="96" width="12" height="104"/><rect x="50" y="118" width="12" height="82"/><rect x="68" y="102" width="12" height="98"/><rect x="86" y="92" width="12" height="108"/><rect x="104" y="112" width="12" height="88"/></g>
+          <polyline points="142,78 156,30 170,92 184,22 198,84 212,36 226,98 240,28 252,70" fill="none" stroke="#B4531F" stroke-width="2.6" stroke-linejoin="round"/>
+          <g fill="#22231F"><rect x="144" y="176" width="12" height="24"/><rect x="162" y="182" width="12" height="18"/><rect x="180" y="172" width="12" height="28"/><rect x="198" y="184" width="12" height="16"/><rect x="216" y="178" width="12" height="22"/><rect x="234" y="174" width="12" height="26"/></g>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Volume &amp; volatility</span><span class="cover-invite">Activity versus movement</span></span>
+    </button>
+
+    <button class="course-unit cv-6" type="button" data-course-unit="6" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 06</span><span class="cover-badge" data-i18n="cover.diagram">Diagram</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <g fill="none" stroke="#1D1E1B" stroke-linecap="round">
+            <path d="M16 108 C70 108 70 56 120 56" stroke-width="5"/><path d="M16 108 C70 108 70 160 120 160" stroke-width="2.6"/>
+            <path d="M120 56 C160 56 160 26 206 26" stroke-width="3.4"/><path d="M120 56 C160 56 160 84 206 84" stroke-width="2"/>
+            <path d="M120 160 C160 160 160 132 206 132" stroke-width="2"/><path d="M120 160 C160 160 160 190 206 190" stroke-width="2" stroke-dasharray="6 6"/>
+          </g>
+          <g fill="#1D1E1B"><circle cx="16" cy="108" r="7"/><circle cx="120" cy="56" r="6"/><circle cx="120" cy="160" r="6"/><circle cx="206" cy="26" r="5"/><circle cx="206" cy="84" r="5"/><circle cx="206" cy="132" r="5"/></g>
+          <circle cx="206" cy="190" r="5" fill="none" stroke="#1D1E1B" stroke-width="2"/>
+          <text class="cv-hand" x="216" y="196" fill="#1D1E1B" data-i18n="cover.6.note">?</text>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Risk &amp; probability</span><span class="cover-invite">Follow the branches</span></span>
+    </button>
+
+    <button class="course-unit cv-7" type="button" data-course-unit="7" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 07</span><span class="cover-badge" data-i18n="cover.diagram">Diagram</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <g transform="rotate(5 150 110)"><rect x="96" y="14" width="136" height="196" fill="#FBF7EE" stroke="#22231F"/><path d="M110 40h108M110 56h108M110 72h82M110 92h108M110 108h108M110 124h66" stroke="#55544B"/></g>
+          <g transform="rotate(-4 90 110)"><rect x="20" y="12" width="150" height="190" fill="#DCD3BC"/><image href="assets/img/photos/report-520.webp" x="20" y="34" width="150" height="145" preserveAspectRatio="xMidYMid meet"/><rect x="20" y="12" width="150" height="190" fill="none" stroke="#22231F"/></g>
+          <g class="cv-text"><rect x="208" y="40" width="54" height="24" fill="#0B7A53"/><text x="213" y="56" fill="#fff" data-i18n="cover.7.tab1">Filing</text><rect x="214" y="76" width="48" height="24" fill="#B4531F"/><text x="219" y="92" fill="#fff" data-i18n="cover.7.tab2">Report</text><rect x="208" y="112" width="54" height="24" fill="#22231F"/><text x="213" y="128" fill="#FBF7EE" data-i18n="cover.7.tab3">Source</text></g>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Fundamentals &amp; sources</span><span class="cover-invite">Which source comes first</span></span>
+    </button>
+
+    <button class="course-unit cv-8" type="button" data-course-unit="8" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 08</span><span class="cover-badge" data-i18n="cover.diagram">Diagram</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <polyline points="6,92 26,80 44,86 64,66 84,72 104,48 122,56 140,34 158,22 176,30 194,42 212,58 232,70 256,84" fill="none" stroke="#22231F" stroke-width="1.6"/>
+          <rect x="38" y="20" width="84" height="76" fill="none" stroke="#0B7A53" stroke-width="2.4"/>
+          <rect x="158" y="14" width="84" height="76" fill="none" stroke="#B4531F" stroke-width="2.4" stroke-dasharray="7 4"/>
+          <rect x="14" y="116" width="112" height="86" fill="#FBF7EE" stroke="#0B7A53" stroke-width="2.4"/><polyline points="24,188 50,168 72,176 100,138 116,128" fill="none" stroke="#0B7A53" stroke-width="3"/>
+          <rect x="136" y="116" width="112" height="86" fill="#FBF7EE" stroke="#B4531F" stroke-width="2.4" stroke-dasharray="7 4"/><polyline points="146,130 172,146 196,142 220,172 238,186" fill="none" stroke="#B4531F" stroke-width="3"/>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Bias &amp; limitations</span><span class="cover-invite">One chart, two crops</span></span>
+    </button>
+
+    <button class="course-unit cv-9" type="button" data-course-unit="9" aria-pressed="false" aria-controls="course-detail">
+      <span class="cover-top"><span>No. 09</span><span class="cover-badge" data-i18n="cover.diagram">Diagram</span></span>
+      <span class="cover-art">
+        <svg viewBox="0 0 262 216" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <path d="M0 30H262M0 62H262M0 94H262M0 126H262M0 158H262M0 190H262" stroke="#BFD0DC"/>
+          <line x1="40" y1="0" x2="40" y2="216" stroke="#B4531F"/>
+          <text class="cv-hand" x="50" y="56" fill="#22231F" data-i18n="cover.9.estimate">my estimate</text>
+          <rect x="50" y="66" width="160" height="16" fill="none" stroke="#22231F"/><rect x="50" y="66" width="112" height="16" fill="#22231F"/>
+          <text class="cv-hand" x="50" y="120" fill="#0B7A53" data-i18n="cover.9.outcome">what happened</text>
+          <rect x="50" y="130" width="160" height="16" fill="none" stroke="#0B7A53"/><rect x="50" y="130" width="80" height="16" fill="#0B7A53"/>
+          <path d="M162 88V124M130 124H162" fill="none" stroke="#B4531F" stroke-width="1.8" stroke-dasharray="5 3"/>
+          <text class="cv-hand" x="136" y="182" fill="#B4531F" data-i18n="cover.9.gap">mind the gap</text>
+        </svg>
+      </span>
+      <span class="cover-text"><span class="cover-title">Reflection &amp; calibration</span><span class="cover-invite">An estimate, then the outcome</span></span>
+    </button>
+  </div>
+
+  <div class="workspace is-open" id="course-detail" role="region" aria-labelledby="course-detail-title">
+    <div class="workspace-clip">
+      <span class="workspace-notch" id="workspace-notch" aria-hidden="true"></span>
+      <div class="workspace-sheet" id="workspace-sheet">
+        <div class="workspace-head">
+          <div class="detail-index" id="course-detail-index">FIELD GUIDE 02 OF 09</div>
+          <button class="text-btn workspace-close" id="workspace-close" type="button" data-i18n="course.close">Close workspace</button>
+          <h3 id="course-detail-title" tabindex="-1">OHLCV &amp; candles</h3>
+          <p class="detail-objective" id="course-detail-objective">Read what a candle records without inventing a cause.</p>
+        </div>
+        <div class="workspace-bench" id="workspace-bench"></div>
         <div class="course-takeaway">
-          <button class="takeaway-btn" id="takeaway-btn" type="button" aria-expanded="false" aria-controls="course-takeaway" data-i18n="course.reveal">Reveal key idea</button>
+          <button class="btn" id="takeaway-btn" type="button" aria-expanded="false" aria-controls="course-takeaway" data-i18n="course.reveal">Reveal key idea</button>
           <span class="takeaway-text" id="course-takeaway" hidden></span>
+          <span class="chapter-link" id="course-chapters"></span>
         </div>
       </div>
-      <div class="course-controls"><button type="button" id="course-prev" aria-label="Previous unit">←</button><button type="button" id="course-next" aria-label="Next unit">→</button></div>
-    </section>
+    </div>
   </div>
-  <p class="hero-note"><a href="methodology.html" style="color:var(--up)" data-i18n="course.methodology">Read the scoring and data methodology →</a></p>
+  <p class="guide-foot"><span data-i18n="course.countNote">The full course has 15 chapters; these nine guides group its chart, risk, and reasoning ideas.</span> <a href="methodology.html" data-i18n="course.methodology">Read the scoring and data methodology →</a></p>
+</div></section>
 
+<!-- EVIDENCE DESK -->
+<section class="section desk-spread" id="access"><div class="wrap">
+  <div class="section-head reveal">
+    <span class="folio" aria-hidden="true">04</span>
+    <div>
+      <p class="eyebrow" data-i18n="lab.eyebrow">Open learning lab</p>
+      <h2 data-i18n="lab.heading">The Evidence Desk.</h2>
+      <p class="lead" data-i18n="lab.lead">Three statements, three exhibits. Inspect what is on the page, then decide what the data can actually support.</p>
+    </div>
+  </div>
+
+  <div class="desk-tabs" role="tablist" aria-label="Cases" id="desk-tabs">
+    <button class="desk-tab" type="button" role="tab" id="desk-tab-1" data-case="0" aria-controls="desk-board" aria-selected="true"><span class="desk-tab-mark" aria-hidden="true"></span><span><span class="desk-tab-no"></span><br><span class="desk-tab-state"></span></span></button>
+    <button class="desk-tab" type="button" role="tab" id="desk-tab-2" data-case="1" aria-controls="desk-board" aria-selected="false" tabindex="-1"><span class="desk-tab-mark" aria-hidden="true"></span><span><span class="desk-tab-no"></span><br><span class="desk-tab-state"></span></span></button>
+    <button class="desk-tab" type="button" role="tab" id="desk-tab-3" data-case="2" aria-controls="desk-board" aria-selected="false" tabindex="-1"><span class="desk-tab-mark" aria-hidden="true"></span><span><span class="desk-tab-no"></span><br><span class="desk-tab-state"></span></span></button>
+  </div>
+
+  <div class="desk-board" id="desk-board" role="tabpanel" aria-labelledby="desk-tab-1">
+    <div class="clipping">
+      <div class="claim-meta"><span id="claim-case">CASE 001</span><span id="claim-progress">1 / 3</span></div>
+      <p class="claim-text" id="claim-text"></p>
+      <p class="hand margin-note" id="claim-margin"></p>
+    </div>
+    <figure class="exhibit">
+      <div class="exhibit-head"><span id="exhibit-title">EXHIBIT A</span><b data-i18n="lab.illustrative">ILLUSTRATIVE DATA, NOT A REAL COMPANY</b></div>
+      <div id="desk-exhibit"></div>
+      <div class="inspect-row"><span class="inspect-label" data-i18n="lab.inspect">Inspect:</span><div class="inspect-chips" id="desk-inspect"></div></div>
+    </figure>
+    <div class="desk-answers">
+      <div class="claim-actions" role="group" aria-label="Classify the statement">
+        <button class="btn claim-answer" type="button" data-lab-answer="evidence" aria-pressed="false" data-i18n="lab.evidence">Supported by the data</button>
+        <button class="btn claim-answer" type="button" data-lab-answer="assumption" aria-pressed="false" data-i18n="lab.assumption">An assumption</button>
+      </div>
+      <span class="hand claim-verdict" id="claim-verdict" hidden></span>
+      <p class="claim-feedback" id="claim-feedback" aria-live="polite"></p>
+      <button class="btn claim-next" id="claim-next" type="button" hidden data-i18n="lab.next">Next case →</button>
+      <button class="text-btn claim-retry" id="claim-retry" type="button" hidden data-i18n="lab.retry">Try this case again</button>
+    </div>
+  </div>
+
+  <div class="desk-recap" id="desk-recap" hidden>
+    <h3 id="desk-recap-title" tabindex="-1" data-i18n="lab.recapTitle">Reasoning practiced</h3>
+    <ol>
+      <li><span>01</span><div data-i18n="lab.recap1">Compare recorded values before you describe them.</div></li>
+      <li><span>02</span><div data-i18n="lab.recap2">Separate what was recorded from why it happened.</div></li>
+      <li><span>03</span><div data-i18n="lab.recap3">Treat a past pattern as a record, not a promise.</div></li>
+    </ol>
+    <div>
+      <a class="btn solid" href="#try" data-i18n="lab.primary">Start a practice round</a>
+      <p><button class="text-btn" id="desk-reset" type="button" data-i18n="lab.reset">Reset the desk</button></p>
+    </div>
+  </div>
+
+  <div class="benefits">
+    <h3 data-i18n="lab.passTitle">Everything is included.</h3>
+    <div class="benefit-list">
+      <span data-i18n="lab.artifact1">15 guided lessons</span>
+      <span data-i18n="lab.artifact2">Unlimited practice</span>
+      <span data-i18n="lab.artifact3">Saved progress and reflection</span>
+    </div>
+    <button class="text-btn" id="free-access-login" type="button" data-i18n="lab.secondary">Sign in to save progress</button>
+  </div>
+  <p class="access-note" data-i18n="lab.note">No payment method is requested or stored. VeltaCapital is an educational project and does not claim nonprofit or tax-exempt legal status.</p>
+</div></section>
+
+<!-- PEOPLE -->
+<section class="section spread-dark" id="people"><div class="wrap">
+  <div class="section-head reveal">
+    <span class="folio" aria-hidden="true">05</span>
+    <div>
+      <p class="eyebrow" data-i18n="people.eyebrow">Who wrote this notebook</p>
+      <h2 data-i18n="people.title">The people behind the desk.</h2>
+    </div>
+  </div>
   <div class="people">
     <!-- Saechan -->
     <div class="person reveal">
@@ -418,79 +467,58 @@ main,header,footer{position:relative;z-index:1}
   </div>
 </div></section>
 
-<!-- TRY -->
-<section class="section" id="try"><div class="wrap">
+<!-- READER NOTES -->
+<section class="section reviews-spread" id="reviews"><div class="wrap">
   <div class="section-head reveal">
-    <p class="eyebrow" data-i18n="try.eyebrow">Try it now</p>
-    <h2 data-i18n="try.title">Three rounds. No sign-up to play.</h2>
-    <p class="lead" data-i18n="try.lead">Place five estimates on the visible chart, reveal the historical candles, then review the result and plain-language explanation. The full course adds structured reasoning and portfolio tracking.</p>
-  </div>
-  <div class="trial-wrap reveal">
-    <div class="trial-head">
-      <span class="t" data-i18n="try.frameTitle">Historical Chart Reasoning: Trial</span>
-      <span class="s" id="trial-count">3 free rounds</span>
-    </div>
-    <div id="trial-host">
-      <iframe class="trial-frame" id="trial-frame" title="Predict the Graph trial" src="predict-the-graph.html?mode=trial"></iframe>
-    </div>
-    <div class="trial-gate" id="trial-gate" style="display:none">
-      <h3 data-i18n="try.gateTitle">Nice reads. Want to keep going?</h3>
-      <p data-i18n="try.gateCopy">Log in with Google to save your reflections and continue with the complete course and unlimited practice.</p>
-      <button class="btn solid lg" id="trial-login" data-i18n="try.gateButton">Continue learning</button>
+    <span class="folio" aria-hidden="true">06</span>
+    <div>
+      <p class="eyebrow" data-i18n="reviews.eyebrow">Reader notes</p>
+      <h2 data-i18n="reviews.title">Notes from readers.</h2>
+      <p class="lead" data-i18n="reviews.lead">Written by people who have used VeltaCapital. Our team reads each note before it appears here. These are personal opinions about learning, not investment advice or a promise of results.</p>
     </div>
   </div>
-</div></section>
-
-<!-- FREE ACCESS -->
-<section class="section" id="access"><div class="wrap">
-  <div class="section-head reveal">
-    <p class="eyebrow" data-i18n="lab.eyebrow">Open learning lab</p>
-    <h2 data-i18n="lab.heading">The lab is open. Pick a chart and begin.</h2>
-    <p class="lead" data-i18n="lab.lead">Try a miniature evidence exercise below. Every lesson and practice tool is available to students without a plan or checkout.</p>
+  <div class="reviews-layout">
+    <div class="review-wall" id="review-wall"></div>
+    <form class="review-form" id="review-form" novalidate>
+      <h3 data-i18n="reviews.formTitle">Leave a note</h3>
+      <p class="review-guidance" data-i18n="reviews.formCopy">Tell us what helped and what didn't. Critical notes are welcome. Please leave out investment results, personal details, and links.</p>
+      <p class="review-status" id="review-status" hidden></p>
+      <label class="review-field" for="review-name"><span data-i18n="reviews.name">Display name</span>
+        <input id="review-name" name="displayName" type="text" minlength="2" maxlength="40" autocomplete="nickname" required aria-describedby="review-name-hint">
+      </label>
+      <p class="review-hint" id="review-name-hint" data-i18n="reviews.nameHint">First name or initials. It appears publicly.</p>
+      <fieldset class="review-rating-field">
+        <legend data-i18n="reviews.rating">Rating, 1 to 5</legend>
+        <label><input type="radio" name="rating" value="1"><span>1</span></label>
+        <label><input type="radio" name="rating" value="2"><span>2</span></label>
+        <label><input type="radio" name="rating" value="3"><span>3</span></label>
+        <label><input type="radio" name="rating" value="4"><span>4</span></label>
+        <label><input type="radio" name="rating" value="5"><span>5</span></label>
+      </fieldset>
+      <label class="review-field" for="review-body"><span data-i18n="reviews.body">Your note</span>
+        <textarea id="review-body" name="body" rows="6" minlength="20" maxlength="600" required aria-describedby="review-count"></textarea>
+      </label>
+      <p class="review-hint mono" id="review-count">0 / 600</p>
+      <label class="review-consent"><input type="checkbox" name="consent" required><span data-i18n="reviews.consent">VeltaCapital may publish this note, rating, and display name on this website. I can remove it at any time.</span></label>
+      <p class="review-hint" id="review-signin-note" data-i18n="reviews.signinNote">You'll sign in with Google before it is sent.</p>
+      <div class="review-actions">
+        <button class="btn solid" id="review-submit" type="submit" data-i18n="reviews.submit">Send for review</button>
+        <button class="text-btn" id="review-delete" type="button" hidden data-i18n="reviews.delete">Delete my note</button>
+      </div>
+      <p class="review-message" id="review-message" role="status"></p>
+    </form>
   </div>
-  <div class="open-lab reveal">
-    <div class="lab-layout">
-      <section class="lab-challenge" aria-labelledby="lab-title">
-        <div class="lab-kicker" data-i18n="lab.kicker">One-minute challenge</div>
-        <h3 id="lab-title" data-i18n="lab.title">Evidence or assumption?</h3>
-        <p class="lab-intro" data-i18n="lab.intro">Choose how each statement should be classified.</p>
-        <div class="claim-card">
-          <div class="claim-meta"><span data-i18n="lab.prompt">STATEMENT</span><span id="claim-progress">1 / 3</span></div>
-          <p class="claim-text" id="claim-text"></p>
-          <div class="claim-actions" role="group" aria-label="Classify the statement">
-            <button class="claim-answer" type="button" data-lab-answer="evidence" aria-pressed="false" data-i18n="lab.evidence">Evidence</button>
-            <button class="claim-answer" type="button" data-lab-answer="assumption" aria-pressed="false" data-i18n="lab.assumption">Assumption</button>
-          </div>
-          <p class="claim-feedback" id="claim-feedback" aria-live="polite"></p>
-          <button class="claim-next" id="claim-next" type="button" hidden data-i18n="lab.next">Next statement →</button>
-        </div>
-      </section>
-      <aside class="lab-summary" aria-label="What students can use">
-        <h4 data-i18n="lab.passTitle">Everything is included.</h4>
-        <div class="lab-summary-list">
-          <div class="lab-summary-item" data-i18n="lab.artifact1">15 guided lessons</div>
-          <div class="lab-summary-item" data-i18n="lab.artifact2">Unlimited practice</div>
-          <div class="lab-summary-item" data-i18n="lab.artifact3">Saved progress and reflection</div>
-        </div>
-        <div class="lab-cta">
-          <a class="btn solid" href="#try" data-i18n="lab.primary">Start a practice round</a>
-          <button class="text-action" id="free-access-login" type="button" data-i18n="lab.secondary">Sign in to save progress</button>
-        </div>
-      </aside>
-    </div>
-  </div>
-  <p class="access-note" data-i18n="lab.note">No payment method is requested or stored. VeltaCapital is an educational project and does not claim nonprofit or tax-exempt legal status.</p>
 </div></section>
 
 <!-- CONTACT -->
-<section class="section"><div class="wrap">
-  <div class="section-head reveal">
+<section class="contact-band"><div class="wrap">
+  <div class="reveal">
     <p class="eyebrow" data-i18n="contact.eyebrow">Get in touch</p>
     <h2 data-i18n="contact.title">Questions? Reach out.</h2>
   </div>
   <div class="contact reveal">
-    <a href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener" id="c-ig">@veltacapital</a>
-    <a href="mailto:veltacapitalhq@gmail.com" id="c-mail">veltacapitalhq@gmail.com</a>
+    <a class="btn" href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener" id="c-ig">@veltacapital</a>
+    <a class="btn" href="mailto:veltacapitalhq@gmail.com" id="c-mail">veltacapitalhq@gmail.com</a>
   </div>
 </div></section>
 
@@ -499,29 +527,42 @@ main,header,footer{position:relative;z-index:1}
 <!-- FOOTER -->
 <footer class="foot"><div class="wrap">
   <div class="foot-grid">
-    <div style="max-width:320px">
-      <a class="brand" href="#top" style="font-size:19px" id="brand-foot"></a>
-      <p class="mono" style="font-size:13px;margin-top:14px;line-height:1.7;color:var(--fg-mute)" data-i18n="footer.tagline">Chart-reading practice and financial education. Built for learning, not trading.</p>
+    <div>
+      <a class="brand" href="#top" id="brand-foot"></a>
+      <p class="foot-tag" data-i18n="footer.tagline">Chart-reading practice and financial education. Built for learning, not trading.</p>
     </div>
     <div>
       <p class="lbl" data-i18n="footer.explore">Explore</p>
-      <p style="margin:8px 0"><a href="#how" data-i18n="nav.how">How it works</a></p>
-      <p style="margin:8px 0"><a href="#course" data-i18n="nav.course">Course</a></p>
-      <p style="margin:8px 0"><a href="#try" data-i18n="footer.try">Try the game</a></p>
-      <p style="margin:8px 0"><a href="methodology.html" data-i18n="nav.methodology">Methodology</a></p>
-      <p style="margin:8px 0"><a href="#access" data-i18n="nav.access">Open lab</a></p>
+      <p class="link"><a href="#how" data-i18n="nav.how">How it works</a></p>
+      <p class="link"><a href="#course" data-i18n="nav.course">Field Guide</a></p>
+      <p class="link"><a href="#try" data-i18n="footer.try">Try the game</a></p>
+      <p class="link"><a href="methodology.html" data-i18n="nav.methodology">Methodology</a></p>
+      <p class="link"><a href="#access" data-i18n="nav.access">Evidence Desk</a></p>
+      <p class="link"><a href="#reviews" data-i18n="footer.reviews">Reader notes</a></p>
     </div>
     <div>
       <p class="lbl" data-i18n="footer.contact">Contact</p>
-      <p style="margin:8px 0"><a href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener">Instagram</a></p>
-      <p style="margin:8px 0"><a href="mailto:veltacapitalhq@gmail.com">Email</a></p>
-      <p style="margin:8px 0"><a href="terms.html" data-i18n="footer.terms">Terms</a> · <a href="privacy.html" data-i18n="footer.privacy">Privacy</a></p>
-      <p style="margin:8px 0"><a href="refunds.html" data-i18n="footer.support">Free access &amp; previous payment support</a></p>
+      <p class="link"><a href="https://www.instagram.com/veltacapital" target="_blank" rel="noopener">Instagram</a></p>
+      <p class="link"><a href="mailto:veltacapitalhq@gmail.com">Email</a></p>
+      <p class="link"><a href="terms.html" data-i18n="footer.terms">Terms</a> · <a href="privacy.html" data-i18n="footer.privacy">Privacy</a></p>
+      <p class="link"><a href="refunds.html" data-i18n="footer.support">Free access &amp; previous payment support</a></p>
     </div>
   </div>
-  <div class="disclaim" style="margin-top:40px">
+  <details class="credits">
+    <summary data-i18n="footer.credits">Photograph credits</summary>
+    <ul>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Lincoln_Nebraska_grocery.tif" rel="noopener">John Vachon, Grand Grocery Co., 1942</a> · Library of Congress · Public domain</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Main_Street_storefront,_Holyoke,_Massachusetts_(October_1941).jpg" rel="noopener">John Collier, Main Street storefront, Holyoke, 1941</a> · Library of Congress · Public domain</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Grocery_Store_display-1979-17.jpg" rel="noopener">Gary Hoover, Grocery Store display, 1979</a> · <a href="https://creativecommons.org/licenses/by/4.0" rel="noopener license">CC BY 4.0</a> · cropped</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Container_cranes_in_Tokyo_Bay_2.jpg" rel="noopener">Syced, Container cranes in Tokyo Bay</a> · CC0</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Ford_assembly_line_in_Copenhagen_1923.jpg" rel="noopener">Peter Elfelt, Ford assembly line in Copenhagen, 1923</a> · Public domain</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Psan%C3%BD_%C3%BA%C4%8Det_v_restauraci_Kharchewnya_Svayaki_(%D0%A5%D0%B0%D1%80%D1%87%D1%8D%D1%9E%D0%BD%D1%8F_%D0%A1%D0%B2%D0%B0%D1%8F%D0%BA%D1%96).jpg" rel="noopener">Ladabohac, handwritten restaurant bill</a> · CC0</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:1896_City_of_Columbus_Annual_Report_-_DPLA_-_a54a5f099dc74ddc31bbcae58dbb2660_(page_45).jpg" rel="noopener">City of Columbus, Annual Report, 1896</a> · Columbus Metropolitan Library · Public domain</li>
+    </ul>
+  </details>
+  <div class="disclaim">
     <strong data-i18n="footer.disclaimerTitle">Educational disclaimer.</strong>
-    <span data-i18n="footer.disclaimer">VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. All charts are historical and for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.</span>
+    <span data-i18n="footer.disclaimer">VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. Practice-round charts are historical; teaching demonstrations use data labeled as illustrative. All are for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.</span>
   </div>
 </div></footer>
 
@@ -531,10 +572,10 @@ main,header,footer{position:relative;z-index:1}
     <button class="x" id="login-x" data-i18n="modal.close">Close</button>
     <p class="eyebrow" data-i18n="modal.eyebrow">Sign in</p>
     <h2 id="login-title" data-i18n="modal.title">Continue to VeltaCapital</h2>
-    <p style="color:var(--fg-dim);font-size:15px;margin:12px 0 22px" data-i18n="modal.copy">Sign in with your Google account to save lesson progress, chart reflections, and assessment results.</p>
-    <p id="login-err" style="color:var(--down);font-size:13px;min-height:18px;margin:4px 0"></p>
-    <button class="btn solid lg" id="google-btn" style="width:100%;justify-content:center" data-i18n="modal.google">Continue with Google</button>
-    <p style="font-size:12px;color:var(--fg-mute);margin-top:16px;text-align:center;line-height:1.6" data-i18n-html="modal.legal">
+    <p class="modal-copy" data-i18n="modal.copy">Sign in with your Google account to save lesson progress, chart reflections, and assessment results.</p>
+    <p class="modal-error" id="login-err"></p>
+    <button class="btn solid lg" id="google-btn" data-i18n="modal.google">Continue with Google</button>
+    <p class="modal-legal" data-i18n-html="modal.legal">
       By continuing you confirm you are at least 13 years old and agree to our
       <a href="/terms" style="text-decoration:underline">Terms of Service</a> and
       <a href="/privacy" style="text-decoration:underline">Privacy Policy</a>.
@@ -543,81 +584,123 @@ main,header,footer{position:relative;z-index:1}
 </div>
 
 <script src="assets/velta.js"></script>
+<script src="assets/field-desk.js"></script>
+<script src="assets/reviews.js"></script>
 <script>
 const translations = {
   en: {
-    "nav.menu":"Menu","nav.how":"How it works","nav.course":"Course","nav.try":"Try it","nav.access":"Open lab","nav.methodology":"Methodology","nav.login":"Log in",
-    "hero.eyebrow":"Financial reasoning practice","hero.title":"Learn to <span class=\"am\">reason</span> from a chart before risking a cent.","hero.lead":"VeltaCapital pairs a written beginner curriculum with historical-chart exercises. Record the evidence behind your interpretation, reveal the actual candles, and review what the data showed without placing a trade.","hero.primary":"Try 3 practice rounds","hero.secondary":"See how it works","hero.note":"No account needed to try. No trading, no profit promises, no real money at risk.","hero.chartStart":"Record the evidence →","hero.chartEnd":"Compare with history",
+    "nav.menu":"Menu","nav.how":"How it works","nav.course":"Field Guide","nav.try":"Try it","nav.access":"Evidence Desk","nav.methodology":"Methodology","nav.login":"Log in",
+    "meta.title":"VeltaCapital: Financial reasoning practice with historical charts","meta.description":"Use a free course and historical-chart exercises to practice financial reasoning without trading real money.","a11y.nav":"Primary navigation","a11y.units":"Course units","a11y.classify":"Classify the statement","a11y.prevCovers":"Previous covers","a11y.nextCovers":"Next covers","a11y.trial":"Historical chart reasoning trial","trial.left.one":"{n} practice round left","trial.left.many":"{n} practice rounds left",
+    "hero.eyebrow":"Financial reasoning practice","hero.title":"Learn to <span class=\"am\">reason</span> from a chart before risking a cent.","hero.lead":"VeltaCapital pairs a written beginner curriculum with historical-chart exercises. Record the evidence behind your interpretation, reveal the actual candles, and review what the data showed without placing a trade.","hero.primary":"Try 3 practice rounds","hero.secondary":"Open the Field Guide","hero.note":"No account needed to try. No trading, no profit promises, no real money at risk.",
+    "hero.windowNote":"a price you can read from the pavement","hero.photoAlt":"A grocery shop window with oranges and grapefruit behind hand-painted prices, and a chalkboard listing potatoes and apples.","hero.fragmentTitle":"The same idea, as a record","hero.fragmentTag":"ILLUSTRATIVE","hero.fragmentLabel":"Twelve illustrative daily candles, rising overall. Use the slider to read each day.","hero.fragmentScrub":"Move through the days","hero.fragmentDay":"Day","hero.capTitle":"A shop writes prices on glass. A market writes them trade by trade.","hero.capBody":"The candles describe no real company and are not this grocer's data. They show the kind of record a listed business leaves behind.","hero.capCredit":"Grand Grocery Co., Lincoln, Nebraska, 1942. Photograph: John Vachon, Library of Congress. Public domain.",
     "kpi.historical":"Historical","kpi.historicalCopy":"OHLCV exercises with public methodology","kpi.separate":"Separate","kpi.separateCopy":"path accuracy, direction, confidence, and reasoning","kpi.risk":"real money at risk, ever",
     "how.eyebrow":"How it works","how.title":"Learn, interpret, reflect.","how.step1":"STEP 01","how.step1Title":"Learn the concept","how.step1Copy":"Written lessons cover market structure, chart mechanics, risk, uncertainty, and the limitations of technical signals.","how.step2":"STEP 02","how.step2Title":"Record your interpretation","how.step2Copy":"Estimate a future path and record the structure, evidence, and confidence behind your view before seeing the outcome.","how.step3":"STEP 03","how.step3Title":"Reflect on the result","how.step3Copy":"Compare path accuracy separately from direction and review descriptive observations without claiming that a chart caused the move.",
-    "course.eyebrow":"Course preview","course.title":"Explore the course.","course.lead":"Choose a lesson to see its focus.","course.act1":"ACT I · FOUNDATIONS","course.act2":"ACT II · EVIDENCE","course.act3":"ACT III · JUDGMENT","course.tryThis":"TRY THIS","course.reveal":"Reveal key idea","course.methodology":"Read the scoring and data methodology →",
-    "people.saechanRole":"Co-founder · Course & Strategy","people.saechanTag1":"Student educator","people.saechanTag2":"Simulation experience","people.saechanTag3":"Finance club president","people.saechanBio":"Designs the written lessons and historical-chart exercises from a student educator's perspective. His background includes school finance leadership and educational market simulations; it is not professional investment-advisory experience.","people.saechanFull":"Saechan has completed educational Forage job simulations based on investment banking, risk analysis, and quantitative research tasks. These programs are learning experiences and do not represent employment by their affiliated companies. Course material requires independent professional review before formal classroom use.","people.samuelRole":"Co-founder · Engineering","people.samuelTag1":"Full-stack build","people.samuelTag3":"Accessibility tech","people.samuelBio":"Builds the platform, historical-data exercises, authentication, and accessibility features. Focused on making financial concepts easier to examine and question.","people.samuelFull":"Having lived in Australia, Korea, and the United States, Samuel brings a global perspective to technology and entrepreneurship. His accessibility work includes navigation technology for visually impaired students. VeltaCapital's core chart exercise includes a complete keyboard alternative.","people.countries":"countries","people.stack":"stack","people.accessibility":"focus",
+    "plates.title":"Every number on a chart started somewhere ordinary.","plates.lead":"A business is shelves, freight, machines, and bills long before it is a line on a screen. Keep these in mind when a chart starts to feel abstract.","plates.shelvesAlt":"Grocery shelves stacked with jars and bottles, with hand-lettered price cards along the rows.","plates.shelvesTag":"PRICE","plates.shelvesCopy":"A shelf card is a price anyone can check. Whether it earns a profit is a separate question.","plates.shelvesCredit":"Minnesota, 1979. Gary Hoover, CC BY 4.0, cropped.","plates.cranesAlt":"Two container cranes lit orange at night above stacks of shipping containers.","plates.cranesTag":"COST","plates.cranesCopy":"Freight is a cost long before it appears in a report.","plates.cranesCredit":"Tokyo Bay, 2023. Syced, CC0.","plates.lineAlt":"Workers fitting a car on a 1920s assembly line, in black and white.","plates.lineTag":"OWNERSHIP","plates.lineCopy":"A share is a claim on a working business, not on its chart.","plates.lineCredit":"Ford assembly line, Copenhagen, 1923. Peter Elfelt. Public domain.","plates.billAlt":"A handwritten restaurant bill with items, prices and a total.","plates.billTag":"RECORD","plates.billCopy":"A bill records what was bought and what it cost. Like a candle, it does not say why.","plates.billCredit":"Restaurant bill, 2024. Ladabohac, CC0, cropped.",
+    "course.eyebrow":"Course preview","course.title":"The Field Guide.","course.lead":"Nine illustrated guides drawn from the 15-chapter course. Pick a cover and its workspace opens below.","course.reveal":"Reveal key idea","course.close":"Close workspace","course.index":"FIELD GUIDE","course.of":"OF","course.countNote":"The full course has 15 chapters; these nine guides group its chart, risk, and reasoning ideas.","course.methodology":"Read the scoring and data methodology →",
+    "cover.tryIt":"Try it","cover.diagram":"Diagram","cover.1.note":"one share","cover.2.note":"body","cover.3.note":"higher lows, or luck?","cover.4.note":"...and back","cover.6.note":"?","cover.7.tab1":"Filing","cover.7.tab2":"Report","cover.7.tab3":"Source","cover.9.estimate":"my estimate","cover.9.outcome":"what happened","cover.9.gap":"mind the gap",
+    "demo.swipe":"Swipe sideways for the full diagram","demo.reset":"Reset","demo.illustrative":"Illustrative data, invented for teaching","demo.candle.chartLabel":"Candlestick with draggable open and close handles. High and low are fixed.","demo.candle.high":"High","demo.candle.low":"Low","demo.candle.open":"Open","demo.candle.close":"Close","demo.candle.fixed":"fixed","demo.candle.body":"Body","demo.candle.taskLabel":"YOUR TASK","demo.candle.task":"Make the close lower than the open.","demo.candle.doneMark":"done","demo.candle.doneStatus":"Task complete. The close is lower than the open, so the candle closes down.","demo.candle.dir.up":"▲ Close above open","demo.candle.dir.down":"▼ Close below open","demo.candle.dir.flat":"■ Close equals open","demo.candle.volumeAxis":"VOLUME, THOUSAND SHARES","demo.candle.now":"THIS","demo.candle.volumeControl":"This session's volume:","demo.candle.volumeNote":"Volume is a separate record. Changing it moves the bar and leaves the candle alone.",
+    "demo.frame.switchLabel":"Choose a window of the same series","demo.frame.short":"Short: last 20 sessions","demo.frame.long":"Long: all 120 sessions","demo.frame.shortSits":"the short window sits here","demo.frame.session":"Session","demo.frame.lastClose":"Last close","demo.frame.noteLabel":"FIRST IMPRESSION","demo.frame.noteQuestion":"What does this window look like to you?","demo.frame.rising":"Rising","demo.frame.falling":"Falling","demo.frame.sideways":"Sideways","demo.frame.question":"Does your first impression still hold?","demo.frame.change":"Change","demo.frame.youNoted":"You noted:","demo.frame.note.short":"Now switch to the long window. The data will not change, only how much of it you see.","demo.frame.note.long":"Same closes, same last price. The shaded stretch is the whole of the short window. Neither view is the true one.","demo.frame.chartLabel":"Illustrative closing prices. First and last close shown:","demo.frame.illustrative":"Illustrative series, invented for teaching. Same 120 closes in both views.",
+    "demo.break.level":"Marked level","demo.break.reveal":"Reveal next candles","demo.break.finished":"All candles revealed","demo.break.restart":"Start over","demo.break.step":"Step","demo.break.latest":"Latest close","demo.break.vsLevel":"Against level","demo.break.above":"Above","demo.break.below":"Below","demo.break.crossNote":"closes above the level","demo.break.returnNote":"closes back below","demo.break.chartLabel":"Illustrative candlestick chart with a marked level at 100.","demo.break.status.paused":"Paused below the marked level. What would count as a real break to you?","demo.break.status.approach":"Closer to the level, still below it.","demo.break.status.crossed":"Crossing: this candle closes above the level.","demo.break.status.above":"Still above. Nothing has confirmed anything yet.","demo.break.status.fading":"Still above, but much of the move has been given back.","demo.break.status.returned":"Return: the close is back below the level. That is a false break here.","demo.break.status.settled":"Illustrated once, not a rule. Another series could have held above the level.",
+    "dg.own.label":"Diagram: a business divided into one hundred equal shares, with one share highlighted and share price shown separately.","dg.own.note":"A share is a small ownership claim on the business. Its price is what the last buyer and seller agreed, which is a separate question from how good the business is. One hundred shares is illustrative.","dg.own.business":"The business","dg.own.businessSub":"shop, staff, debts, profits","dg.own.shares":"Divided into shares","dg.own.sharesSub":"100 equal parts, as an example","dg.own.oneShare":"One share","dg.own.oneShareSub":"a 1/100 ownership claim","dg.own.price":"The share price","dg.own.priceSub":"the last agreed trade","dg.own.hand":"two different questions",
+    "dg.vol.label":"Diagram: two illustrative panels. One shows heavy volume with a small price range, the other light volume with a wide price range.","dg.vol.note":"Volume counts activity. Volatility describes how far price moved. The two can arrive together or apart, and neither tells you direction. Both panels are illustrative.","dg.vol.busy":"Heavy volume, small range","dg.vol.quiet":"Light volume, wide range","dg.vol.bars":"volume bars",
+    "dg.risk.label":"Diagram: a decision branching into two possible outcomes with illustrative probabilities of sixty and forty percent.","dg.risk.note":"Only one branch happens. A decision is judged on all the branches you could see beforehand, not on the one that came true. Percentages are illustrative.","dg.risk.decision":"The decision","dg.risk.decisionSub":"made before the result","dg.risk.a":"Favorable outcome","dg.risk.aSub":"more likely, not certain","dg.risk.b":"Unfavorable outcome","dg.risk.bSub":"less likely, still possible","dg.risk.hand":"only one path gets walked",
+    "dg.src.label":"Diagram: three tiers of sources, with original filings at the top, news summaries in the middle, and social posts at the bottom.","dg.src.note":"Each step away from the original adds someone else's interpretation. When a claim matters, climb back to the filing or original report.","dg.src.primary":"Filing or original report","dg.src.primarySub":"what the company formally stated","dg.src.secondary":"News summary","dg.src.secondarySub":"someone's reading of the original","dg.src.tertiary":"Social post","dg.src.tertiarySub":"a reading of a reading","dg.src.hand":"check upward",
+    "dg.bias.label":"Diagram: one illustrative price series with two crops. One crop looks like a rise, the other looks like a fall.","dg.bias.note":"Same illustrative series, two crops, two stories. Choosing where a chart starts and stops is already a choice about what it will seem to show.","dg.bias.cropA":"Crop A: looks like a rise","dg.bias.cropB":"Crop B: looks like a fall",
+    "dg.ref.label":"Diagram: a notebook page comparing seven of ten stated as likely with five of ten that happened.","dg.ref.note":"Calibration asks whether your stated confidence matches how often you were right. These ten notes are illustrative. Review the process, not imaginary profit.","dg.ref.said":"I said","dg.ref.happened":"It happened","dg.ref.gap":"The gap","dg.ref.saidValue":"70% sure","dg.ref.happenedValue":"5 of 10","dg.ref.gapValue":"20 points more sure than the record","dg.ref.hand":"which evidence did I overweight?",
     "common.readMore":"Read more ↓","common.readLess":"Read less ↑",
-    "try.eyebrow":"Try it now","try.title":"Three rounds. No sign-up to play.","try.lead":"Place five estimates on the visible chart, reveal the historical candles, then review the result and plain-language explanation. The full course adds structured reasoning and portfolio tracking.","try.frameTitle":"Historical Chart Reasoning: Trial","try.gateTitle":"Nice reads. Want to keep going?","try.gateCopy":"Log in with Google to save your reflections and continue with the complete course and unlimited practice.","try.gateButton":"Continue learning",
-    "lab.eyebrow":"Open learning lab","lab.heading":"Practice better financial thinking.","lab.lead":"Try one quick challenge, then continue into the full learning lab.","lab.kicker":"One-minute challenge","lab.title":"Evidence or assumption?","lab.intro":"Choose how each statement should be classified.","lab.prompt":"STATEMENT","lab.evidence":"Evidence","lab.assumption":"Assumption","lab.next":"Next statement →","lab.passTitle":"Everything is included.","lab.artifact1":"15 guided lessons","lab.artifact2":"Unlimited practice","lab.artifact3":"Saved progress and reflection","lab.primary":"Start a practice round","lab.secondary":"Sign in to save progress","lab.note":"No payment method is requested or stored. VeltaCapital is an educational project and does not claim nonprofit or tax-exempt legal status.",
-    "contact.eyebrow":"Get in touch","contact.title":"Questions? Reach out.","footer.tagline":"Chart-reading practice and financial education. Built for learning, not trading.","footer.explore":"Explore","footer.try":"Try the game","footer.contact":"Contact","footer.terms":"Terms","footer.privacy":"Privacy","footer.support":"Free access & previous payment support","footer.disclaimerTitle":"Educational disclaimer.","footer.disclaimer":" VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. All charts are historical and for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.",
+    "try.eyebrow":"Try it now","try.title":"Three rounds. No sign-up to play.","try.lead":"Place five estimates on the visible chart, reveal the historical candles, then review the result and plain-language explanation. The full course adds structured reasoning and portfolio tracking.","try.note":"write your estimate before you see the answer","try.frameTitle":"Historical Chart Reasoning: Trial","try.gateTitle":"Nice reads. Want to keep going?","try.gateCopy":"Log in with Google to save your reflections and continue with the complete course and unlimited practice.","try.gateButton":"Continue learning",
+    "lab.eyebrow":"Open learning lab","lab.heading":"The Evidence Desk.","lab.lead":"Three statements, three exhibits. Inspect what is on the page, then decide what the data can actually support.","lab.tabsLabel":"Cases","lab.case":"CASE","lab.exhibit":"EXHIBIT","lab.stateOpen":"Open","lab.stateFound":"Evidence found","lab.stateReview":"Looked again","lab.illustrative":"ILLUSTRATIVE DATA, NOT A REAL COMPANY","lab.inspect":"Inspect:","lab.evidence":"Supported by the data","lab.assumption":"An assumption","lab.found":"Evidence found","lab.lookAgain":"Look again","lab.next":"Next case →","lab.retry":"Try this case again","lab.toRecap":"See the recap →","lab.recapTitle":"Reasoning practiced","lab.recap1":"Compare recorded values before you describe them.","lab.recap2":"Separate what was recorded from why it happened.","lab.recap3":"Treat a past pattern as a record, not a promise.","lab.reset":"Reset the desk","lab.passTitle":"Everything is included.","lab.artifact1":"15 guided lessons","lab.artifact2":"Unlimited practice","lab.artifact3":"Saved progress and reflection","lab.primary":"Start a practice round","lab.secondary":"Sign in to save progress","lab.note":"No payment method is requested or stored. VeltaCapital is an educational project and does not claim nonprofit or tax-exempt legal status.",
+    "desk.axis":"One candle per session","desk.mark.prev":"Previous close","desk.mark.final":"Final close","desk.mark.first":"First close","desk.mark.last":"Last close","desk.mark.latest":"Latest close","desk.case1.chart":"Illustrative candles. The previous close is 104.20 and the final close is 106.85.","desk.case1.delta":"final minus previous:","desk.case2.chart":"Illustrative candles rising from a first close of 50.90 to a last close of 58.60. The chart shows prices only.","desk.case2.recorded":"recorded:","desk.case2.why":"why?","desk.case2.notRecorded":"not on this chart","desk.case3.chart":"Illustrative candles with rising lows, ending at 78.00. The space after the last candle is empty.","desk.case3.empty":"nothing recorded here yet",
+    "reviews.eyebrow":"Reader notes","reviews.title":"Notes from readers.","reviews.lead":"Written by people who have used VeltaCapital. Our team reads each note before it appears here. These are personal opinions about learning, not investment advice or a promise of results.","reviews.formTitle":"Leave a note","reviews.formCopy":"Tell us what helped and what didn't. Critical notes are welcome. Please leave out investment results, personal details, and links.","reviews.name":"Display name","reviews.nameHint":"First name or initials. It appears publicly.","reviews.rating":"Rating, 1 to 5","reviews.body":"Your note","reviews.consent":"VeltaCapital may publish this note, rating, and display name on this website. I can remove it at any time.","reviews.submit":"Send for review","reviews.update":"Update my note","reviews.delete":"Delete my note","reviews.signinNote":"You'll sign in with Google before it is sent.","reviews.sending":"Sending...","reviews.sent":"Thanks. Your note is waiting to be read.","reviews.readyAfterSignIn":"You're signed in. Your draft is here, so press Send for review.","reviews.deleted":"Your note has been deleted.","reviews.deleteConfirm":"Delete your note? This cannot be undone.","reviews.status.pending":"Your note is waiting to be read. It isn't public yet.","reviews.status.approved":"Your note is published. Editing it sends it back to be read.","reviews.status.rejected":"Your note wasn't published. You can edit it and send it again.","reviews.loadingTitle":"Loading notes...","reviews.loadingCopy":"","reviews.emptyTitle":"No notes yet.","reviews.emptyCopy":"This page is blank on purpose. We only show notes from real readers, so the first one could be yours.","reviews.unavailableTitle":"Notes can't load right now.","reviews.unavailableCopy":"Please try again later.","reviews.problem.name":"Add a display name of 2 to 40 characters.","reviews.problem.rating":"Choose a rating from 1 to 5.","reviews.problem.body":"Write between 20 and 600 characters.","reviews.problem.links":"Please remove links and email addresses.","reviews.problem.language":"This language isn't supported.","reviews.problem.consent":"Tick the box to allow publication.","reviews.problem.unavailable":"Your note couldn't be saved. Please try again later.",
+    "people.eyebrow":"Who wrote this notebook","people.title":"The people behind the desk.","people.saechanRole":"Co-founder · Course & Strategy","people.saechanTag1":"Student educator","people.saechanTag2":"Simulation experience","people.saechanTag3":"Finance club president","people.saechanBio":"Designs the written lessons and historical-chart exercises from a student educator's perspective. His background includes school finance leadership and educational market simulations; it is not professional investment-advisory experience.","people.saechanFull":"Saechan has completed educational Forage job simulations based on investment banking, risk analysis, and quantitative research tasks. These programs are learning experiences and do not represent employment by their affiliated companies. Course material requires independent professional review before formal classroom use.","people.samuelRole":"Co-founder · Engineering","people.samuelTag1":"Full-stack build","people.samuelTag3":"Accessibility tech","people.samuelBio":"Builds the platform, historical-data exercises, authentication, and accessibility features. Focused on making financial concepts easier to examine and question.","people.samuelFull":"Having lived in Australia, Korea, and the United States, Samuel brings a global perspective to technology and entrepreneurship. His accessibility work includes navigation technology for visually impaired students. VeltaCapital's core chart exercise includes a complete keyboard alternative.","people.countries":"countries","people.stack":"stack","people.accessibility":"focus",
+    "contact.eyebrow":"Get in touch","contact.title":"Questions? Reach out.","footer.tagline":"Chart-reading practice and financial education. Built for learning, not trading.","footer.explore":"Explore","footer.try":"Try the game","footer.contact":"Contact","footer.terms":"Terms","footer.privacy":"Privacy","footer.support":"Free access & previous payment support","footer.reviews":"Reader notes","footer.credits":"Photograph credits","footer.disclaimerTitle":"Educational disclaimer.","footer.disclaimer":" VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. Practice-round charts are historical; teaching demonstrations use data labeled as illustrative. All are for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.",
     "modal.close":"Close","modal.eyebrow":"Sign in","modal.title":"Continue to VeltaCapital","modal.copy":"Sign in with your Google account to save lesson progress, chart reflections, and assessment results.","modal.google":"Continue with Google","modal.legal":"By continuing you confirm you are at least 13 years old and agree to our <a href=\"/terms\" style=\"text-decoration:underline\">Terms of Service</a> and <a href=\"/privacy\" style=\"text-decoration:underline\">Privacy Policy</a>."
   },
   ko: {
-    "nav.menu":"메뉴","nav.how":"이용 방법","nav.course":"학습 과정","nav.try":"체험하기","nav.access":"오픈 학습실","nav.methodology":"평가 방법","nav.login":"로그인",
-    "hero.eyebrow":"금융 사고력 연습","hero.title":"돈을 걸기 전에 차트에서 <span class=\"am\">근거를 찾는 법</span>을 배워보세요.","hero.lead":"VeltaCapital은 입문용 글 학습과 과거 차트 연습을 연결합니다. 해석의 근거를 먼저 기록하고, 실제 캔들을 확인한 뒤, 거래 없이 데이터가 보여 준 결과를 돌아봅니다.","hero.primary":"연습 3회 체험하기","hero.secondary":"학습 방식 보기","hero.note":"체험에는 계정이 필요하지 않습니다. 실제 거래, 수익 약속, 실제 자금 위험이 없습니다.","hero.chartStart":"근거를 기록하세요 →","hero.chartEnd":"과거 데이터와 비교",
+    "nav.menu":"메뉴","nav.how":"이용 방법","nav.course":"필드 가이드","nav.try":"체험하기","nav.access":"근거 책상","nav.methodology":"평가 방법","nav.login":"로그인",
+    "meta.title":"VeltaCapital: 과거 차트로 연습하는 금융 사고력","meta.description":"실제 돈을 거래하지 않고 무료 수업과 과거 차트 연습으로 금융 사고력을 길러 보세요.","a11y.nav":"주요 탐색","a11y.units":"학습 과정 단원","a11y.classify":"문장 분류","a11y.prevCovers":"이전 표지","a11y.nextCovers":"다음 표지","a11y.trial":"과거 차트 추론 연습","trial.left.one":"연습 {n}회 남음","trial.left.many":"연습 {n}회 남음",
+    "hero.eyebrow":"금융 사고력 연습","hero.title":"돈을 걸기 전에 차트에서 <span class=\"am\">근거를 찾는 법</span>을 배워보세요.","hero.lead":"VeltaCapital은 입문용 글 학습과 과거 차트 연습을 연결합니다. 해석의 근거를 먼저 기록하고, 실제 캔들을 확인한 뒤, 거래 없이 데이터가 보여 준 결과를 돌아봅니다.","hero.primary":"연습 3회 체험하기","hero.secondary":"필드 가이드 열기","hero.note":"체험에는 계정이 필요하지 않습니다. 실제 거래, 수익 약속, 실제 자금 위험이 없습니다.",
+    "hero.windowNote":"길에서도 읽을 수 있는 가격","hero.photoAlt":"손으로 쓴 가격 뒤로 오렌지와 자몽이 놓인 식료품점 진열창과, 감자와 사과 가격이 적힌 칠판.","hero.fragmentTitle":"같은 생각을 기록으로 보면","hero.fragmentTag":"예시 자료","hero.fragmentLabel":"전체적으로 오르는 12일간의 예시 캔들입니다. 슬라이더로 날짜별 값을 읽을 수 있습니다.","hero.fragmentScrub":"날짜 옮겨 보기","hero.fragmentDay":"날짜","hero.capTitle":"가게는 유리창에 가격을 쓰고, 시장은 거래마다 가격을 씁니다.","hero.capBody":"이 캔들은 실제 기업이나 이 식료품점의 자료가 아닙니다. 상장 기업이 남기는 기록의 형태를 보여 주는 예시입니다.","hero.capCredit":"Grand Grocery Co., 미국 네브래스카주 링컨, 1942년. 사진: John Vachon, 미국 의회도서관. 퍼블릭 도메인.",
     "kpi.historical":"과거 데이터","kpi.historicalCopy":"공개된 평가 방법을 사용하는 OHLCV 연습","kpi.separate":"따로 평가","kpi.separateCopy":"경로 정확도, 방향, 자신감, 추론을 구분","kpi.risk":"실제 자금 위험은 언제나 0",
     "how.eyebrow":"이용 방법","how.title":"배우고, 해석하고, 돌아봅니다.","how.step1":"1단계","how.step1Title":"개념 배우기","how.step1Copy":"시장 구조, 차트의 원리, 위험, 불확실성, 기술적 신호의 한계를 글 학습으로 익힙니다.","how.step2":"2단계","how.step2Title":"나의 해석 기록하기","how.step2Copy":"결과를 보기 전에 가능한 경로를 예상하고, 관찰한 구조와 근거, 자신감을 기록합니다.","how.step3":"3단계","how.step3Title":"결과 돌아보기","how.step3Copy":"경로 정확도와 방향을 따로 비교하고, 차트가 움직임의 원인이라고 단정하지 않으면서 관찰 결과를 검토합니다.",
-    "course.eyebrow":"학습 과정 미리보기","course.title":"학습 과정을 둘러보세요.","course.lead":"수업 번호를 선택해 핵심 내용을 확인하세요.","course.act1":"1막 · 기초","course.act2":"2막 · 증거","course.act3":"3막 · 판단","course.tryThis":"직접 생각해 보기","course.reveal":"핵심 내용 보기","course.methodology":"점수 계산과 데이터 평가 방법 보기 →",
-    "people.saechanRole":"공동 창립자 · 교육 과정 및 전략","people.saechanTag1":"학생 교육자","people.saechanTag2":"시뮬레이션 경험","people.saechanTag3":"금융 동아리 회장","people.saechanBio":"학생 교육자의 관점에서 글 학습과 과거 차트 연습을 설계합니다. 학교 금융 활동과 교육용 시장 시뮬레이션 경험을 바탕으로 하며, 전문 투자 자문 경력을 의미하지 않습니다.","people.saechanFull":"Saechan은 투자은행, 위험 분석, 정량 연구 업무를 바탕으로 한 Forage 교육용 직무 시뮬레이션을 이수했습니다. 이는 학습 경험이며 관련 기업에서의 근무 경력을 의미하지 않습니다. 정규 수업에서 사용하기 전에 교육 자료에 대한 독립적인 전문가 검토가 필요합니다.","people.samuelRole":"공동 창립자 · 엔지니어링","people.samuelTag1":"풀스택 개발","people.samuelTag3":"접근성 기술","people.samuelBio":"플랫폼, 과거 데이터 연습, 인증, 접근성 기능을 개발합니다. 금융 개념을 더 쉽게 살펴보고 질문할 수 있도록 만드는 데 집중합니다.","people.samuelFull":"호주, 한국, 미국에서 생활한 Samuel은 기술과 창업을 세계적인 관점에서 바라봅니다. 시각장애 학생을 위한 길 안내 기술 등 접근성 프로젝트를 진행했으며, VeltaCapital의 핵심 차트 연습에는 완전한 키보드 대체 기능이 포함되어 있습니다.","people.countries":"거주 국가","people.stack":"스택","people.accessibility":"접근성",
+    "plates.title":"차트의 모든 숫자는 평범한 곳에서 시작됩니다.","plates.lead":"기업은 화면 속 선이기 전에 진열대, 운송, 기계, 계산서입니다. 차트가 추상적으로 느껴질 때 이 장면들을 떠올려 보세요.","plates.shelvesAlt":"병과 단지가 쌓인 식료품 진열대와 줄지어 놓인 손글씨 가격표.","plates.shelvesTag":"가격","plates.shelvesCopy":"진열대 가격표는 누구나 확인할 수 있는 가격입니다. 그 가격이 이익을 남기는지는 다른 질문입니다.","plates.shelvesCredit":"미국 미네소타, 1979년. Gary Hoover, CC BY 4.0, 일부 자름.","plates.cranesAlt":"밤에 주황빛으로 빛나는 컨테이너 크레인 두 대와 그 아래 쌓인 컨테이너.","plates.cranesTag":"비용","plates.cranesCopy":"운송비는 보고서에 나타나기 훨씬 전부터 비용입니다.","plates.cranesCredit":"도쿄만, 2023년. Syced, CC0.","plates.lineAlt":"1920년대 조립 라인에서 자동차를 조립하는 작업자들의 흑백 사진.","plates.lineTag":"소유","plates.lineCopy":"주식은 차트가 아니라 실제로 돌아가는 기업에 대한 권리입니다.","plates.lineCredit":"코펜하겐 포드 조립 라인, 1923년. Peter Elfelt. 퍼블릭 도메인.","plates.billAlt":"품목, 가격, 합계가 손글씨로 적힌 식당 계산서.","plates.billTag":"기록","plates.billCopy":"계산서는 무엇을 얼마에 샀는지 기록합니다. 캔들처럼, 왜 샀는지는 말해 주지 않습니다.","plates.billCredit":"식당 계산서, 2024년. Ladabohac, CC0, 일부 자름.",
+    "course.eyebrow":"학습 과정 미리보기","course.title":"필드 가이드","course.lead":"전체 15장 과정에서 뽑은 그림 가이드 9권입니다. 표지를 고르면 바로 아래에 작업 공간이 열립니다.","course.reveal":"핵심 내용 보기","course.close":"작업 공간 닫기","course.index":"필드 가이드","course.of":"/","course.countNote":"전체 과정은 15장이며, 이 가이드 9권은 그중 차트, 위험, 추론에 관한 내용을 묶은 것입니다.","course.methodology":"점수 계산과 데이터 평가 방법 보기 →",
+    "cover.tryIt":"직접 해보기","cover.diagram":"도해","cover.1.note":"주식 한 주","cover.2.note":"몸통","cover.3.note":"저점 상승일까, 우연일까?","cover.4.note":"...그리고 복귀","cover.6.note":"?","cover.7.tab1":"공시","cover.7.tab2":"보고서","cover.7.tab3":"출처","cover.9.estimate":"나의 예상","cover.9.outcome":"실제 결과","cover.9.gap":"차이를 살피기",
+    "demo.swipe":"옆으로 밀면 도해 전체를 볼 수 있습니다","demo.reset":"초기화","demo.illustrative":"교육용으로 만든 예시 자료입니다","demo.candle.chartLabel":"시가와 종가 손잡이를 끌 수 있는 캔들입니다. 고가와 저가는 고정되어 있습니다.","demo.candle.high":"고가","demo.candle.low":"저가","demo.candle.open":"시가","demo.candle.close":"종가","demo.candle.fixed":"고정","demo.candle.body":"몸통","demo.candle.taskLabel":"과제","demo.candle.task":"종가를 시가보다 낮게 만들어 보세요.","demo.candle.doneMark":"완료","demo.candle.doneStatus":"과제 완료. 종가가 시가보다 낮아 하락 캔들이 되었습니다.","demo.candle.dir.up":"▲ 종가가 시가보다 높음","demo.candle.dir.down":"▼ 종가가 시가보다 낮음","demo.candle.dir.flat":"■ 종가와 시가가 같음","demo.candle.volumeAxis":"거래량(천 주)","demo.candle.now":"현재","demo.candle.volumeControl":"이번 거래일 거래량:","demo.candle.volumeNote":"거래량은 별도의 기록입니다. 값을 바꾸면 막대만 움직이고 캔들은 그대로입니다.",
+    "demo.frame.switchLabel":"같은 시계열의 구간 선택","demo.frame.short":"짧게: 최근 20거래일","demo.frame.long":"길게: 전체 120거래일","demo.frame.shortSits":"짧은 구간은 여기입니다","demo.frame.session":"거래일","demo.frame.lastClose":"마지막 종가","demo.frame.noteLabel":"첫인상","demo.frame.noteQuestion":"이 구간은 어떻게 보이나요?","demo.frame.rising":"상승","demo.frame.falling":"하락","demo.frame.sideways":"횡보","demo.frame.question":"첫인상이 여전히 유효한가요?","demo.frame.change":"변화율","demo.frame.youNoted":"내가 고른 인상:","demo.frame.note.short":"이제 긴 구간으로 바꿔 보세요. 데이터는 그대로이고 보이는 범위만 달라집니다.","demo.frame.note.long":"같은 종가, 같은 마지막 가격입니다. 음영 구간이 곧 짧은 구간 전체입니다. 어느 쪽도 유일하게 맞는 화면은 아닙니다.","demo.frame.chartLabel":"예시 종가입니다. 첫 종가와 마지막 종가:","demo.frame.illustrative":"교육용으로 만든 예시 시계열입니다. 두 화면 모두 같은 120개 종가를 사용합니다.",
+    "demo.break.level":"표시한 가격대","demo.break.reveal":"다음 캔들 보기","demo.break.finished":"모든 캔들을 확인했습니다","demo.break.restart":"처음부터","demo.break.step":"단계","demo.break.latest":"최근 종가","demo.break.vsLevel":"가격대 대비","demo.break.above":"위","demo.break.below":"아래","demo.break.crossNote":"가격대 위에서 마감","demo.break.returnNote":"다시 아래에서 마감","demo.break.chartLabel":"100에 표시한 가격대가 있는 예시 캔들 차트입니다.","demo.break.status.paused":"표시한 가격대 아래에서 멈춰 있습니다. 어떤 모습이면 진짜 돌파라고 보겠습니까?","demo.break.status.approach":"가격대에 가까워졌지만 아직 아래에 있습니다.","demo.break.status.crossed":"돌파: 이 캔들은 가격대 위에서 마감했습니다.","demo.break.status.above":"아직 위에 있습니다. 확인된 것은 아직 없습니다.","demo.break.status.fading":"아직 위에 있지만 상승분을 대부분 되돌렸습니다.","demo.break.status.returned":"복귀: 종가가 다시 가격대 아래로 돌아왔습니다. 이 예시에서는 거짓 돌파입니다.","demo.break.status.settled":"한 번의 예시일 뿐 규칙이 아닙니다. 다른 시계열이라면 가격대 위에 머물 수도 있습니다.",
+    "dg.own.label":"도해: 기업을 100개의 같은 주식으로 나누고 그중 한 주를 강조한 그림. 주가는 따로 표시되어 있습니다.","dg.own.note":"주식 한 주는 기업에 대한 작은 소유권입니다. 주가는 마지막 매수자와 매도자가 합의한 값으로, 기업이 얼마나 좋은지와는 다른 질문입니다. 100주는 예시입니다.","dg.own.business":"기업","dg.own.businessSub":"가게, 직원, 부채, 이익","dg.own.shares":"주식으로 나눔","dg.own.sharesSub":"예시: 같은 크기의 100주","dg.own.oneShare":"주식 한 주","dg.own.oneShareSub":"1/100의 소유권","dg.own.price":"주가","dg.own.priceSub":"마지막으로 합의된 거래","dg.own.hand":"서로 다른 두 질문",
+    "dg.vol.label":"도해: 예시 두 패널. 하나는 거래량이 많고 가격 범위가 좁으며, 다른 하나는 거래량이 적고 가격 범위가 넓습니다.","dg.vol.note":"거래량은 활동량을, 변동성은 가격이 움직인 폭을 뜻합니다. 둘은 함께 나타나기도 하고 따로 나타나기도 하며, 어느 쪽도 방향을 알려 주지 않습니다. 두 패널 모두 예시입니다.","dg.vol.busy":"많은 거래량, 좁은 범위","dg.vol.quiet":"적은 거래량, 넓은 범위","dg.vol.bars":"거래량 막대",
+    "dg.risk.label":"도해: 하나의 결정이 예시 확률 60%와 40%의 두 결과로 갈라지는 그림.","dg.risk.note":"실제로 일어나는 가지는 하나뿐입니다. 결정은 실현된 결과가 아니라 미리 볼 수 있었던 모든 가지를 기준으로 평가합니다. 확률은 예시입니다.","dg.risk.decision":"결정","dg.risk.decisionSub":"결과를 알기 전","dg.risk.a":"유리한 결과","dg.risk.aSub":"가능성이 더 크지만 확실하지 않음","dg.risk.b":"불리한 결과","dg.risk.bSub":"가능성은 작지만 일어날 수 있음","dg.risk.hand":"걷게 되는 길은 하나뿐",
+    "dg.src.label":"도해: 맨 위는 공시 원문, 가운데는 뉴스 요약, 맨 아래는 소셜 게시물로 이루어진 세 단계의 출처.","dg.src.note":"원문에서 한 단계 멀어질 때마다 다른 사람의 해석이 더해집니다. 중요한 주장이라면 공시나 원본 보고서까지 거슬러 올라가세요.","dg.src.primary":"공시 또는 원본 보고서","dg.src.primarySub":"기업이 공식적으로 밝힌 내용","dg.src.secondary":"뉴스 요약","dg.src.secondarySub":"원문을 읽은 누군가의 해석","dg.src.tertiary":"소셜 게시물","dg.src.tertiarySub":"해석을 다시 해석한 글","dg.src.hand":"위로 확인하기",
+    "dg.bias.label":"도해: 하나의 예시 시계열을 두 가지로 자른 그림. 한쪽은 상승처럼, 다른 쪽은 하락처럼 보입니다.","dg.bias.note":"같은 예시 시계열도 어떻게 자르느냐에 따라 다른 이야기가 됩니다. 차트의 시작과 끝을 고르는 일 자체가 무엇을 보여 줄지 정하는 선택입니다.","dg.bias.cropA":"구간 A: 상승처럼 보임","dg.bias.cropB":"구간 B: 하락처럼 보임",
+    "dg.ref.label":"도해: 10번 중 7번 가능하다고 한 예상과 실제로 일어난 5번을 비교하는 노트.","dg.ref.note":"판단 조정은 내가 말한 자신감이 실제로 맞힌 빈도와 일치하는지 묻는 일입니다. 이 10개의 기록은 예시입니다. 가상의 수익이 아니라 과정을 돌아보세요.","dg.ref.said":"내가 말한 값","dg.ref.happened":"실제 결과","dg.ref.gap":"차이","dg.ref.saidValue":"70% 확신","dg.ref.happenedValue":"10번 중 5번","dg.ref.gapValue":"기록보다 20포인트 더 확신함","dg.ref.hand":"어떤 근거를 과대평가했을까?",
     "common.readMore":"더 보기 ↓","common.readLess":"접기 ↑",
-    "try.eyebrow":"지금 체험하기","try.title":"세 번의 연습. 회원가입 없이 시작하세요.","try.lead":"보이는 차트에 다섯 개의 예상값을 표시하고, 숨겨진 과거 캔들을 연 뒤, 결과와 쉬운 설명을 검토하세요. 전체 과정에서는 체계적인 추론과 포트폴리오 기록도 제공합니다.","try.frameTitle":"과거 차트 추론 연습 · 체험","try.gateTitle":"좋은 관찰이었어요. 계속해 볼까요?","try.gateCopy":"Google 계정으로 로그인하면 생각한 내용을 저장하고 전체 과정과 무제한 연습을 이어갈 수 있습니다.","try.gateButton":"학습 계속하기",
-    "lab.eyebrow":"오픈 학습실","lab.heading":"더 나은 금융 사고력을 연습하세요.","lab.lead":"짧은 문제를 풀고 전체 학습실에서 계속 연습하세요.","lab.kicker":"1분 도전","lab.title":"근거일까요, 추측일까요?","lab.intro":"각 문장을 알맞게 분류해 보세요.","lab.prompt":"문장","lab.evidence":"근거","lab.assumption":"추측","lab.next":"다음 문장 →","lab.passTitle":"모든 기능이 포함됩니다.","lab.artifact1":"단계별 수업 15개","lab.artifact2":"무제한 연습","lab.artifact3":"진도 및 성찰 기록 저장","lab.primary":"연습 시작하기","lab.secondary":"로그인하고 학습 기록 저장하기","lab.note":"결제 수단을 요청하거나 저장하지 않습니다. VeltaCapital은 교육 프로젝트이며 비영리 법인 또는 면세 지위를 주장하지 않습니다.",
-    "contact.eyebrow":"문의하기","contact.title":"궁금한 점이 있나요? 연락해 주세요.","footer.tagline":"차트 읽기 연습과 금융 교육. 거래가 아닌 학습을 위해 만들었습니다.","footer.explore":"둘러보기","footer.try":"연습 체험","footer.contact":"연락처","footer.terms":"이용약관","footer.privacy":"개인정보 처리방침","footer.support":"무료 이용 및 이전 결제 지원","footer.disclaimerTitle":"교육 목적 안내.","footer.disclaimer":" VeltaCapital은 교육용 시뮬레이션입니다. 금융 자문, 투자 추천, 수익 보장을 제공하지 않습니다. 모든 차트는 과거 자료이며 연습 목적으로만 사용됩니다. 과거 차트의 성과가 미래 결과를 예측하지 않습니다. 시장에는 위험이 있으므로 투자 결정 전 자격을 갖춘 전문가와 상담하세요.",
+    "try.eyebrow":"지금 체험하기","try.title":"세 번의 연습. 회원가입 없이 시작하세요.","try.lead":"보이는 차트에 다섯 개의 예상값을 표시하고, 숨겨진 과거 캔들을 연 뒤, 결과와 쉬운 설명을 검토하세요. 전체 과정에서는 체계적인 추론과 포트폴리오 기록도 제공합니다.","try.note":"답을 보기 전에 예상을 먼저 적으세요","try.frameTitle":"과거 차트 추론 연습 · 체험","try.gateTitle":"좋은 관찰이었어요. 계속해 볼까요?","try.gateCopy":"Google 계정으로 로그인하면 생각한 내용을 저장하고 전체 과정과 무제한 연습을 이어갈 수 있습니다.","try.gateButton":"학습 계속하기",
+    "lab.eyebrow":"오픈 학습실","lab.heading":"근거 책상","lab.lead":"세 문장과 세 자료가 있습니다. 눈앞의 자료를 살핀 뒤, 데이터가 실제로 뒷받침하는 내용을 판단해 보세요.","lab.tabsLabel":"사건","lab.case":"사건","lab.exhibit":"자료","lab.stateOpen":"미해결","lab.stateFound":"근거 발견","lab.stateReview":"다시 살펴봄","lab.illustrative":"예시 자료이며 실제 기업이 아닙니다","lab.inspect":"살펴보기:","lab.evidence":"데이터로 확인됨","lab.assumption":"추측임","lab.found":"근거 발견","lab.lookAgain":"다시 살펴보세요","lab.next":"다음 사건 →","lab.retry":"이 사건 다시 풀기","lab.toRecap":"정리 보기 →","lab.recapTitle":"연습한 추론","lab.recap1":"설명하기 전에 기록된 값을 비교합니다.","lab.recap2":"기록된 사실과 그 이유를 구분합니다.","lab.recap3":"과거 패턴은 약속이 아니라 기록으로 다룹니다.","lab.reset":"책상 초기화","lab.passTitle":"모든 기능이 포함됩니다.","lab.artifact1":"단계별 수업 15개","lab.artifact2":"무제한 연습","lab.artifact3":"진도 및 성찰 기록 저장","lab.primary":"연습 시작하기","lab.secondary":"로그인하고 학습 기록 저장하기","lab.note":"결제 수단을 요청하거나 저장하지 않습니다. VeltaCapital은 교육 프로젝트이며 비영리 법인 또는 면세 지위를 주장하지 않습니다.",
+    "desk.axis":"캔들 하나가 거래일 하나입니다","desk.mark.prev":"이전 종가","desk.mark.final":"마지막 종가","desk.mark.first":"첫 종가","desk.mark.last":"마지막 종가","desk.mark.latest":"최근 종가","desk.case1.chart":"예시 캔들입니다. 이전 종가는 104.20, 마지막 종가는 106.85입니다.","desk.case1.delta":"마지막 − 이전:","desk.case2.chart":"첫 종가 50.90에서 마지막 종가 58.60까지 오르는 예시 캔들입니다. 차트에는 가격만 나타납니다.","desk.case2.recorded":"기록:","desk.case2.why":"이유는?","desk.case2.notRecorded":"차트에 없음","desk.case3.chart":"저점이 높아지며 78.00에서 끝나는 예시 캔들입니다. 마지막 캔들 이후는 비어 있습니다.","desk.case3.empty":"아직 기록되지 않음",
+    "reviews.eyebrow":"독자 노트","reviews.title":"독자들이 남긴 노트","reviews.lead":"VeltaCapital을 사용해 본 분들이 직접 쓴 글입니다. 운영팀이 각 노트를 읽은 뒤 게시합니다. 학습에 대한 개인 의견이며, 투자 조언이나 결과에 대한 약속이 아닙니다.","reviews.formTitle":"노트 남기기","reviews.formCopy":"도움이 된 점과 그렇지 않았던 점을 알려 주세요. 비판적인 의견도 환영합니다. 투자 결과, 개인 정보, 링크는 쓰지 말아 주세요.","reviews.name":"표시 이름","reviews.nameHint":"이름 또는 이니셜을 쓰세요. 공개적으로 표시됩니다.","reviews.rating":"평점, 1~5","reviews.body":"내 노트","reviews.consent":"VeltaCapital이 이 노트, 평점, 표시 이름을 이 웹사이트에 게시하는 데 동의합니다. 언제든지 삭제할 수 있습니다.","reviews.submit":"검토 요청 보내기","reviews.update":"내 노트 수정하기","reviews.delete":"내 노트 삭제","reviews.signinNote":"보내기 전에 Google로 로그인합니다.","reviews.sending":"보내는 중...","reviews.sent":"감사합니다. 노트가 검토를 기다리고 있습니다.","reviews.readyAfterSignIn":"로그인되었습니다. 작성한 내용이 그대로 있으니 검토 요청 보내기를 누르세요.","reviews.deleted":"노트가 삭제되었습니다.","reviews.deleteConfirm":"노트를 삭제할까요? 되돌릴 수 없습니다.","reviews.status.pending":"노트가 검토를 기다리고 있습니다. 아직 공개되지 않았습니다.","reviews.status.approved":"노트가 게시되었습니다. 수정하면 다시 검토를 거칩니다.","reviews.status.rejected":"노트가 게시되지 않았습니다. 수정해서 다시 보낼 수 있습니다.","reviews.loadingTitle":"노트를 불러오는 중...","reviews.loadingCopy":"","reviews.emptyTitle":"아직 노트가 없습니다.","reviews.emptyCopy":"일부러 비워 두었습니다. 실제 독자의 노트만 보여 드리므로, 첫 번째 노트의 주인공이 되어 주세요.","reviews.unavailableTitle":"지금은 노트를 불러올 수 없습니다.","reviews.unavailableCopy":"나중에 다시 시도해 주세요.","reviews.problem.name":"표시 이름을 2~40자로 입력하세요.","reviews.problem.rating":"1~5 중에서 평점을 고르세요.","reviews.problem.body":"20~600자로 작성하세요.","reviews.problem.links":"링크와 이메일 주소를 지워 주세요.","reviews.problem.language":"지원하지 않는 언어입니다.","reviews.problem.consent":"게시에 동의하려면 확인란을 선택하세요.","reviews.problem.unavailable":"노트를 저장하지 못했습니다. 나중에 다시 시도해 주세요.",
+    "people.eyebrow":"이 노트를 쓴 사람들","people.title":"이 책상을 만든 사람들","people.saechanRole":"공동 창립자 · 교육 과정 및 전략","people.saechanTag1":"학생 교육자","people.saechanTag2":"시뮬레이션 경험","people.saechanTag3":"금융 동아리 회장","people.saechanBio":"학생 교육자의 관점에서 글 학습과 과거 차트 연습을 설계합니다. 학교 금융 활동과 교육용 시장 시뮬레이션 경험을 바탕으로 하며, 전문 투자 자문 경력을 의미하지 않습니다.","people.saechanFull":"Saechan은 투자은행, 위험 분석, 정량 연구 업무를 바탕으로 한 Forage 교육용 직무 시뮬레이션을 이수했습니다. 이는 학습 경험이며 관련 기업에서의 근무 경력을 의미하지 않습니다. 정규 수업에서 사용하기 전에 교육 자료에 대한 독립적인 전문가 검토가 필요합니다.","people.samuelRole":"공동 창립자 · 엔지니어링","people.samuelTag1":"풀스택 개발","people.samuelTag3":"접근성 기술","people.samuelBio":"플랫폼, 과거 데이터 연습, 인증, 접근성 기능을 개발합니다. 금융 개념을 더 쉽게 살펴보고 질문할 수 있도록 만드는 데 집중합니다.","people.samuelFull":"호주, 한국, 미국에서 생활한 Samuel은 기술과 창업을 세계적인 관점에서 바라봅니다. 시각장애 학생을 위한 길 안내 기술 등 접근성 프로젝트를 진행했으며, VeltaCapital의 핵심 차트 연습에는 완전한 키보드 대체 기능이 포함되어 있습니다.","people.countries":"거주 국가","people.stack":"스택","people.accessibility":"접근성",
+    "contact.eyebrow":"문의하기","contact.title":"궁금한 점이 있나요? 연락해 주세요.","footer.tagline":"차트 읽기 연습과 금융 교육. 거래가 아닌 학습을 위해 만들었습니다.","footer.explore":"둘러보기","footer.try":"연습 체험","footer.contact":"연락처","footer.terms":"이용약관","footer.privacy":"개인정보 처리방침","footer.support":"무료 이용 및 이전 결제 지원","footer.reviews":"독자 노트","footer.credits":"사진 출처","footer.disclaimerTitle":"교육 목적 안내.","footer.disclaimer":" VeltaCapital은 교육용 시뮬레이션입니다. 금융 자문, 투자 추천, 수익 보장을 제공하지 않습니다. 연습 라운드의 차트는 과거 자료이며, 교육용 시연에는 예시 자료임을 표시한 데이터를 사용합니다. 모두 연습 목적으로만 사용됩니다. 과거 차트의 성과가 미래 결과를 예측하지 않습니다. 시장에는 위험이 있으므로 투자 결정 전 자격을 갖춘 전문가와 상담하세요.",
     "modal.close":"닫기","modal.eyebrow":"로그인","modal.title":"VeltaCapital 계속하기","modal.copy":"Google 계정으로 로그인하면 수업 진도, 차트에 대한 생각, 평가 결과를 저장할 수 있습니다.","modal.google":"Google로 계속하기","modal.legal":"계속하면 만 13세 이상임을 확인하고 <a href=\"/terms\" style=\"text-decoration:underline\">이용약관</a> 및 <a href=\"/privacy\" style=\"text-decoration:underline\">개인정보 처리방침</a>에 동의하게 됩니다."
+  },
+  fr: {
+    "nav.menu":"Menu","nav.how":"Comment ça marche","nav.course":"Guide de terrain","nav.try":"Essayer","nav.access":"Bureau des preuves","nav.methodology":"Méthodologie","nav.login":"Se connecter",
+    "meta.title":"VeltaCapital : s’exercer au raisonnement financier avec des graphiques historiques","meta.description":"Un cours gratuit et des exercices sur graphiques historiques pour s’entraîner au raisonnement financier, sans engager d’argent réel.","a11y.nav":"Navigation principale","a11y.units":"Unités du cours","a11y.classify":"Classer l’affirmation","a11y.prevCovers":"Couvertures précédentes","a11y.nextCovers":"Couvertures suivantes","a11y.trial":"Essai de raisonnement sur graphique historique","trial.left.one":"{n} manche d’entraînement restante","trial.left.many":"{n} manches d’entraînement restantes",
+    "hero.eyebrow":"S’exercer au raisonnement financier","hero.title":"Apprenez à <span class=\"am\">raisonner</span> à partir d’un graphique avant de risquer un centime.","hero.lead":"VeltaCapital associe un cours écrit pour débutants à des exercices sur graphiques historiques. Notez les éléments qui fondent votre interprétation, découvrez les vrais chandeliers, puis examinez ce que montraient les données, sans passer le moindre ordre.","hero.primary":"Essayer 3 manches d’entraînement","hero.secondary":"Ouvrir le Guide de terrain","hero.note":"Aucun compte requis pour essayer. Pas de transaction, pas de promesse de gain, aucun argent réel en jeu.",
+    "hero.windowNote":"un prix qu’on lit depuis le trottoir","hero.photoAlt":"Vitrine d’épicerie avec des oranges et des pamplemousses derrière des prix peints à la main, et une ardoise indiquant le prix des pommes de terre et des pommes.","hero.fragmentTitle":"La même idée, sous forme de relevé","hero.fragmentTag":"EXEMPLE FICTIF","hero.fragmentLabel":"Douze chandeliers quotidiens fictifs, globalement en hausse. Utilisez le curseur pour lire chaque journée.","hero.fragmentScrub":"Parcourir les jours","hero.fragmentDay":"Jour","hero.capTitle":"Une boutique écrit ses prix sur la vitre. Un marché les écrit transaction après transaction.","hero.capBody":"Ces chandeliers ne décrivent aucune entreprise réelle et ne sont pas les données de cet épicier. Ils montrent le type de relevé que laisse une société cotée.","hero.capCredit":"Grand Grocery Co., Lincoln, Nebraska, 1942. Photographie : John Vachon, Bibliothèque du Congrès. Domaine public.",
+    "kpi.historical":"Historique","kpi.historicalCopy":"des exercices OHLCV à la méthodologie publique","kpi.separate":"Séparé","kpi.separateCopy":"précision du tracé, direction, confiance et raisonnement","kpi.risk":"argent réel en jeu, jamais",
+    "how.eyebrow":"Comment ça marche","how.title":"Apprendre, interpréter, réfléchir.","how.step1":"ÉTAPE 01","how.step1Title":"Apprendre la notion","how.step1Copy":"Les leçons écrites couvrent la structure du marché, le fonctionnement des graphiques, le risque, l’incertitude et les limites des signaux techniques.","how.step2":"ÉTAPE 02","how.step2Title":"Noter votre interprétation","how.step2Copy":"Estimez une trajectoire future et notez la structure, les éléments et le degré de confiance qui fondent votre avis avant de voir le résultat.","how.step3":"ÉTAPE 03","how.step3Title":"Réfléchir au résultat","how.step3Copy":"Comparez la précision du tracé et la direction séparément, et examinez ce qui a été observé sans prétendre qu’un graphique a causé le mouvement.",
+    "plates.title":"Chaque chiffre d’un graphique a commencé quelque part dans la vie ordinaire.","plates.lead":"Une entreprise, ce sont des rayons, du fret, des machines et des factures bien avant d’être une ligne sur un écran. Gardez cela en tête quand un graphique devient trop abstrait.","plates.shelvesAlt":"Rayons d’épicerie remplis de bocaux et de bouteilles, avec des étiquettes de prix écrites à la main.","plates.shelvesTag":"PRIX","plates.shelvesCopy":"Une étiquette de rayon est un prix que chacun peut vérifier. Savoir s’il dégage un bénéfice est une autre question.","plates.shelvesCredit":"Minnesota, 1979. Gary Hoover, CC BY 4.0, recadrée.","plates.cranesAlt":"Deux grues à conteneurs éclairées en orange la nuit, au-dessus de piles de conteneurs.","plates.cranesTag":"COÛT","plates.cranesCopy":"Le fret est un coût bien avant d’apparaître dans un rapport.","plates.cranesCredit":"Baie de Tokyo, 2023. Syced, CC0.","plates.lineAlt":"Ouvriers montant une voiture sur une chaîne d’assemblage des années 1920, en noir et blanc.","plates.lineTag":"PROPRIÉTÉ","plates.lineCopy":"Une action est un droit sur une entreprise en activité, pas sur son graphique.","plates.lineCredit":"Chaîne d’assemblage Ford, Copenhague, 1923. Peter Elfelt. Domaine public.","plates.billAlt":"Addition de restaurant écrite à la main, avec des articles, des prix et un total.","plates.billTag":"RELEVÉ","plates.billCopy":"Une addition indique ce qui a été acheté et à quel prix. Comme un chandelier, elle ne dit pas pourquoi.","plates.billCredit":"Addition de restaurant, 2024. Ladabohac, CC0, recadrée.",
+    "course.eyebrow":"Aperçu du cours","course.title":"Le Guide de terrain.","course.lead":"Neuf guides illustrés tirés du cours en 15 chapitres. Choisissez une couverture et son espace de travail s’ouvre juste en dessous.","course.reveal":"Afficher l’idée clé","course.close":"Fermer l’espace de travail","course.index":"GUIDE DE TERRAIN","course.of":"SUR","course.countNote":"Le cours complet compte 15 chapitres ; ces neuf guides en regroupent les idées sur les graphiques, le risque et le raisonnement.","course.methodology":"Lire la méthodologie de notation et des données →",
+    "cover.tryIt":"À essayer","cover.diagram":"Schéma","cover.1.note":"une action","cover.2.note":"corps","cover.3.note":"creux plus hauts, ou hasard ?","cover.4.note":"...et retour","cover.6.note":"?","cover.7.tab1":"Dépôt","cover.7.tab2":"Rapport","cover.7.tab3":"Source","cover.9.estimate":"mon estimation","cover.9.outcome":"ce qui s’est passé","cover.9.gap":"attention à l’écart",
+    "demo.swipe":"Faites glisser pour voir tout le schéma","demo.reset":"Réinitialiser","demo.illustrative":"Données fictives, créées pour l’apprentissage","demo.candle.chartLabel":"Chandelier avec des poignées d’ouverture et de clôture à déplacer. Le plus haut et le plus bas sont fixes.","demo.candle.high":"Plus haut","demo.candle.low":"Plus bas","demo.candle.open":"Ouverture","demo.candle.close":"Clôture","demo.candle.fixed":"fixe","demo.candle.body":"Corps","demo.candle.taskLabel":"VOTRE MISSION","demo.candle.task":"Faites passer la clôture sous l’ouverture.","demo.candle.doneMark":"fait","demo.candle.doneStatus":"Mission accomplie. La clôture est inférieure à l’ouverture : le chandelier est baissier.","demo.candle.dir.up":"▲ Clôture au-dessus de l’ouverture","demo.candle.dir.down":"▼ Clôture sous l’ouverture","demo.candle.dir.flat":"■ Clôture égale à l’ouverture","demo.candle.volumeAxis":"VOLUME, MILLIERS D’ACTIONS","demo.candle.now":"ICI","demo.candle.volumeControl":"Volume de cette séance :","demo.candle.volumeNote":"Le volume est un relevé distinct. Le modifier déplace la barre et ne touche pas au chandelier.",
+    "demo.frame.switchLabel":"Choisir une fenêtre de la même série","demo.frame.short":"Courte : 20 dernières séances","demo.frame.long":"Longue : les 120 séances","demo.frame.shortSits":"la fenêtre courte est ici","demo.frame.session":"Séance","demo.frame.lastClose":"Dernière clôture","demo.frame.noteLabel":"PREMIÈRE IMPRESSION","demo.frame.noteQuestion":"Que vous inspire cette fenêtre ?","demo.frame.rising":"Hausse","demo.frame.falling":"Baisse","demo.frame.sideways":"Sans direction","demo.frame.question":"Votre première impression tient-elle toujours ?","demo.frame.change":"Variation","demo.frame.youNoted":"Vous avez noté :","demo.frame.note.short":"Passez maintenant à la fenêtre longue. Les données ne changeront pas, seulement la part que vous en voyez.","demo.frame.note.long":"Mêmes clôtures, même dernier prix. La zone ombrée correspond à toute la fenêtre courte. Aucune des deux vues n’est la seule vraie.","demo.frame.chartLabel":"Cours de clôture fictifs. Première et dernière clôtures affichées :","demo.frame.illustrative":"Série fictive, créée pour l’apprentissage. Les mêmes 120 clôtures dans les deux vues.",
+    "demo.break.level":"Niveau marqué","demo.break.reveal":"Afficher les chandeliers suivants","demo.break.finished":"Tous les chandeliers sont affichés","demo.break.restart":"Recommencer","demo.break.step":"Étape","demo.break.latest":"Dernière clôture","demo.break.vsLevel":"Par rapport au niveau","demo.break.above":"Au-dessus","demo.break.below":"En dessous","demo.break.crossNote":"clôture au-dessus du niveau","demo.break.returnNote":"clôture de retour en dessous","demo.break.chartLabel":"Graphique en chandeliers fictif avec un niveau marqué à 100.","demo.break.status.paused":"En pause sous le niveau marqué. Qu’est-ce qui compterait pour vous comme une vraie cassure ?","demo.break.status.approach":"Plus près du niveau, mais toujours en dessous.","demo.break.status.crossed":"Franchissement : ce chandelier clôture au-dessus du niveau.","demo.break.status.above":"Toujours au-dessus. Rien n’a encore été confirmé.","demo.break.status.fading":"Toujours au-dessus, mais une grande partie du mouvement a été reperdue.","demo.break.status.returned":"Retour : la clôture repasse sous le niveau. C’est ici une fausse cassure.","demo.break.status.settled":"Un seul exemple, pas une règle. Une autre série aurait pu rester au-dessus du niveau.",
+    "dg.own.label":"Schéma : une entreprise divisée en cent actions égales, dont une est mise en évidence, avec le cours de l’action indiqué à part.","dg.own.note":"Une action est un petit droit de propriété sur l’entreprise. Son cours est le prix convenu entre le dernier acheteur et le dernier vendeur, ce qui est une autre question que la qualité de l’entreprise. Le chiffre de cent actions est un exemple.","dg.own.business":"L’entreprise","dg.own.businessSub":"boutique, salariés, dettes, bénéfices","dg.own.shares":"Divisée en actions","dg.own.sharesSub":"100 parts égales, par exemple","dg.own.oneShare":"Une action","dg.own.oneShareSub":"un droit de 1/100","dg.own.price":"Le cours de l’action","dg.own.priceSub":"la dernière transaction","dg.own.hand":"deux questions différentes",
+    "dg.vol.label":"Schéma : deux panneaux fictifs. L’un montre un volume élevé et une faible amplitude de prix, l’autre un volume faible et une forte amplitude.","dg.vol.note":"Le volume mesure l’activité. La volatilité décrit l’ampleur du mouvement des prix. Ils peuvent aller ensemble ou non, et aucun des deux n’indique la direction. Les deux panneaux sont fictifs.","dg.vol.busy":"Volume élevé, faible amplitude","dg.vol.quiet":"Volume faible, forte amplitude","dg.vol.bars":"barres de volume",
+    "dg.risk.label":"Schéma : une décision qui se divise en deux issues possibles, avec des probabilités fictives de soixante et quarante pour cent.","dg.risk.note":"Une seule branche se réalise. Une décision se juge sur toutes les branches visibles au départ, pas sur celle qui s’est produite. Les pourcentages sont fictifs.","dg.risk.decision":"La décision","dg.risk.decisionSub":"prise avant le résultat","dg.risk.a":"Issue favorable","dg.risk.aSub":"plus probable, pas certaine","dg.risk.b":"Issue défavorable","dg.risk.bSub":"moins probable, mais possible","dg.risk.hand":"un seul chemin sera parcouru",
+    "dg.src.label":"Schéma : trois niveaux de sources, avec les documents originaux en haut, les résumés de presse au milieu et les publications sociales en bas.","dg.src.note":"Chaque étape qui s’éloigne de l’original ajoute l’interprétation de quelqu’un d’autre. Quand une affirmation compte, remontez au dépôt ou au rapport d’origine.","dg.src.primary":"Dépôt ou rapport d’origine","dg.src.primarySub":"ce que l’entreprise a déclaré officiellement","dg.src.secondary":"Résumé de presse","dg.src.secondarySub":"la lecture de l’original par quelqu’un","dg.src.tertiary":"Publication sociale","dg.src.tertiarySub":"la lecture d’une lecture","dg.src.hand":"vérifiez plus haut",
+    "dg.bias.label":"Schéma : une série de prix fictive avec deux recadrages. L’un ressemble à une hausse, l’autre à une baisse.","dg.bias.note":"Même série fictive, deux recadrages, deux histoires. Choisir où un graphique commence et s’arrête, c’est déjà choisir ce qu’il semblera montrer.","dg.bias.cropA":"Cadre A : ressemble à une hausse","dg.bias.cropB":"Cadre B : ressemble à une baisse",
+    "dg.ref.label":"Schéma : une page de carnet comparant sept cas sur dix jugés probables et cinq sur dix réellement survenus.","dg.ref.note":"La calibration consiste à vérifier si votre confiance affichée correspond à la fréquence à laquelle vous aviez raison. Ces dix notes sont fictives. Évaluez la démarche, pas un gain imaginaire.","dg.ref.said":"J’ai dit","dg.ref.happened":"C’est arrivé","dg.ref.gap":"L’écart","dg.ref.saidValue":"70 % de confiance","dg.ref.happenedValue":"5 sur 10","dg.ref.gapValue":"20 points de confiance en trop","dg.ref.hand":"quel élément ai-je surestimé ?",
+    "common.readMore":"Lire la suite ↓","common.readLess":"Réduire ↑",
+    "try.eyebrow":"Essayez maintenant","try.title":"Trois manches. Sans inscription.","try.lead":"Placez cinq estimations sur le graphique visible, découvrez les chandeliers historiques, puis examinez le résultat et son explication en langage simple. Le cours complet ajoute un raisonnement structuré et un suivi de portefeuille.","try.note":"notez votre estimation avant de voir la réponse","try.frameTitle":"Raisonnement sur graphique historique : essai","try.gateTitle":"Belles lectures. On continue ?","try.gateCopy":"Connectez-vous avec Google pour enregistrer vos réflexions et poursuivre avec le cours complet et l’entraînement illimité.","try.gateButton":"Continuer à apprendre",
+    "lab.eyebrow":"Laboratoire ouvert","lab.heading":"Le Bureau des preuves.","lab.lead":"Trois affirmations, trois pièces. Examinez ce qui figure sur la page, puis décidez de ce que les données permettent réellement d’affirmer.","lab.tabsLabel":"Dossiers","lab.case":"DOSSIER","lab.exhibit":"PIÈCE","lab.stateOpen":"Ouvert","lab.stateFound":"Preuve trouvée","lab.stateReview":"Revu","lab.illustrative":"DONNÉES FICTIVES, AUCUNE ENTREPRISE RÉELLE","lab.inspect":"Examiner :","lab.evidence":"Confirmé par les données","lab.assumption":"Une supposition","lab.found":"Preuve trouvée","lab.lookAgain":"Regardez encore","lab.next":"Dossier suivant →","lab.retry":"Reprendre ce dossier","lab.toRecap":"Voir le récapitulatif →","lab.recapTitle":"Raisonnements pratiqués","lab.recap1":"Comparez les valeurs relevées avant de les décrire.","lab.recap2":"Distinguez ce qui a été relevé de la raison pour laquelle c’est arrivé.","lab.recap3":"Voyez une figure passée comme un relevé, pas comme une promesse.","lab.reset":"Réinitialiser le bureau","lab.passTitle":"Tout est inclus.","lab.artifact1":"15 leçons guidées","lab.artifact2":"Entraînement illimité","lab.artifact3":"Progression et réflexions enregistrées","lab.primary":"Commencer une manche","lab.secondary":"Se connecter pour enregistrer sa progression","lab.note":"Aucun moyen de paiement n’est demandé ni conservé. VeltaCapital est un projet éducatif et ne revendique pas de statut d’organisme à but non lucratif ou exonéré d’impôts.",
+    "desk.axis":"Un chandelier par séance","desk.mark.prev":"Clôture précédente","desk.mark.final":"Clôture finale","desk.mark.first":"Première clôture","desk.mark.last":"Dernière clôture","desk.mark.latest":"Clôture la plus récente","desk.case1.chart":"Chandeliers fictifs. La clôture précédente est de 104,20 et la clôture finale de 106,85.","desk.case1.delta":"finale moins précédente :","desk.case2.chart":"Chandeliers fictifs en hausse, d’une première clôture de 50,90 à une dernière clôture de 58,60. Le graphique ne montre que des prix.","desk.case2.recorded":"relevé :","desk.case2.why":"pourquoi ?","desk.case2.notRecorded":"pas sur ce graphique","desk.case3.chart":"Chandeliers fictifs avec des creux de plus en plus hauts, se terminant à 78,00. L’espace après le dernier chandelier est vide.","desk.case3.empty":"rien de relevé ici pour l’instant",
+    "reviews.eyebrow":"Notes de lecteurs","reviews.title":"Ce que notent nos lecteurs.","reviews.lead":"Écrites par des personnes qui ont utilisé VeltaCapital. Notre équipe lit chaque note avant sa publication. Ce sont des avis personnels sur l’apprentissage, pas des conseils en investissement ni une promesse de résultat.","reviews.formTitle":"Laisser une note","reviews.formCopy":"Dites-nous ce qui vous a aidé et ce qui ne vous a pas aidé. Les remarques critiques sont les bienvenues. Merci de ne pas mentionner de résultats d’investissement, de données personnelles ni de liens.","reviews.name":"Nom affiché","reviews.nameHint":"Prénom ou initiales. Ce nom sera visible publiquement.","reviews.rating":"Note, de 1 à 5","reviews.body":"Votre note","reviews.consent":"VeltaCapital peut publier cette note, ma notation et mon nom affiché sur ce site. Je peux la retirer à tout moment.","reviews.submit":"Envoyer pour relecture","reviews.update":"Mettre à jour ma note","reviews.delete":"Supprimer ma note","reviews.signinNote":"Vous vous connecterez avec Google avant l’envoi.","reviews.sending":"Envoi en cours...","reviews.sent":"Merci. Votre note attend d’être lue.","reviews.readyAfterSignIn":"Connexion réussie. Votre brouillon est là : appuyez sur Envoyer pour relecture.","reviews.deleted":"Votre note a été supprimée.","reviews.deleteConfirm":"Supprimer votre note ? Cette action est définitive.","reviews.status.pending":"Votre note attend d’être lue. Elle n’est pas encore publique.","reviews.status.approved":"Votre note est publiée. La modifier la renverra en relecture.","reviews.status.rejected":"Votre note n’a pas été publiée. Vous pouvez la modifier et la renvoyer.","reviews.loadingTitle":"Chargement des notes...","reviews.loadingCopy":"","reviews.emptyTitle":"Aucune note pour l’instant.","reviews.emptyCopy":"Cette page est vide à dessein. Nous n’affichons que les notes de vrais lecteurs : la première pourrait être la vôtre.","reviews.unavailableTitle":"Les notes ne peuvent pas s’afficher pour le moment.","reviews.unavailableCopy":"Merci de réessayer plus tard.","reviews.problem.name":"Indiquez un nom affiché de 2 à 40 caractères.","reviews.problem.rating":"Choisissez une note de 1 à 5.","reviews.problem.body":"Écrivez entre 20 et 600 caractères.","reviews.problem.links":"Merci de retirer les liens et les adresses e-mail.","reviews.problem.language":"Cette langue n’est pas prise en charge.","reviews.problem.consent":"Cochez la case pour autoriser la publication.","reviews.problem.unavailable":"Votre note n’a pas pu être enregistrée. Merci de réessayer plus tard.",
+    "people.eyebrow":"Les auteurs de ce carnet","people.title":"Les personnes derrière le bureau.","people.saechanRole":"Cofondateur · Cours et stratégie","people.saechanTag1":"Élève formateur","people.saechanTag2":"Expérience de simulation","people.saechanTag3":"Président du club de finance","people.saechanBio":"Conçoit les leçons écrites et les exercices sur graphiques historiques du point de vue d’un élève formateur. Son parcours comprend des responsabilités dans la finance scolaire et des simulations de marché éducatives ; il ne s’agit pas d’une expérience professionnelle de conseil en investissement.","people.saechanFull":"Saechan a suivi des simulations de métier éducatives Forage portant sur la banque d’investissement, l’analyse des risques et la recherche quantitative. Ces programmes sont des expériences d’apprentissage et ne constituent pas un emploi auprès des entreprises associées. Le contenu du cours doit faire l’objet d’une relecture professionnelle indépendante avant toute utilisation formelle en classe.","people.samuelRole":"Cofondateur · Ingénierie","people.samuelTag1":"Développement full-stack","people.samuelTag3":"Technologies d’accessibilité","people.samuelBio":"Développe la plateforme, les exercices sur données historiques, l’authentification et les fonctions d’accessibilité. S’attache à rendre les notions financières plus faciles à examiner et à questionner.","people.samuelFull":"Ayant vécu en Australie, en Corée et aux États-Unis, Samuel apporte une perspective internationale à la technologie et à l’entrepreneuriat. Son travail sur l’accessibilité comprend une technologie de navigation pour les élèves malvoyants. L’exercice sur graphique de VeltaCapital propose une alternative complète au clavier.","people.countries":"pays","people.stack":"stack","people.accessibility":"priorité",
+    "contact.eyebrow":"Contact","contact.title":"Des questions ? Écrivez-nous.","footer.tagline":"Entraînement à la lecture de graphiques et éducation financière. Conçu pour apprendre, pas pour trader.","footer.explore":"Explorer","footer.try":"Essayer le jeu","footer.contact":"Contact","footer.terms":"Conditions","footer.privacy":"Confidentialité","footer.support":"Accès gratuit et assistance sur les anciens paiements","footer.reviews":"Notes de lecteurs","footer.credits":"Crédits photographiques","footer.disclaimerTitle":"Avertissement éducatif.","footer.disclaimer":" VeltaCapital est une simulation éducative. Elle ne fournit ni conseil financier, ni recommandation d’investissement, ni garantie de gain. Les graphiques des manches d’entraînement sont historiques ; les démonstrations pédagogiques utilisent des données signalées comme fictives. Tous servent uniquement à l’entraînement. Les performances passées d’un graphique ne prédisent pas les résultats futurs. Les marchés comportent des risques ; consultez un professionnel agréé avant toute décision d’investissement.",
+    "modal.close":"Fermer","modal.eyebrow":"Connexion","modal.title":"Continuer sur VeltaCapital","modal.copy":"Connectez-vous avec votre compte Google pour enregistrer votre progression, vos réflexions sur les graphiques et vos résultats d’évaluation.","modal.google":"Continuer avec Google","modal.legal":"En continuant, vous confirmez avoir au moins 13 ans et acceptez nos <a href=\"/terms\" style=\"text-decoration:underline\">Conditions d’utilisation</a> et notre <a href=\"/privacy\" style=\"text-decoration:underline\">Politique de confidentialité</a>."
   }
 };
 const LANGUAGE_KEY = "velta-language";
 const languageFromUrl = new URLSearchParams(location.search).get("lang");
-let currentLanguage = languageFromUrl === "ko" || languageFromUrl === "en" ? languageFromUrl : (() => {
-  try { return localStorage.getItem(LANGUAGE_KEY) || (navigator.language.toLowerCase().startsWith("ko") ? "ko" : "en"); } catch { return "en"; }
-})();
-if (currentLanguage !== "ko") currentLanguage = "en";
+const LANGUAGES = ["en", "ko", "fr"];
+const supportedLanguage = (value) => (LANGUAGES.includes(value) ? value : "en");
+let currentLanguage = supportedLanguage(LANGUAGES.includes(languageFromUrl) ? languageFromUrl : (() => {
+  try { return localStorage.getItem(LANGUAGE_KEY) || navigator.language.toLowerCase().slice(0, 2); } catch { return "en"; }
+})());
 function tr(key) { return translations[currentLanguage][key] || translations.en[key] || key; }
+const motionSafe = () => !matchMedia("(prefers-reduced-motion:reduce)").matches;
 
-document.getElementById("brand").innerHTML = veltaMark() + "<span>VeltaCapital</span>", document.getElementById("brand-foot").innerHTML = veltaMark() + "<span>VeltaCapital</span>", (function() {
-  const svg = document.getElementById("heroChart"), NS = "http://www.w3.org/2000/svg", W = 420, H = 240;
-  let seed = 7;
-  const r = () => (seed = seed * 1103515245 + 12345 & 2147483647, seed / 2147483647), g = () => Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(6.283 * r()), n = 22;
-  let price = 120, data = [];
-  for (let i = 0; i < n; i++) {
-    const o = price, c = Math.max(20, o * Math.exp(4e-3 + 0.05 * g())), hi2 = Math.max(o, c) * (1 + Math.abs(g()) * 0.02), lo2 = Math.min(o, c) * (1 - Math.abs(g()) * 0.02);
-    data.push([o, hi2, lo2, c]), price = c;
-  }
-  const lo = Math.min(...data.map((d) => d[2])), hi = Math.max(...data.map((d) => d[1])), pad = 18, cw = (W - pad * 2) / n, y = (v) => pad + (1 - (v - lo) / (hi - lo)) * (H - pad * 2);
-  function rect(x, yy, w, h, f, o) {
-    const e = document.createElementNS(NS, "rect");
-    return e.setAttribute("x", x), e.setAttribute("y", yy), e.setAttribute("width", w), e.setAttribute("height", h), e.setAttribute("rx", 1), e.setAttribute("fill", f), o != null && e.setAttribute("opacity", o), svg.appendChild(e), e;
-  }
-  function line(x1, y1, x2, y2, s) {
-    const e = document.createElementNS(NS, "line");
-    e.setAttribute("x1", x1), e.setAttribute("y1", y1), e.setAttribute("x2", x2), e.setAttribute("y2", y2), e.setAttribute("stroke", s), e.setAttribute("stroke-width", 1.2), svg.appendChild(e);
-  }
-  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
-  data.forEach((d, i) => {
-    const x = pad + i * cw + cw * 0.5, up = d[3] >= d[0], col = up ? "#2BD37F" : "#E5573C", future = i >= Math.floor(n * 0.6), fill = future ? "#3a4a52" : col;
-    line(x, y(d[1]), x, y(d[2]), fill);
-    const top = Math.min(y(d[0]), y(d[3])), bh = Math.max(2, Math.abs(y(d[3]) - y(d[0]))), bar = rect(x - cw * 0.3, top, cw * 0.6, bh, fill, future ? 0.5 : 1);
-    future && !reduce && (bar.style.opacity = 0, bar.animate([{ opacity: 0 }, { opacity: 0.5 }], { duration: 500, delay: 600 + (i - Math.floor(n * 0.6)) * 180, fill: "forwards" }));
-  }), line(pad + Math.floor(n * 0.6) * cw, pad, pad + Math.floor(n * 0.6) * cw, H - pad, "#273139");
-})(), (function() {
-  const els = document.querySelectorAll(".reveal");
+const clearMark = '<img src="assets/img/logo-mark-clear.png" alt="" width="44" height="34"><span>VeltaCapital</span>';
+document.getElementById("brand").innerHTML = clearMark;
+document.getElementById("brand-foot").innerHTML = clearMark;
+
+(function() {
+  const els = document.querySelectorAll(".reveal, .photo-reveal");
   if (!("IntersectionObserver" in window)) {
     els.forEach((e) => e.classList.add("in"));
     return;
   }
   const io = new IntersectionObserver((ents) => {
-    ents.forEach((e, i) => {
-      e.isIntersecting && (setTimeout(() => e.target.classList.add("in"), i * 70), io.unobserve(e.target));
+    ents.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.08 });
   els.forEach((e) => io.observe(e));
-})(), document.querySelectorAll(".more").forEach((btn) => {
+})();
+document.querySelectorAll(".more").forEach((btn) => {
   btn.addEventListener("click", () => {
     const open = document.getElementById(btn.dataset.target).classList.toggle("open");
     btn.dataset.open = String(open);
@@ -633,8 +716,10 @@ navToggle.addEventListener("click", () => {
 }));
 const modal = document.getElementById("login-modal");
 let loginOpener = null;
+let loginReturnPath = null;
 function openLogin(event) {
   loginOpener = event && event.currentTarget ? event.currentTarget : document.activeElement;
+  loginReturnPath = null;
   modal.classList.add("open"); modal.setAttribute("aria-hidden", "false");
   document.querySelector("header").inert = true; document.querySelector("main").inert = true; document.querySelector("footer").inert = true;
   document.getElementById("login-x").focus();
@@ -659,7 +744,7 @@ document.getElementById("login-top").addEventListener("click", (e) => {
   }
 });
 function doLogin() {
-  Velta.apiLogin("/member.html?lang=" + currentLanguage);
+  Velta.apiLogin(loginReturnPath || "/member.html?lang=" + currentLanguage);
 }
 document.getElementById("google-btn").addEventListener("click", doLogin), document.getElementById("free-access-login").addEventListener("click", openLogin);
 let trialRounds = Velta.get().trialRoundsUsed;
@@ -668,55 +753,109 @@ updateTrialCount(), window.addEventListener("message", (ev) => {
 });
 function updateTrialCount() {
   const left = Math.max(0, 3 - trialRounds);
-  document.getElementById("trial-count").textContent = currentLanguage === "ko" ? "연습 " + left + "회 남음" : left + " practice round" + (left === 1 ? "" : "s") + " left";
+  document.getElementById("trial-count").textContent = tr(left === 1 ? "trial.left.one" : "trial.left.many").replace("{n}", left);
 }
 document.getElementById("trial-login").addEventListener("click", openLogin);
 
 const courseUnits = {
   en: [
-    {title:"Markets & ownership",objective:"Understand what a share represents and how it differs from a company.",takeaway:"A good company and a good price are separate questions."},
-    {title:"OHLCV & candles",objective:"Read what a candle records without inventing a cause.",takeaway:"A candle shows prices and volume—not investor intent."},
-    {title:"Trend & range",objective:"Recognize direction, sideways movement, and ambiguity.",takeaway:"The same chart can look different across timeframes."},
-    {title:"Levels & false breaks",objective:"Treat support and resistance as zones, not guarantees.",takeaway:"A level is an area to observe, not a promise of reversal."},
-    {title:"Volume & volatility",objective:"Separate market activity from the size of price movement.",takeaway:"More volume means more activity, not certainty about direction."},
-    {title:"Risk & probability",objective:"Compare possible outcomes without confusing chance with certainty.",takeaway:"A sound decision can still produce an unfavorable result."},
-    {title:"Fundamentals & sources",objective:"Use primary sources to study a business beyond its chart.",takeaway:"Verify important claims with filings and original sources."},
-    {title:"Bias & limitations",objective:"Spot hindsight, selection bias, and overfitting.",takeaway:"A pattern that looks obvious afterward may not have been usable before."},
-    {title:"Reflection & calibration",objective:"Review your evidence and confidence after each result.",takeaway:"Evaluate the quality of the process, not imaginary profit."}
+    {title:"Markets & ownership",invite:"See what a share owns",chapters:"Course chapters 1 and 2",objective:"Understand what a share represents and how it differs from a company.",takeaway:"A good company and a good price are separate questions."},
+    {title:"OHLCV & candles",invite:"Build a candle",chapters:"Course chapter 7",objective:"Read what a candle records without inventing a cause.",takeaway:"A candle shows prices and volume—not investor intent."},
+    {title:"Trend & range",invite:"Change the frame",chapters:"Course chapter 7",objective:"Recognize direction, sideways movement, and ambiguity.",takeaway:"The same chart can look different across timeframes."},
+    {title:"Levels & false breaks",invite:"Find the false break",chapters:"Course chapters 7 and 10",objective:"Treat support and resistance as zones, not guarantees.",takeaway:"A level is an area to observe, not a promise of reversal."},
+    {title:"Volume & volatility",invite:"Activity versus movement",chapters:"Course chapters 7 and 10",objective:"Separate market activity from the size of price movement.",takeaway:"More volume means more activity, not certainty about direction."},
+    {title:"Risk & probability",invite:"Follow the branches",chapters:"Course chapter 11",objective:"Compare possible outcomes without confusing chance with certainty.",takeaway:"A sound decision can still produce an unfavorable result."},
+    {title:"Fundamentals & sources",invite:"Which source comes first",chapters:"Course chapters 6 and 9",objective:"Use primary sources to study a business beyond its chart.",takeaway:"Verify important claims with filings and original sources."},
+    {title:"Bias & limitations",invite:"One chart, two crops",chapters:"Course chapters 10 and 12",objective:"Spot hindsight, selection bias, and overfitting.",takeaway:"A pattern that looks obvious afterward may not have been usable before."},
+    {title:"Reflection & calibration",invite:"An estimate, then the outcome",chapters:"Course chapters 12 and 15",objective:"Review your evidence and confidence after each result.",takeaway:"Evaluate the quality of the process, not imaginary profit."}
   ],
   ko: [
-    {title:"시장과 소유권",objective:"주식 한 주가 무엇을 뜻하며 기업과 어떻게 다른지 이해합니다.",takeaway:"좋은 기업인지와 현재 가격이 좋은지는 서로 다른 질문입니다."},
-    {title:"OHLCV와 캔들",objective:"원인을 지어내지 않고 캔들이 기록한 내용을 읽습니다.",takeaway:"캔들은 가격과 거래량을 보여 주지만 투자자의 의도는 보여 주지 않습니다."},
-    {title:"추세와 박스권",objective:"방향성, 횡보 움직임, 모호한 구간을 구분합니다.",takeaway:"같은 차트도 시간 단위에 따라 다르게 보일 수 있습니다."},
-    {title:"가격대와 거짓 돌파",objective:"지지와 저항을 보장된 선이 아닌 범위로 다룹니다.",takeaway:"가격대는 관찰할 영역이지 반전을 보장하는 약속이 아닙니다."},
-    {title:"거래량과 변동성",objective:"시장 활동량과 가격 움직임의 크기를 구분합니다.",takeaway:"거래량 증가는 활동 증가를 뜻할 뿐 방향을 보장하지 않습니다."},
-    {title:"위험과 확률",objective:"가능한 결과를 비교하고 확률을 확실함과 혼동하지 않습니다.",takeaway:"합리적인 판단도 좋지 않은 결과로 이어질 수 있습니다."},
-    {title:"기업 정보와 출처",objective:"차트 밖의 1차 자료로 기업을 살펴봅니다.",takeaway:"중요한 주장은 공시와 원본 자료에서 확인해야 합니다."},
-    {title:"편향과 한계",objective:"후견 편향, 선택 편향, 과적합을 알아봅니다.",takeaway:"결과를 본 뒤 분명해 보이는 패턴이 사전에 유용했던 것은 아닙니다."},
-    {title:"성찰과 판단 조정",objective:"결과 이후 사용한 근거와 자신감을 검토합니다.",takeaway:"가상의 수익이 아니라 판단 과정의 품질을 평가하세요."}
+    {title:"시장과 소유권",invite:"주식이 소유하는 것 보기",chapters:"전체 과정 1장, 2장",objective:"주식 한 주가 무엇을 뜻하며 기업과 어떻게 다른지 이해합니다.",takeaway:"좋은 기업인지와 현재 가격이 좋은지는 서로 다른 질문입니다."},
+    {title:"OHLCV와 캔들",invite:"캔들 만들어 보기",chapters:"전체 과정 7장",objective:"원인을 지어내지 않고 캔들이 기록한 내용을 읽습니다.",takeaway:"캔들은 가격과 거래량을 보여 주지만 투자자의 의도는 보여 주지 않습니다."},
+    {title:"추세와 박스권",invite:"보는 구간 바꾸기",chapters:"전체 과정 7장",objective:"방향성, 횡보 움직임, 모호한 구간을 구분합니다.",takeaway:"같은 차트도 시간 단위에 따라 다르게 보일 수 있습니다."},
+    {title:"가격대와 거짓 돌파",invite:"거짓 돌파 찾기",chapters:"전체 과정 7장, 10장",objective:"지지와 저항을 보장된 선이 아닌 범위로 다룹니다.",takeaway:"가격대는 관찰할 영역이지 반전을 보장하는 약속이 아닙니다."},
+    {title:"거래량과 변동성",invite:"활동량과 움직임의 차이",chapters:"전체 과정 7장, 10장",objective:"시장 활동량과 가격 움직임의 크기를 구분합니다.",takeaway:"거래량 증가는 활동 증가를 뜻할 뿐 방향을 보장하지 않습니다."},
+    {title:"위험과 확률",invite:"갈래 따라가기",chapters:"전체 과정 11장",objective:"가능한 결과를 비교하고 확률을 확실함과 혼동하지 않습니다.",takeaway:"합리적인 판단도 좋지 않은 결과로 이어질 수 있습니다."},
+    {title:"기업 정보와 출처",invite:"먼저 볼 출처",chapters:"전체 과정 6장, 9장",objective:"차트 밖의 1차 자료로 기업을 살펴봅니다.",takeaway:"중요한 주장은 공시와 원본 자료에서 확인해야 합니다."},
+    {title:"편향과 한계",invite:"같은 차트, 다른 구간",chapters:"전체 과정 10장, 12장",objective:"후견 편향, 선택 편향, 과적합을 알아봅니다.",takeaway:"결과를 본 뒤 분명해 보이는 패턴이 사전에 유용했던 것은 아닙니다."},
+    {title:"성찰과 판단 조정",invite:"예상과 실제 결과",chapters:"전체 과정 12장, 15장",objective:"결과 이후 사용한 근거와 자신감을 검토합니다.",takeaway:"가상의 수익이 아니라 판단 과정의 품질을 평가하세요."}
+  ],
+  fr: [
+    {title:"Marchés et propriété",invite:"Ce que possède une action",chapters:"Chapitres 1 et 2 du cours",objective:"Comprendre ce que représente une action et en quoi elle diffère d’une entreprise.",takeaway:"Une bonne entreprise et un bon prix sont deux questions distinctes."},
+    {title:"OHLCV et chandeliers",invite:"Construire un chandelier",chapters:"Chapitre 7 du cours",objective:"Lire ce qu’enregistre un chandelier sans inventer de cause.",takeaway:"Un chandelier montre des prix et un volume, pas les intentions des investisseurs."},
+    {title:"Tendance et range",invite:"Changer le cadre",chapters:"Chapitre 7 du cours",objective:"Reconnaître la direction, les mouvements latéraux et l’ambiguïté.",takeaway:"Un même graphique peut sembler différent selon l’horizon de temps."},
+    {title:"Niveaux et fausses cassures",invite:"Trouver la fausse cassure",chapters:"Chapitres 7 et 10 du cours",objective:"Traiter les supports et résistances comme des zones, pas comme des garanties.",takeaway:"Un niveau est une zone à observer, pas une promesse de retournement."},
+    {title:"Volume et volatilité",invite:"Activité contre mouvement",chapters:"Chapitres 7 et 10 du cours",objective:"Distinguer l’activité du marché de l’ampleur des mouvements de prix.",takeaway:"Plus de volume signifie plus d’activité, pas une certitude sur la direction."},
+    {title:"Risque et probabilité",invite:"Suivre les branches",chapters:"Chapitre 11 du cours",objective:"Comparer des issues possibles sans confondre probabilité et certitude.",takeaway:"Une décision saine peut quand même produire un résultat défavorable."},
+    {title:"Fondamentaux et sources",invite:"Quelle source en premier",chapters:"Chapitres 6 et 9 du cours",objective:"Utiliser des sources primaires pour étudier une entreprise au-delà de son graphique.",takeaway:"Vérifiez les affirmations importantes dans les dépôts et les sources d’origine."},
+    {title:"Biais et limites",invite:"Un graphique, deux cadres",chapters:"Chapitres 10 et 12 du cours",objective:"Repérer le biais rétrospectif, le biais de sélection et le surapprentissage.",takeaway:"Une figure évidente après coup n’était pas forcément exploitable avant."},
+    {title:"Réflexion et calibration",invite:"L’estimation, puis le résultat",chapters:"Chapitres 12 et 15 du cours",objective:"Réexaminer vos éléments et votre confiance après chaque résultat.",takeaway:"Évaluez la qualité de la démarche, pas un gain imaginaire."}
   ]
 };
-const courseButtons = Array.from(document.querySelectorAll("[data-course-unit]"));
-let activeCourseUnit = 0;
-function selectCourseUnit(index, moveFocus) {
-  activeCourseUnit = (index + courseButtons.length) % courseButtons.length;
-  const unit = courseUnits[currentLanguage][activeCourseUnit];
+const courseButtons = Array.from(document.querySelectorAll(".course-unit"));
+const coverRail = document.getElementById("cover-rail");
+const workspace = document.getElementById("course-detail");
+const workspaceSheet = document.getElementById("workspace-sheet");
+const workspaceNotch = document.getElementById("workspace-notch");
+let activeCourseUnit = 1;
+let workspaceOpen = true;
+
+function placeNotch() {
+  const button = courseButtons[activeCourseUnit].getBoundingClientRect(), host = workspace.getBoundingClientRect();
+  const x = button.left + button.width / 2 - host.left;
+  workspaceNotch.hidden = !workspaceOpen || x < 24 || x > host.width - 24;
+  workspace.style.setProperty("--notch-x", x + "px");
+}
+function updateRailControls() {
+  const atStart = coverRail.scrollLeft < 4, atEnd = coverRail.scrollLeft + coverRail.clientWidth > coverRail.scrollWidth - 4;
+  document.getElementById("course-prev").setAttribute("aria-disabled", String(atStart));
+  document.getElementById("course-next").setAttribute("aria-disabled", String(atEnd));
+  placeNotch();
+}
+function renderCourseUnit() {
+  const unit = courseUnits[currentLanguage][activeCourseUnit], number = String(activeCourseUnit + 1).padStart(2, "0");
   courseButtons.forEach((button, buttonIndex) => {
-    const selected = buttonIndex === activeCourseUnit;
-    button.setAttribute("aria-pressed", String(selected));
-    button.setAttribute("aria-label", (currentLanguage === "ko" ? "수업 " : "Lesson ") + (buttonIndex + 1) + ": " + courseUnits[currentLanguage][buttonIndex].title);
+    const content = courseUnits[currentLanguage][buttonIndex];
+    button.setAttribute("aria-pressed", String(workspaceOpen && buttonIndex === activeCourseUnit));
+    button.querySelector(".cover-title").textContent = content.title;
+    button.querySelector(".cover-invite").textContent = content.invite;
   });
-  document.getElementById("course-detail-index").textContent = (currentLanguage === "ko" ? "수업 " : "LESSON ") + String(activeCourseUnit + 1).padStart(2, "0") + " / 09";
+  document.getElementById("guide-count").textContent = number + " / 09";
+  document.getElementById("course-detail-index").textContent = tr("course.index") + " " + number + " " + tr("course.of") + " 09";
   document.getElementById("course-detail-title").textContent = unit.title;
   document.getElementById("course-detail-objective").textContent = unit.objective;
+  document.getElementById("course-chapters").textContent = unit.chapters;
   document.getElementById("course-takeaway").textContent = unit.takeaway;
-  document.getElementById("course-takeaway").classList.remove("visible");
-  document.getElementById("course-takeaway").hidden = true;
+  VeltaField.renderWorkspace(activeCourseUnit, document.getElementById("workspace-bench"), tr);
+  workspace.classList.toggle("is-open", workspaceOpen);
+  workspace.querySelector(".workspace-clip").inert = !workspaceOpen;
+  placeNotch();
+}
+function selectCourseUnit(index) {
+  const isSame = index === activeCourseUnit && workspaceOpen;
+  if (index !== activeCourseUnit) resetTakeaway();
+  activeCourseUnit = index;
+  workspaceOpen = !isSame;
+  renderCourseUnit();
+  if (!workspaceOpen) return;
+  workspaceSheet.classList.remove("is-unfolding");
+  void workspaceSheet.offsetWidth;
+  workspaceSheet.classList.add("is-unfolding");
+  const top = workspace.getBoundingClientRect().top;
+  if (top > innerHeight * 0.62) window.scrollBy({ top: top - 96, behavior: motionSafe() ? "smooth" : "auto" });
+}
+function resetTakeaway() {
+  const text = document.getElementById("course-takeaway");
+  text.hidden = true;
   document.getElementById("takeaway-btn").setAttribute("aria-expanded", "false");
-  if (moveFocus) courseButtons[activeCourseUnit].focus();
+}
+function focusCover(index) {
+  const button = courseButtons[index];
+  button.focus({ preventScroll: true });
+  button.scrollIntoView({ behavior: motionSafe() ? "smooth" : "auto", inline: "center", block: "nearest" });
 }
 courseButtons.forEach((button, index) => {
-  button.addEventListener("click", () => selectCourseUnit(index, false));
+  button.addEventListener("click", () => selectCourseUnit(index));
   button.addEventListener("keydown", (event) => {
     let next = index;
     if (event.key === "ArrowDown" || event.key === "ArrowRight") next = (index + 1) % courseButtons.length;
@@ -724,71 +863,159 @@ courseButtons.forEach((button, index) => {
     else if (event.key === "Home") next = 0;
     else if (event.key === "End") next = courseButtons.length - 1;
     else return;
-    event.preventDefault(); selectCourseUnit(next, true);
+    event.preventDefault(); focusCover(next);
   });
 });
-document.getElementById("course-prev").addEventListener("click", () => selectCourseUnit(activeCourseUnit - 1, false));
-document.getElementById("course-next").addEventListener("click", () => selectCourseUnit(activeCourseUnit + 1, false));
+function scrollRail(direction) {
+  const step = courseButtons[1].offsetLeft - courseButtons[0].offsetLeft;
+  coverRail.scrollBy({ left: direction * step, behavior: motionSafe() ? "smooth" : "auto" });
+}
+document.getElementById("course-prev").addEventListener("click", () => scrollRail(-1));
+document.getElementById("course-next").addEventListener("click", () => scrollRail(1));
+coverRail.addEventListener("scroll", updateRailControls, { passive: true });
+window.addEventListener("resize", updateRailControls);
+document.getElementById("workspace-close").addEventListener("click", () => {
+  workspaceOpen = false;
+  renderCourseUnit();
+  courseButtons[activeCourseUnit].focus();
+});
 document.getElementById("takeaway-btn").addEventListener("click", () => {
   const text = document.getElementById("course-takeaway"), visible = text.hidden;
   text.hidden = !visible;
-  text.classList.toggle("visible", visible);
   document.getElementById("takeaway-btn").setAttribute("aria-expanded", String(visible));
 });
 
 const labClaims = {
   en: [
-    {text:"The final close was above the previous close.",answer:"evidence",feedback:"Evidence: this can be verified directly from the recorded prices."},
-    {text:"Investors bought because they felt optimistic.",answer:"assumption",feedback:"Assumption: a chart does not reveal why people traded."},
-    {text:"This pattern guarantees the price will rise next.",answer:"assumption",feedback:"Assumption: a historical pattern cannot guarantee a future result."}
+    {text:"The final close was above the previous close.",answer:"evidence",margin:"two numbers on the page. go and compare them.",feedback:"The final close, 106.85, sits above the previous close, 104.20. You can verify this directly from the recorded prices."},
+    {text:"The price rose because investors felt confident.",answer:"assumption",margin:"the rise is on the chart. is the because?",feedback:"The displayed prices show that the price rose. They alone do not establish the cause, because a chart does not record why people traded."},
+    {text:"This pattern guarantees the price will rise next.",answer:"assumption",margin:"check what comes after the last candle.",feedback:"The chart stops at the last candle, and everything after it is unrecorded. A historical pattern cannot guarantee a future result."}
   ],
   ko: [
-    {text:"마지막 종가는 이전 종가보다 높았습니다.",answer:"evidence",feedback:"근거입니다. 기록된 가격에서 직접 확인할 수 있습니다."},
-    {text:"투자자들은 낙관적이어서 매수했습니다.",answer:"assumption",feedback:"추측입니다. 차트만으로 거래 이유를 알 수 없습니다."},
-    {text:"이 패턴은 다음 가격 상승을 보장합니다.",answer:"assumption",feedback:"추측입니다. 과거 패턴은 미래 결과를 보장하지 않습니다."}
+    {text:"마지막 종가는 이전 종가보다 높았습니다.",answer:"evidence",margin:"자료에 숫자가 두 개 있습니다. 비교해 보세요.",feedback:"마지막 종가 106.85는 이전 종가 104.20보다 높습니다. 기록된 가격에서 직접 확인할 수 있습니다."},
+    {text:"투자자들이 자신감을 느껴서 가격이 올랐습니다.",answer:"assumption",margin:"상승은 차트에 있습니다. 그 이유도 있을까요?",feedback:"표시된 가격은 가격이 올랐다는 사실을 보여 줍니다. 하지만 가격만으로는 원인을 확인할 수 없습니다. 차트는 사람들이 왜 거래했는지 기록하지 않습니다."},
+    {text:"이 패턴은 다음 가격 상승을 보장합니다.",answer:"assumption",margin:"마지막 캔들 다음에 무엇이 있는지 보세요.",feedback:"차트는 마지막 캔들에서 끝나고 그 이후는 기록되지 않았습니다. 과거 패턴은 미래 결과를 보장하지 않습니다."}
+  ],
+  fr: [
+    {text:"La clôture finale était supérieure à la clôture précédente.",answer:"evidence",margin:"deux chiffres sur la page. allez les comparer.",feedback:"La clôture finale, 106,85, est supérieure à la clôture précédente, 104,20. Vous pouvez le vérifier directement à partir des prix relevés."},
+    {text:"Le prix a monté parce que les investisseurs avaient confiance.",answer:"assumption",margin:"la hausse est sur le graphique. et le parce que ?",feedback:"Les prix affichés montrent que le cours a monté. À eux seuls, ils n’en établissent pas la cause, car un graphique n’enregistre pas pourquoi les gens ont échangé."},
+    {text:"Cette figure garantit que le prix va monter ensuite.",answer:"assumption",margin:"regardez ce qui suit le dernier chandelier.",feedback:"Le graphique s’arrête au dernier chandelier, et tout ce qui suit n’est pas relevé. Une figure historique ne peut pas garantir un résultat futur."}
   ]
 };
 const claimAnswers = Array.from(document.querySelectorAll("[data-lab-answer]"));
+const deskTabs = Array.from(document.querySelectorAll(".desk-tab"));
+const deskState = labClaims.en.map(() => ({ answer: null, inspected: [] }));
 let activeClaim = 0;
+function claimOutcome(index) {
+  const { answer } = deskState[index];
+  if (!answer) return "open";
+  return answer === labClaims.en[index].answer ? "found" : "review";
+}
 function renderClaim() {
-  const claim = labClaims[currentLanguage][activeClaim];
+  const claim = labClaims[currentLanguage][activeClaim], state = deskState[activeClaim], outcome = claimOutcome(activeClaim);
+  const allAnswered = deskState.every((entry) => entry.answer);
+  const unanswered = deskState.findIndex((entry) => !entry.answer);
   document.getElementById("claim-text").textContent = claim.text;
+  document.getElementById("claim-margin").textContent = claim.margin;
+  document.getElementById("claim-case").textContent = tr("lab.case") + " 00" + (activeClaim + 1);
+  document.getElementById("exhibit-title").textContent = tr("lab.exhibit") + " " + "ABC"[activeClaim];
   document.getElementById("claim-progress").textContent = (activeClaim + 1) + " / " + labClaims[currentLanguage].length;
-  document.getElementById("claim-feedback").textContent = "";
-  document.getElementById("claim-next").hidden = true;
-  claimAnswers.forEach((button) => { button.disabled = false; button.setAttribute("aria-pressed", "false"); });
+  claimAnswers.forEach((button) => {
+    button.disabled = Boolean(state.answer);
+    button.setAttribute("aria-pressed", String(button.dataset.labAnswer === state.answer));
+  });
+  const verdict = document.getElementById("claim-verdict");
+  verdict.hidden = !state.answer;
+  verdict.textContent = outcome === "found" ? tr("lab.found") : tr("lab.lookAgain");
+  verdict.classList.toggle("found", outcome === "found");
+  document.getElementById("claim-feedback").textContent = state.answer ? claim.feedback : "";
+  const next = document.getElementById("claim-next");
+  next.hidden = !state.answer || allAnswered;
+  next.textContent = tr("lab.next");
+  document.getElementById("claim-retry").hidden = outcome !== "review";
+  deskTabs.forEach((tab, index) => {
+    const tabOutcome = claimOutcome(index), selected = index === activeClaim;
+    tab.dataset.state = tabOutcome;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    tab.querySelector(".desk-tab-no").textContent = tr("lab.case") + " 00" + (index + 1);
+    tab.querySelector(".desk-tab-state").textContent = tr({ open: "lab.stateOpen", found: "lab.stateFound", review: "lab.stateReview" }[tabOutcome]);
+    tab.querySelector(".desk-tab-mark").textContent = { open: "", found: "✓", review: "↺" }[tabOutcome];
+  });
+  document.getElementById("desk-tabs").setAttribute("aria-label", tr("lab.tabsLabel"));
+  document.getElementById("desk-board").setAttribute("aria-labelledby", "desk-tab-" + (activeClaim + 1));
+  document.getElementById("desk-recap").hidden = !allAnswered;
+  next.dataset.target = String(unanswered);
+  VeltaField.renderExhibit(
+    document.getElementById("desk-exhibit"),
+    document.getElementById("desk-inspect"),
+    activeClaim,
+    { answered: Boolean(state.answer), inspected: state.inspected },
+    tr,
+    inspectMark
+  );
+}
+function inspectMark(markId) {
+  const { inspected } = deskState[activeClaim], at = inspected.indexOf(markId);
+  if (at === -1) inspected.push(markId); else inspected.splice(at, 1);
+  renderClaim();
+  VeltaField.focusInspectChip(document.getElementById("desk-inspect"), markId);
 }
 claimAnswers.forEach((button) => button.addEventListener("click", () => {
-  const claim = labClaims[currentLanguage][activeClaim], correct = button.dataset.labAnswer === claim.answer;
-  claimAnswers.forEach((answer) => { answer.disabled = true; answer.setAttribute("aria-pressed", String(answer === button)); });
-  document.getElementById("claim-feedback").textContent = (correct ? "✓ " : "→ ") + claim.feedback;
-  const next = document.getElementById("claim-next");
-  next.textContent = activeClaim === labClaims[currentLanguage].length - 1 ? (currentLanguage === "ko" ? "다시 시작" : "Try again") : tr("lab.next");
-  next.hidden = false;
-}));
-document.getElementById("claim-next").addEventListener("click", () => {
-  activeClaim = (activeClaim + 1) % labClaims[currentLanguage].length;
+  deskState[activeClaim].answer = button.dataset.labAnswer;
   renderClaim();
+  const next = document.getElementById("claim-next");
+  if (next.hidden) document.getElementById("desk-recap-title").focus({ preventScroll: true });
+  else next.focus({ preventScroll: true });
+}));
+document.getElementById("claim-next").addEventListener("click", (event) => {
+  activeClaim = Number(event.currentTarget.dataset.target);
+  renderClaim();
+  claimAnswers[0].focus({ preventScroll: true });
+});
+document.getElementById("claim-retry").addEventListener("click", () => {
+  deskState[activeClaim].answer = null;
+  deskState[activeClaim].inspected = [];
+  renderClaim();
+  claimAnswers[0].focus({ preventScroll: true });
+});
+deskTabs.forEach((tab, index) => {
+  tab.addEventListener("click", () => { activeClaim = index; renderClaim(); });
+  tab.addEventListener("keydown", (event) => {
+    const moves = { ArrowRight: 1, ArrowLeft: -1 };
+    if (!(event.key in moves)) return;
+    event.preventDefault();
+    activeClaim = (index + moves[event.key] + deskTabs.length) % deskTabs.length;
+    renderClaim();
+    deskTabs[activeClaim].focus();
+  });
+});
+document.getElementById("desk-reset").addEventListener("click", () => {
+  deskState.forEach((entry) => { entry.answer = null; entry.inspected = []; });
+  activeClaim = 0;
+  renderClaim();
+  deskTabs[0].focus();
 });
 
 function applyLanguage(language, persist) {
-  currentLanguage = language === "ko" ? "ko" : "en";
+  currentLanguage = supportedLanguage(language);
   document.documentElement.lang = currentLanguage;
-  document.title = currentLanguage === "ko" ? "VeltaCapital: 과거 차트로 연습하는 금융 사고력" : "VeltaCapital: Financial reasoning practice with historical charts";
-  const description = currentLanguage === "ko" ? "실제 돈을 거래하지 않고 무료 수업과 과거 차트 연습으로 금융 사고력을 길러 보세요." : "Use a free course and historical-chart exercises to practice financial reasoning without trading real money.";
-  document.querySelector('meta[name="description"]').setAttribute("content", description);
+  document.title = tr("meta.title");
+  document.querySelector('meta[name="description"]').setAttribute("content", tr("meta.description"));
   document.querySelectorAll("[data-i18n]").forEach((element) => { const value = translations[currentLanguage][element.dataset.i18n]; if (value) element.textContent = value; });
   document.querySelectorAll("[data-i18n-html]").forEach((element) => { const value = translations[currentLanguage][element.dataset.i18nHtml]; if (value) element.innerHTML = value; });
+  document.querySelectorAll("[data-i18n-alt]").forEach((element) => { element.alt = tr(element.dataset.i18nAlt); });
   document.querySelectorAll(".more").forEach((button) => { button.textContent = tr(button.dataset.open === "true" ? "common.readLess" : "common.readMore"); });
   document.querySelectorAll("[data-language]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.language === currentLanguage)));
-  primaryNav.setAttribute("aria-label", currentLanguage === "ko" ? "주요 탐색" : "Primary navigation");
-  document.querySelector(".course-index").setAttribute("aria-label", currentLanguage === "ko" ? "학습 과정 단원" : "Course units");
-  document.querySelector(".claim-actions").setAttribute("aria-label", currentLanguage === "ko" ? "문장 분류" : "Classify the statement");
-  document.getElementById("course-prev").setAttribute("aria-label", currentLanguage === "ko" ? "이전 단원" : "Previous unit");
-  document.getElementById("course-next").setAttribute("aria-label", currentLanguage === "ko" ? "다음 단원" : "Next unit");
-  selectCourseUnit(activeCourseUnit, false); renderClaim(); updateTrialCount();
+  primaryNav.setAttribute("aria-label", tr("a11y.nav"));
+  coverRail.setAttribute("aria-label", tr("a11y.units"));
+  document.querySelector(".claim-actions").setAttribute("aria-label", tr("a11y.classify"));
+  document.getElementById("course-prev").setAttribute("aria-label", tr("a11y.prevCovers"));
+  document.getElementById("course-next").setAttribute("aria-label", tr("a11y.nextCovers"));
+  VeltaField.mountHeroFragment(document.getElementById("hero-fragment"), tr);
+  renderCourseUnit(); renderClaim(); updateTrialCount(); updateRailControls(); VeltaReviews.render();
   const trialFrame = document.getElementById("trial-frame"), frameUrl = new URL(trialFrame.getAttribute("src"), location.href);
-  trialFrame.title = currentLanguage === "ko" ? "과거 차트 추론 연습" : "Historical chart reasoning trial";
+  trialFrame.title = tr("a11y.trial");
   frameUrl.searchParams.set("lang", currentLanguage); trialFrame.setAttribute("src", frameUrl.pathname + frameUrl.search);
   if (persist) {
     try { localStorage.setItem(LANGUAGE_KEY, currentLanguage); } catch {}
@@ -796,6 +1023,15 @@ function applyLanguage(language, persist) {
   }
 }
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language, true)));
+matchMedia("(max-width:720px)").addEventListener("change", () => { renderCourseUnit(); renderClaim(); });
+VeltaReviews.mount({
+  t: tr,
+  language: () => currentLanguage,
+  requestLogin(opener) {
+    openLogin({ currentTarget: opener });
+    loginReturnPath = "/index.html?lang=" + currentLanguage + "#reviews";
+  }
+});
 applyLanguage(currentLanguage, false);
 </script>
 </body>
