@@ -48,6 +48,8 @@ p{margin:0}
 html[lang="ko"]{--font-body:'Noto Sans KR',system-ui,sans-serif;--font-display:'Noto Serif KR',serif;word-break:keep-all}
 html[lang="ko"] h1,html[lang="ko"] h2,html[lang="ko"] h3,html[lang="ko"] h4{line-height:1.26;letter-spacing:-.03em}
 html[lang="ko"] .eyebrow{letter-spacing:.06em}
+html[lang="fr"]{--font-hand:'Caveat','Bradley Hand',cursive}
+html[lang="fr"] .hero h1{font-size:clamp(38px,4.3vw,60px)}
 
 /* ---------- MASTHEAD ---------- */
 .nav{position:sticky;top:0;z-index:40;background:var(--charcoal);color:var(--on-dark);border-bottom:1px solid var(--rule-dark)}
@@ -64,7 +66,7 @@ html[lang="ko"] .eyebrow{letter-spacing:.06em}
 .language-switch{display:inline-flex;border:1px solid var(--rule-dark)}
 .language-switch button{min-width:44px;min-height:34px;border:0;padding:5px 9px;background:transparent;color:var(--on-dark-soft);font:500 12px var(--font-mono);cursor:pointer}
 .language-switch button[aria-pressed="true"]{background:var(--on-dark);color:var(--charcoal)}
-@media(max-width:960px){
+@media(max-width:1120px){
   .nav-in{position:relative}.nav-toggle{display:block}
   .nav-links{display:none;position:absolute;top:64px;left:0;right:0;padding:16px var(--gutter) 22px;background:var(--charcoal);border-bottom:1px solid var(--rule-dark);flex-direction:column;align-items:stretch;gap:4px}
   .nav-links.open{display:flex}.nav-links>a{padding:10px 0}.language-switch{align-self:flex-start;margin:8px 0}.nav-links .btn{justify-content:center}
@@ -469,8 +471,46 @@ html[lang="ko"] .claim-text{line-height:1.36}
 .pstat .v{font-family:var(--font-display);font-size:21px;font-weight:600;color:var(--on-dark)}
 .pstat .k{font:12px var(--font-mono);color:var(--on-dark-soft)}
 
+/* ---------- READER NOTES ---------- */
+.reviews-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:44px;align-items:start;margin-top:40px}
+.review-wall{columns:2;column-gap:18px}
+.review-card{break-inside:avoid;margin:0 0 18px;padding:16px 18px 14px;background:var(--sheet);border-top:3px solid var(--ink);box-shadow:2px 3px 0 rgba(34,35,31,.14)}
+.review-rating{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;color:var(--ink-soft)}
+.review-marks{color:var(--emerald);letter-spacing:1px}
+.review-card blockquote{margin:10px 0 12px;font-family:var(--font-display);font-size:19px;line-height:1.36;white-space:pre-line;overflow-wrap:anywhere}
+html[lang="ko"] .review-card blockquote,.review-card blockquote:lang(ko){font-size:17px;line-height:1.6}
+.review-card figcaption{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--rule);font-size:14px}
+.review-card figcaption span{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft)}
+.review-empty{column-span:all;min-height:280px;padding:34px 28px;background-color:var(--sheet);background-image:repeating-linear-gradient(transparent 0 33px,#BFD0DC 33px 34px);border-left:3px solid var(--orange)}
+.review-empty-title{font-family:var(--font-display);font-size:28px;font-weight:600;line-height:34px}
+.review-empty p+p{margin-top:34px;max-width:30em;line-height:34px;color:var(--ink-soft)}
+.review-form{padding:22px 22px 18px;background:var(--ivory-2);border-top:2px solid var(--ink)}
+.review-form h3{font-size:28px}
+.review-guidance{margin-top:8px;font-size:15px;line-height:1.5;color:var(--ink-soft)}
+.review-status{margin-top:12px;padding:9px 12px;background:var(--sheet);border-left:3px solid var(--orange);font-size:14.5px;line-height:1.45}
+.review-status[data-status="approved"]{border-left-color:var(--emerald)}
+.review-field{display:grid;gap:4px;margin-top:14px;font-size:14.5px;font-weight:600}
+.review-field input,.review-field textarea{width:100%;padding:9px 10px;border:1.5px solid var(--ink);border-radius:2px;background:var(--sheet);font-family:var(--font-body);font-size:16px;font-weight:400;line-height:1.45;resize:vertical}
+.review-field input{min-height:46px}
+.review-hint{margin-top:3px;font-size:13px;line-height:1.4;color:var(--ink-soft)}
+.review-rating-field{display:flex;gap:6px;flex-wrap:wrap;min-width:0;margin:14px 0 0;padding:0;border:0}
+.review-rating-field legend{padding:0;margin-bottom:4px;font-size:14.5px;font-weight:600}
+.review-rating-field label{position:relative;cursor:pointer}
+.review-rating-field input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}
+.review-rating-field span{display:grid;place-items:center;width:44px;height:44px;border:1.5px solid var(--ink);background:var(--sheet);font:500 15px var(--font-mono);transition:transform .1s ease}
+.review-rating-field input:checked+span{background:var(--ink);color:var(--ivory);box-shadow:inset 0 -4px 0 var(--emerald-bright)}
+.review-rating-field input:focus-visible+span{outline:3px solid var(--emerald);outline-offset:3px}
+.review-rating-field label:active span{transform:translateY(1px)}
+.review-consent{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;margin-top:14px;font-size:14.5px;line-height:1.45;cursor:pointer}
+.review-consent input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--emerald)}
+.review-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:14px}
+.review-actions .text-btn[hidden]{display:none}
+.review-message{min-height:22px;margin-top:10px;font-size:14.5px;line-height:1.45}
+.review-message[data-tone="error"]{color:var(--orange);font-weight:600}
+.review-message[data-tone="success"]{color:var(--emerald);font-weight:600}
+
 /* ---------- CONTACT / FOOTER ---------- */
-.contact-band{padding:60px 0}
+.contact-band{padding:60px 0;background:var(--ivory-2)}
 .contact-band h2{font-size:clamp(30px,3.8vw,44px);margin-top:8px}
 .contact{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
 .foot{background:var(--charcoal);color:var(--on-dark);padding:48px 0 24px}
@@ -516,6 +556,7 @@ html[lang="ko"] .claim-text{line-height:1.36}
   .desk-board{grid-template-columns:minmax(0,1fr);grid-template-rows:none}
   .exhibit,.desk-answers{grid-column:1;grid-row:auto}
   .desk-recap{grid-template-columns:minmax(0,1fr);gap:14px}
+  .reviews-layout{grid-template-columns:minmax(0,1fr);gap:30px}
 }
 @media(max-width:720px){
   :root{--gutter:16px}
@@ -558,6 +599,8 @@ html[lang="ko"] .claim-text{line-height:1.36}
   .claim-actions{grid-template-columns:minmax(0,1fr)}
   .exhibit{padding:10px}
   .benefits .text-btn{margin-left:0}
+  .review-wall{columns:1}
+  .review-form{margin:0 calc(var(--gutter) * -1);padding:20px var(--gutter)}
   .credits ul,.foot-grid{grid-template-columns:minmax(0,1fr)}
   .trial-wrap{margin:0 calc(var(--gutter) * -1);border-width:1px 0}
   .trial-frame{height:840px}

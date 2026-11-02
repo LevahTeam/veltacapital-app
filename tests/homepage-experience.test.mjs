@@ -25,13 +25,14 @@ function sectionMarkup(id) {
   return homepage.slice(start, end + "</section>".length);
 }
 
-test("homepage offers a persistent English/Korean language control", () => {
+test("homepage offers a persistent English/Korean/French language control", () => {
   assert.match(homepage, /<html\b[^>]*\blang="en"/i);
 
   const languageButtons = openingTags("button", "data-language");
-  assert.equal(languageButtons.length, 2, "expected exactly two language choices");
+  assert.equal(languageButtons.length, 3, "expected exactly three language choices");
   assert.ok(languageButtons.some((tag) => hasAttribute(tag, "data-language", "en")));
   assert.ok(languageButtons.some((tag) => hasAttribute(tag, "data-language", "ko")));
+  assert.ok(languageButtons.some((tag) => hasAttribute(tag, "data-language", "fr")));
   assert.ok(languageButtons.every((tag) => /\baria-pressed=(?:"(?:true|false)"|'(?:true|false)')/i.test(tag)));
 
   assert.match(homepage, /role=(?:"group"|'group')[^>]*aria-label=|aria-label=[^>]*role=(?:"group"|'group')/i);
@@ -56,7 +57,7 @@ test("Korean translations cover each major student-facing homepage section", () 
   }
 });
 
-test("English and Korean catalogs have parity and cover every translation hook", () => {
+test("all language catalogs have parity and cover every translation hook", () => {
   const declaration = "const translations =";
   const declarationIndex = clientScript.indexOf(declaration);
   assert.notEqual(declarationIndex, -1, "missing translation catalog");
@@ -87,12 +88,14 @@ test("English and Korean catalogs have parity and cover every translation hook",
   const englishKeys = Object.keys(catalog.en).sort();
   const koreanKeys = Object.keys(catalog.ko).sort();
   assert.deepEqual(koreanKeys, englishKeys, "English and Korean translation keys differ");
+  assert.deepEqual(Object.keys(catalog.fr).sort(), englishKeys, "English and French translation keys differ");
 
   const hookedKeys = [...homepage.matchAll(/\bdata-i18n(?:-html)?=(?:"([^"]+)"|'([^']+)')/g)]
     .map((match) => match[1] ?? match[2]);
   for (const key of new Set(hookedKeys)) {
     assert.ok(key in catalog.en, `missing English translation: ${key}`);
     assert.ok(key in catalog.ko, `missing Korean translation: ${key}`);
+    assert.ok(key in catalog.fr, `missing French translation: ${key}`);
   }
 });
 

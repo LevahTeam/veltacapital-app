@@ -216,8 +216,12 @@
     }, group);
   }
 
+  function localeDecimal(text) {
+    return document.documentElement.lang === "fr" ? text.replace(".", ",") : text;
+  }
+
   function formatPrice(value) {
-    return value.toFixed(2);
+    return localeDecimal(value.toFixed(2));
   }
 
   /* ---------- Hero chart fragment ---------- */
@@ -255,7 +259,8 @@
       const [open, high, low, close] = HERO_CANDLES[day];
       marker.setAttribute("x", step * day);
       const sessionLabel = `${t("hero.fragmentDay")} ${day + 1}`;
-      readout.textContent = `${sessionLabel}  O ${open.toFixed(1)}  H ${high.toFixed(1)}  L ${low.toFixed(1)}  C ${close.toFixed(1)}`;
+      const price = (value) => localeDecimal(value.toFixed(1));
+      readout.textContent = `${sessionLabel}  O ${price(open)}  H ${price(high)}  L ${price(low)}  C ${price(close)}`;
       input.setAttribute("aria-valuetext", readout.textContent);
     }
     input.addEventListener("input", () => {
@@ -675,7 +680,7 @@
       factCells.toLabel.textContent = `${t("demo.frame.session")} ${range.end + 1}`;
       factCells.to.textContent = formatPrice(range.last);
       factCells.changeLabel.textContent = t("demo.frame.change");
-      factCells.change.textContent = `${range.changePct >= 0 ? "+" : "−"}${Math.abs(range.changePct).toFixed(1)}%`;
+      factCells.change.textContent = `${range.changePct >= 0 ? "+" : "−"}${localeDecimal(Math.abs(range.changePct).toFixed(1))}%`;
       const noted = impression ? `${t("demo.frame.youNoted")} ${t(`demo.frame.${impression}`)}. ` : "";
       note.textContent = noted + t(`demo.frame.note.${frame}`);
       question.classList.toggle("is-asked", frame === "long");

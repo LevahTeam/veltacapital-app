@@ -49,6 +49,12 @@ textarea{min-height:280px;resize:vertical;line-height:1.7}
 .item .draft{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-mute);border:1px solid var(--line-2);border-radius:100px;padding:2px 8px;margin-left:8px}
 .del{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:100px;border:1px solid var(--down);background:transparent;color:var(--down);cursor:pointer;flex:0 0 auto}
 .del:hover{background:rgba(229,87,60,.12)}
+.review-item{align-items:flex-start;flex-wrap:wrap}
+.review-item .note{font-size:15px;color:var(--fg);margin-top:6px;white-space:pre-line;overflow-wrap:anywhere}
+.review-item .state{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fg-mute);border:1px solid var(--line-2);border-radius:100px;padding:2px 8px;margin-left:8px}
+.review-actions{display:flex;gap:8px;flex-wrap:wrap}
+.keep{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:100px;border:1px solid var(--up);background:transparent;color:var(--up);cursor:pointer}
+.keep:hover{background:rgba(43,211,127,.12)}
 .list-empty{color:var(--fg-mute);font-style:italic;font-size:14px;padding:12px 0}
 </style>
 </head>
@@ -88,6 +94,11 @@ textarea{min-height:280px;resize:vertical;line-height:1.7}
   <h2>Your reports</h2>
   <p class="sub" style="margin-bottom:0">Everything you've posted, including hidden drafts. Delete is permanent.</p>
   <div class="list" id="list"><div class="list-empty">Loading…</div></div>
+
+  <!-- reader notes awaiting a decision -->
+  <h2>Reader notes</h2>
+  <p class="sub" style="margin-bottom:0">Nothing appears on the homepage until you approve it. Decide on guidelines, not on whether a note is flattering. Reject investment results or personal details.</p>
+  <div class="list" id="review-list"><div class="list-empty">Loading…</div></div>
 </div>
 
 <script>
@@ -153,7 +164,51 @@ async function deleteReport(id, title, btn) {
     }
   }
 }
+async function loadReviews() {
+  const host = $("review-list");
+  try {
+    const response = await fetch("/api/reviews?scope=moderation");
+    const data = await response.json();
+    if (!data.ok) {
+      host.innerHTML = '<div class="list-empty">' + esc(response.status === 403 ? "Sign in as the admin to moderate reader notes." : "Could not load reader notes.") + "</div>";
+      return;
+    }
+    if (!data.reviews.length) {
+      host.innerHTML = '<div class="list-empty">No reader notes yet.</div>';
+      return;
+    }
+    host.innerHTML = data.reviews.map((review) => {
+      const date = new Date(review.createdAt).toLocaleDateString(void 0, { year: "numeric", month: "short", day: "numeric" });
+      const approve = review.status === "approved" ? "" : '<button class="keep" data-action="approved">Approve</button>';
+      const reject = review.status === "rejected" ? "" : '<button class="del" data-action="rejected">Reject</button>';
+      return '<div class="item review-item" data-id="' + esc(review.id) + '"><div class="meta"><div class="tk">' + esc(review.displayName) + " · " + esc(review.rating) + "/5 · " + esc(review.language) + '<span class="state">' + esc(review.status) + '</span></div><div class="note">' + esc(review.body) + '</div><div class="dt">' + esc(date) + '</div></div><div class="review-actions">' + approve + reject + '<button class="del" data-action="delete">Delete</button></div></div>';
+    }).join("");
+    host.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => moderateReview(button.closest(".item").dataset.id, button.dataset.action));
+    });
+  } catch {
+    host.innerHTML = '<div class="list-empty">Could not load reader notes.</div>';
+  }
+}
+async function moderateReview(id, action) {
+  if (action === "delete" && !confirm("Delete this reader note? This cannot be undone.")) return;
+  try {
+    const response = action === "delete"
+      ? await fetch("/api/reviews?id=" + encodeURIComponent(id), { method: "DELETE" })
+      : await fetch("/api/reviews", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, status: action })
+        });
+    const data = await response.json();
+    if (!data.ok) alert(data.error || "Could not update this note.");
+  } catch {
+    alert("Network error.");
+  }
+  loadReviews();
+}
 loadList();
+loadReviews();
 </script>
 </body>
 </html>
