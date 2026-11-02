@@ -76,6 +76,24 @@ test("evidence cases match the claims they are paired with", () => {
   assert.ok(field.CASES[2].emptySlots > 0, "the guarantee case needs unrecorded space after the last candle");
 });
 
+test("a wrong answer can be retried for that case alone", () => {
+  assert.match(homepage, /id="claim-retry"[^>]*\bhidden\b/);
+  assert.match(homepage, /getElementById\("claim-retry"\)\.hidden = outcome !== "review"/);
+  const handler = homepage.slice(homepage.indexOf('getElementById("claim-retry").addEventListener'));
+  assert.match(handler, /deskState\[activeClaim\]\.answer = null/);
+  assert.doesNotMatch(handler.slice(0, handler.indexOf("});")), /deskState\.forEach/);
+});
+
+test("only hands-on covers invite an action the workspace can perform", () => {
+  const covers = [...homepage.matchAll(/<button class="course-unit[\s\S]*?<\/button>/g)].map(([markup]) => markup);
+  assert.equal(covers.length, 9);
+  for (const cover of covers.filter((markup) => markup.includes('data-i18n="cover.diagram"'))) {
+    const invitation = cover.match(/class="cover-invite">([^<]+)</)[1];
+    assert.doesNotMatch(invitation, /^(Rank|Compare|Review|Build|Sort|Score)\b/, invitation);
+  }
+  assert.equal(covers.filter((markup) => markup.includes('data-i18n="cover.tryIt"')).length, 3);
+});
+
 test("curriculum counts stay honest", () => {
   assert.equal(course.chapters.length, 15);
   assert.match(exampleCatalog("en"), /"lab\.artifact1":"15 guided lessons"/);

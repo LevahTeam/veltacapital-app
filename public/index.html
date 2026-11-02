@@ -259,7 +259,7 @@
           <g fill="#22231F"><rect x="144" y="176" width="12" height="24"/><rect x="162" y="182" width="12" height="18"/><rect x="180" y="172" width="12" height="28"/><rect x="198" y="184" width="12" height="16"/><rect x="216" y="178" width="12" height="22"/><rect x="234" y="174" width="12" height="26"/></g>
         </svg>
       </span>
-      <span class="cover-text"><span class="cover-title">Volume &amp; volatility</span><span class="cover-invite">Compare two sessions</span></span>
+      <span class="cover-text"><span class="cover-title">Volume &amp; volatility</span><span class="cover-invite">Activity versus movement</span></span>
     </button>
 
     <button class="course-unit cv-6" type="button" data-course-unit="6" aria-pressed="false" aria-controls="course-detail">
@@ -288,7 +288,7 @@
           <g class="cv-text"><rect x="208" y="40" width="54" height="24" fill="#0B7A53"/><text x="213" y="56" fill="#fff" data-i18n="cover.7.tab1">Filing</text><rect x="214" y="76" width="48" height="24" fill="#B4531F"/><text x="219" y="92" fill="#fff" data-i18n="cover.7.tab2">Report</text><rect x="208" y="112" width="54" height="24" fill="#22231F"/><text x="213" y="128" fill="#FBF7EE" data-i18n="cover.7.tab3">Source</text></g>
         </svg>
       </span>
-      <span class="cover-text"><span class="cover-title">Fundamentals &amp; sources</span><span class="cover-invite">Rank the sources</span></span>
+      <span class="cover-text"><span class="cover-title">Fundamentals &amp; sources</span><span class="cover-invite">Which source comes first</span></span>
     </button>
 
     <button class="course-unit cv-8" type="button" data-course-unit="8" aria-pressed="false" aria-controls="course-detail">
@@ -302,7 +302,7 @@
           <rect x="136" y="116" width="112" height="86" fill="#FBF7EE" stroke="#B4531F" stroke-width="2.4" stroke-dasharray="7 4"/><polyline points="146,130 172,146 196,142 220,172 238,186" fill="none" stroke="#B4531F" stroke-width="3"/>
         </svg>
       </span>
-      <span class="cover-text"><span class="cover-title">Bias &amp; limitations</span><span class="cover-invite">Compare the crops</span></span>
+      <span class="cover-text"><span class="cover-title">Bias &amp; limitations</span><span class="cover-invite">One chart, two crops</span></span>
     </button>
 
     <button class="course-unit cv-9" type="button" data-course-unit="9" aria-pressed="false" aria-controls="course-detail">
@@ -319,7 +319,7 @@
           <text class="cv-hand" x="136" y="182" fill="#B4531F" data-i18n="cover.9.gap">mind the gap</text>
         </svg>
       </span>
-      <span class="cover-text"><span class="cover-title">Reflection &amp; calibration</span><span class="cover-invite">Review the estimate</span></span>
+      <span class="cover-text"><span class="cover-title">Reflection &amp; calibration</span><span class="cover-invite">An estimate, then the outcome</span></span>
     </button>
   </div>
 
@@ -381,6 +381,7 @@
       <span class="hand claim-verdict" id="claim-verdict" hidden></span>
       <p class="claim-feedback" id="claim-feedback" aria-live="polite"></p>
       <button class="btn claim-next" id="claim-next" type="button" hidden data-i18n="lab.next">Next case →</button>
+      <button class="text-btn claim-retry" id="claim-retry" type="button" hidden data-i18n="lab.retry">Try this case again</button>
     </div>
   </div>
 
@@ -561,7 +562,7 @@ const translations = {
     "dg.ref.label":"Diagram: a notebook page comparing seven of ten stated as likely with five of ten that happened.","dg.ref.note":"Calibration asks whether your stated confidence matches how often you were right. These ten notes are illustrative. Review the process, not imaginary profit.","dg.ref.said":"I said","dg.ref.happened":"It happened","dg.ref.gap":"The gap","dg.ref.saidValue":"70% sure","dg.ref.happenedValue":"5 of 10","dg.ref.gapValue":"20 points more sure than the record","dg.ref.hand":"which evidence did I overweight?",
     "common.readMore":"Read more ↓","common.readLess":"Read less ↑",
     "try.eyebrow":"Try it now","try.title":"Three rounds. No sign-up to play.","try.lead":"Place five estimates on the visible chart, reveal the historical candles, then review the result and plain-language explanation. The full course adds structured reasoning and portfolio tracking.","try.note":"write your estimate before you see the answer","try.frameTitle":"Historical Chart Reasoning: Trial","try.gateTitle":"Nice reads. Want to keep going?","try.gateCopy":"Log in with Google to save your reflections and continue with the complete course and unlimited practice.","try.gateButton":"Continue learning",
-    "lab.eyebrow":"Open learning lab","lab.heading":"The Evidence Desk.","lab.lead":"Three statements, three exhibits. Inspect what is on the page, then decide what the data can actually support.","lab.tabsLabel":"Cases","lab.case":"CASE","lab.exhibit":"EXHIBIT","lab.stateOpen":"Open","lab.stateFound":"Evidence found","lab.stateReview":"Looked again","lab.illustrative":"ILLUSTRATIVE DATA, NOT A REAL COMPANY","lab.inspect":"Inspect:","lab.evidence":"Supported by the data","lab.assumption":"An assumption","lab.found":"Evidence found","lab.lookAgain":"Look again","lab.next":"Next case →","lab.toRecap":"See the recap →","lab.recapTitle":"Reasoning practiced","lab.recap1":"Compare recorded values before you describe them.","lab.recap2":"Separate what was recorded from why it happened.","lab.recap3":"Treat a past pattern as a record, not a promise.","lab.reset":"Reset the desk","lab.passTitle":"Everything is included.","lab.artifact1":"15 guided lessons","lab.artifact2":"Unlimited practice","lab.artifact3":"Saved progress and reflection","lab.primary":"Start a practice round","lab.secondary":"Sign in to save progress","lab.note":"No payment method is requested or stored. VeltaCapital is an educational project and does not claim nonprofit or tax-exempt legal status.",
+    "lab.eyebrow":"Open learning lab","lab.heading":"The Evidence Desk.","lab.lead":"Three statements, three exhibits. Inspect what is on the page, then decide what the data can actually support.","lab.tabsLabel":"Cases","lab.case":"CASE","lab.exhibit":"EXHIBIT","lab.stateOpen":"Open","lab.stateFound":"Evidence found","lab.stateReview":"Looked again","lab.illustrative":"ILLUSTRATIVE DATA, NOT A REAL COMPANY","lab.inspect":"Inspect:","lab.evidence":"Supported by the data","lab.assumption":"An assumption","lab.found":"Evidence found","lab.lookAgain":"Look again","lab.next":"Next case →","lab.retry":"Try this case again","lab.toRecap":"See the recap →","lab.recapTitle":"Reasoning practiced","lab.recap1":"Compare recorded values before you describe them.","lab.recap2":"Separate what was recorded from why it happened.","lab.recap3":"Treat a past pattern as a record, not a promise.","lab.reset":"Reset the desk","lab.passTitle":"Everything is included.","lab.artifact1":"15 guided lessons","lab.artifact2":"Unlimited practice","lab.artifact3":"Saved progress and reflection","lab.primary":"Start a practice round","lab.secondary":"Sign in to save progress","lab.note":"No payment method is requested or stored. VeltaCapital is an educational project and does not claim nonprofit or tax-exempt legal status.",
     "desk.axis":"One candle per session","desk.mark.prev":"Previous close","desk.mark.final":"Final close","desk.mark.first":"First close","desk.mark.last":"Last close","desk.mark.latest":"Latest close","desk.case1.chart":"Illustrative candles. The previous close is 104.20 and the final close is 106.85.","desk.case1.delta":"final minus previous:","desk.case2.chart":"Illustrative candles rising from a first close of 50.90 to a last close of 58.60. The chart shows prices only.","desk.case2.recorded":"recorded:","desk.case2.why":"why?","desk.case2.notRecorded":"not on this chart","desk.case3.chart":"Illustrative candles with rising lows, ending at 78.00. The space after the last candle is empty.","desk.case3.empty":"nothing recorded here yet",
     "people.eyebrow":"Who wrote this notebook","people.title":"The people behind the desk.","people.saechanRole":"Co-founder · Course & Strategy","people.saechanTag1":"Student educator","people.saechanTag2":"Simulation experience","people.saechanTag3":"Finance club president","people.saechanBio":"Designs the written lessons and historical-chart exercises from a student educator's perspective. His background includes school finance leadership and educational market simulations; it is not professional investment-advisory experience.","people.saechanFull":"Saechan has completed educational Forage job simulations based on investment banking, risk analysis, and quantitative research tasks. These programs are learning experiences and do not represent employment by their affiliated companies. Course material requires independent professional review before formal classroom use.","people.samuelRole":"Co-founder · Engineering","people.samuelTag1":"Full-stack build","people.samuelTag3":"Accessibility tech","people.samuelBio":"Builds the platform, historical-data exercises, authentication, and accessibility features. Focused on making financial concepts easier to examine and question.","people.samuelFull":"Having lived in Australia, Korea, and the United States, Samuel brings a global perspective to technology and entrepreneurship. His accessibility work includes navigation technology for visually impaired students. VeltaCapital's core chart exercise includes a complete keyboard alternative.","people.countries":"countries","people.stack":"stack","people.accessibility":"focus",
     "contact.eyebrow":"Get in touch","contact.title":"Questions? Reach out.","footer.tagline":"Chart-reading practice and financial education. Built for learning, not trading.","footer.explore":"Explore","footer.try":"Try the game","footer.contact":"Contact","footer.terms":"Terms","footer.privacy":"Privacy","footer.support":"Free access & previous payment support","footer.credits":"Photograph credits","footer.disclaimerTitle":"Educational disclaimer.","footer.disclaimer":" VeltaCapital is an educational simulation. It does not provide financial advice, investment recommendations, or guarantees of profit. Practice-round charts are historical; teaching demonstrations use data labeled as illustrative. All are for practice only. Historical chart performance does not predict future results. Markets carry risk; consult a licensed professional before making investment decisions.",
@@ -587,7 +588,7 @@ const translations = {
     "dg.ref.label":"도해: 10번 중 7번 가능하다고 한 예상과 실제로 일어난 5번을 비교하는 노트.","dg.ref.note":"판단 조정은 내가 말한 자신감이 실제로 맞힌 빈도와 일치하는지 묻는 일입니다. 이 10개의 기록은 예시입니다. 가상의 수익이 아니라 과정을 돌아보세요.","dg.ref.said":"내가 말한 값","dg.ref.happened":"실제 결과","dg.ref.gap":"차이","dg.ref.saidValue":"70% 확신","dg.ref.happenedValue":"10번 중 5번","dg.ref.gapValue":"기록보다 20포인트 더 확신함","dg.ref.hand":"어떤 근거를 과대평가했을까?",
     "common.readMore":"더 보기 ↓","common.readLess":"접기 ↑",
     "try.eyebrow":"지금 체험하기","try.title":"세 번의 연습. 회원가입 없이 시작하세요.","try.lead":"보이는 차트에 다섯 개의 예상값을 표시하고, 숨겨진 과거 캔들을 연 뒤, 결과와 쉬운 설명을 검토하세요. 전체 과정에서는 체계적인 추론과 포트폴리오 기록도 제공합니다.","try.note":"답을 보기 전에 예상을 먼저 적으세요","try.frameTitle":"과거 차트 추론 연습 · 체험","try.gateTitle":"좋은 관찰이었어요. 계속해 볼까요?","try.gateCopy":"Google 계정으로 로그인하면 생각한 내용을 저장하고 전체 과정과 무제한 연습을 이어갈 수 있습니다.","try.gateButton":"학습 계속하기",
-    "lab.eyebrow":"오픈 학습실","lab.heading":"근거 책상","lab.lead":"세 문장과 세 자료가 있습니다. 눈앞의 자료를 살핀 뒤, 데이터가 실제로 뒷받침하는 내용을 판단해 보세요.","lab.tabsLabel":"사건","lab.case":"사건","lab.exhibit":"자료","lab.stateOpen":"미해결","lab.stateFound":"근거 발견","lab.stateReview":"다시 살펴봄","lab.illustrative":"예시 자료이며 실제 기업이 아닙니다","lab.inspect":"살펴보기:","lab.evidence":"데이터로 확인됨","lab.assumption":"추측임","lab.found":"근거 발견","lab.lookAgain":"다시 살펴보세요","lab.next":"다음 사건 →","lab.toRecap":"정리 보기 →","lab.recapTitle":"연습한 추론","lab.recap1":"설명하기 전에 기록된 값을 비교합니다.","lab.recap2":"기록된 사실과 그 이유를 구분합니다.","lab.recap3":"과거 패턴은 약속이 아니라 기록으로 다룹니다.","lab.reset":"책상 초기화","lab.passTitle":"모든 기능이 포함됩니다.","lab.artifact1":"단계별 수업 15개","lab.artifact2":"무제한 연습","lab.artifact3":"진도 및 성찰 기록 저장","lab.primary":"연습 시작하기","lab.secondary":"로그인하고 학습 기록 저장하기","lab.note":"결제 수단을 요청하거나 저장하지 않습니다. VeltaCapital은 교육 프로젝트이며 비영리 법인 또는 면세 지위를 주장하지 않습니다.",
+    "lab.eyebrow":"오픈 학습실","lab.heading":"근거 책상","lab.lead":"세 문장과 세 자료가 있습니다. 눈앞의 자료를 살핀 뒤, 데이터가 실제로 뒷받침하는 내용을 판단해 보세요.","lab.tabsLabel":"사건","lab.case":"사건","lab.exhibit":"자료","lab.stateOpen":"미해결","lab.stateFound":"근거 발견","lab.stateReview":"다시 살펴봄","lab.illustrative":"예시 자료이며 실제 기업이 아닙니다","lab.inspect":"살펴보기:","lab.evidence":"데이터로 확인됨","lab.assumption":"추측임","lab.found":"근거 발견","lab.lookAgain":"다시 살펴보세요","lab.next":"다음 사건 →","lab.retry":"이 사건 다시 풀기","lab.toRecap":"정리 보기 →","lab.recapTitle":"연습한 추론","lab.recap1":"설명하기 전에 기록된 값을 비교합니다.","lab.recap2":"기록된 사실과 그 이유를 구분합니다.","lab.recap3":"과거 패턴은 약속이 아니라 기록으로 다룹니다.","lab.reset":"책상 초기화","lab.passTitle":"모든 기능이 포함됩니다.","lab.artifact1":"단계별 수업 15개","lab.artifact2":"무제한 연습","lab.artifact3":"진도 및 성찰 기록 저장","lab.primary":"연습 시작하기","lab.secondary":"로그인하고 학습 기록 저장하기","lab.note":"결제 수단을 요청하거나 저장하지 않습니다. VeltaCapital은 교육 프로젝트이며 비영리 법인 또는 면세 지위를 주장하지 않습니다.",
     "desk.axis":"캔들 하나가 거래일 하나입니다","desk.mark.prev":"이전 종가","desk.mark.final":"마지막 종가","desk.mark.first":"첫 종가","desk.mark.last":"마지막 종가","desk.mark.latest":"최근 종가","desk.case1.chart":"예시 캔들입니다. 이전 종가는 104.20, 마지막 종가는 106.85입니다.","desk.case1.delta":"마지막 − 이전:","desk.case2.chart":"첫 종가 50.90에서 마지막 종가 58.60까지 오르는 예시 캔들입니다. 차트에는 가격만 나타납니다.","desk.case2.recorded":"기록:","desk.case2.why":"이유는?","desk.case2.notRecorded":"차트에 없음","desk.case3.chart":"저점이 높아지며 78.00에서 끝나는 예시 캔들입니다. 마지막 캔들 이후는 비어 있습니다.","desk.case3.empty":"아직 기록되지 않음",
     "people.eyebrow":"이 노트를 쓴 사람들","people.title":"이 책상을 만든 사람들","people.saechanRole":"공동 창립자 · 교육 과정 및 전략","people.saechanTag1":"학생 교육자","people.saechanTag2":"시뮬레이션 경험","people.saechanTag3":"금융 동아리 회장","people.saechanBio":"학생 교육자의 관점에서 글 학습과 과거 차트 연습을 설계합니다. 학교 금융 활동과 교육용 시장 시뮬레이션 경험을 바탕으로 하며, 전문 투자 자문 경력을 의미하지 않습니다.","people.saechanFull":"Saechan은 투자은행, 위험 분석, 정량 연구 업무를 바탕으로 한 Forage 교육용 직무 시뮬레이션을 이수했습니다. 이는 학습 경험이며 관련 기업에서의 근무 경력을 의미하지 않습니다. 정규 수업에서 사용하기 전에 교육 자료에 대한 독립적인 전문가 검토가 필요합니다.","people.samuelRole":"공동 창립자 · 엔지니어링","people.samuelTag1":"풀스택 개발","people.samuelTag3":"접근성 기술","people.samuelBio":"플랫폼, 과거 데이터 연습, 인증, 접근성 기능을 개발합니다. 금융 개념을 더 쉽게 살펴보고 질문할 수 있도록 만드는 데 집중합니다.","people.samuelFull":"호주, 한국, 미국에서 생활한 Samuel은 기술과 창업을 세계적인 관점에서 바라봅니다. 시각장애 학생을 위한 길 안내 기술 등 접근성 프로젝트를 진행했으며, VeltaCapital의 핵심 차트 연습에는 완전한 키보드 대체 기능이 포함되어 있습니다.","people.countries":"거주 국가","people.stack":"스택","people.accessibility":"접근성",
     "contact.eyebrow":"문의하기","contact.title":"궁금한 점이 있나요? 연락해 주세요.","footer.tagline":"차트 읽기 연습과 금융 교육. 거래가 아닌 학습을 위해 만들었습니다.","footer.explore":"둘러보기","footer.try":"연습 체험","footer.contact":"연락처","footer.terms":"이용약관","footer.privacy":"개인정보 처리방침","footer.support":"무료 이용 및 이전 결제 지원","footer.credits":"사진 출처","footer.disclaimerTitle":"교육 목적 안내.","footer.disclaimer":" VeltaCapital은 교육용 시뮬레이션입니다. 금융 자문, 투자 추천, 수익 보장을 제공하지 않습니다. 연습 라운드의 차트는 과거 자료이며, 교육용 시연에는 예시 자료임을 표시한 데이터를 사용합니다. 모두 연습 목적으로만 사용됩니다. 과거 차트의 성과가 미래 결과를 예측하지 않습니다. 시장에는 위험이 있으므로 투자 결정 전 자격을 갖춘 전문가와 상담하세요.",
@@ -681,22 +682,22 @@ const courseUnits = {
     {title:"OHLCV & candles",invite:"Build a candle",chapters:"Course chapter 7",objective:"Read what a candle records without inventing a cause.",takeaway:"A candle shows prices and volume—not investor intent."},
     {title:"Trend & range",invite:"Change the frame",chapters:"Course chapter 7",objective:"Recognize direction, sideways movement, and ambiguity.",takeaway:"The same chart can look different across timeframes."},
     {title:"Levels & false breaks",invite:"Find the false break",chapters:"Course chapters 7 and 10",objective:"Treat support and resistance as zones, not guarantees.",takeaway:"A level is an area to observe, not a promise of reversal."},
-    {title:"Volume & volatility",invite:"Compare two sessions",chapters:"Course chapters 7 and 10",objective:"Separate market activity from the size of price movement.",takeaway:"More volume means more activity, not certainty about direction."},
+    {title:"Volume & volatility",invite:"Activity versus movement",chapters:"Course chapters 7 and 10",objective:"Separate market activity from the size of price movement.",takeaway:"More volume means more activity, not certainty about direction."},
     {title:"Risk & probability",invite:"Follow the branches",chapters:"Course chapter 11",objective:"Compare possible outcomes without confusing chance with certainty.",takeaway:"A sound decision can still produce an unfavorable result."},
-    {title:"Fundamentals & sources",invite:"Rank the sources",chapters:"Course chapters 6 and 9",objective:"Use primary sources to study a business beyond its chart.",takeaway:"Verify important claims with filings and original sources."},
-    {title:"Bias & limitations",invite:"Compare the crops",chapters:"Course chapters 10 and 12",objective:"Spot hindsight, selection bias, and overfitting.",takeaway:"A pattern that looks obvious afterward may not have been usable before."},
-    {title:"Reflection & calibration",invite:"Review the estimate",chapters:"Course chapters 12 and 15",objective:"Review your evidence and confidence after each result.",takeaway:"Evaluate the quality of the process, not imaginary profit."}
+    {title:"Fundamentals & sources",invite:"Which source comes first",chapters:"Course chapters 6 and 9",objective:"Use primary sources to study a business beyond its chart.",takeaway:"Verify important claims with filings and original sources."},
+    {title:"Bias & limitations",invite:"One chart, two crops",chapters:"Course chapters 10 and 12",objective:"Spot hindsight, selection bias, and overfitting.",takeaway:"A pattern that looks obvious afterward may not have been usable before."},
+    {title:"Reflection & calibration",invite:"An estimate, then the outcome",chapters:"Course chapters 12 and 15",objective:"Review your evidence and confidence after each result.",takeaway:"Evaluate the quality of the process, not imaginary profit."}
   ],
   ko: [
     {title:"시장과 소유권",invite:"주식이 소유하는 것 보기",chapters:"전체 과정 1장, 2장",objective:"주식 한 주가 무엇을 뜻하며 기업과 어떻게 다른지 이해합니다.",takeaway:"좋은 기업인지와 현재 가격이 좋은지는 서로 다른 질문입니다."},
     {title:"OHLCV와 캔들",invite:"캔들 만들어 보기",chapters:"전체 과정 7장",objective:"원인을 지어내지 않고 캔들이 기록한 내용을 읽습니다.",takeaway:"캔들은 가격과 거래량을 보여 주지만 투자자의 의도는 보여 주지 않습니다."},
     {title:"추세와 박스권",invite:"보는 구간 바꾸기",chapters:"전체 과정 7장",objective:"방향성, 횡보 움직임, 모호한 구간을 구분합니다.",takeaway:"같은 차트도 시간 단위에 따라 다르게 보일 수 있습니다."},
     {title:"가격대와 거짓 돌파",invite:"거짓 돌파 찾기",chapters:"전체 과정 7장, 10장",objective:"지지와 저항을 보장된 선이 아닌 범위로 다룹니다.",takeaway:"가격대는 관찰할 영역이지 반전을 보장하는 약속이 아닙니다."},
-    {title:"거래량과 변동성",invite:"두 구간 비교하기",chapters:"전체 과정 7장, 10장",objective:"시장 활동량과 가격 움직임의 크기를 구분합니다.",takeaway:"거래량 증가는 활동 증가를 뜻할 뿐 방향을 보장하지 않습니다."},
+    {title:"거래량과 변동성",invite:"활동량과 움직임의 차이",chapters:"전체 과정 7장, 10장",objective:"시장 활동량과 가격 움직임의 크기를 구분합니다.",takeaway:"거래량 증가는 활동 증가를 뜻할 뿐 방향을 보장하지 않습니다."},
     {title:"위험과 확률",invite:"갈래 따라가기",chapters:"전체 과정 11장",objective:"가능한 결과를 비교하고 확률을 확실함과 혼동하지 않습니다.",takeaway:"합리적인 판단도 좋지 않은 결과로 이어질 수 있습니다."},
-    {title:"기업 정보와 출처",invite:"출처 순서 정하기",chapters:"전체 과정 6장, 9장",objective:"차트 밖의 1차 자료로 기업을 살펴봅니다.",takeaway:"중요한 주장은 공시와 원본 자료에서 확인해야 합니다."},
-    {title:"편향과 한계",invite:"잘린 차트 비교하기",chapters:"전체 과정 10장, 12장",objective:"후견 편향, 선택 편향, 과적합을 알아봅니다.",takeaway:"결과를 본 뒤 분명해 보이는 패턴이 사전에 유용했던 것은 아닙니다."},
-    {title:"성찰과 판단 조정",invite:"예상 돌아보기",chapters:"전체 과정 12장, 15장",objective:"결과 이후 사용한 근거와 자신감을 검토합니다.",takeaway:"가상의 수익이 아니라 판단 과정의 품질을 평가하세요."}
+    {title:"기업 정보와 출처",invite:"먼저 볼 출처",chapters:"전체 과정 6장, 9장",objective:"차트 밖의 1차 자료로 기업을 살펴봅니다.",takeaway:"중요한 주장은 공시와 원본 자료에서 확인해야 합니다."},
+    {title:"편향과 한계",invite:"같은 차트, 다른 구간",chapters:"전체 과정 10장, 12장",objective:"후견 편향, 선택 편향, 과적합을 알아봅니다.",takeaway:"결과를 본 뒤 분명해 보이는 패턴이 사전에 유용했던 것은 아닙니다."},
+    {title:"성찰과 판단 조정",invite:"예상과 실제 결과",chapters:"전체 과정 12장, 15장",objective:"결과 이후 사용한 근거와 자신감을 검토합니다.",takeaway:"가상의 수익이 아니라 판단 과정의 품질을 평가하세요."}
   ]
 };
 const courseButtons = Array.from(document.querySelectorAll(".course-unit"));
@@ -834,6 +835,7 @@ function renderClaim() {
   const next = document.getElementById("claim-next");
   next.hidden = !state.answer || allAnswered;
   next.textContent = tr("lab.next");
+  document.getElementById("claim-retry").hidden = outcome !== "review";
   deskTabs.forEach((tab, index) => {
     const tabOutcome = claimOutcome(index), selected = index === activeClaim;
     tab.dataset.state = tabOutcome;
@@ -871,6 +873,12 @@ claimAnswers.forEach((button) => button.addEventListener("click", () => {
 }));
 document.getElementById("claim-next").addEventListener("click", (event) => {
   activeClaim = Number(event.currentTarget.dataset.target);
+  renderClaim();
+  claimAnswers[0].focus({ preventScroll: true });
+});
+document.getElementById("claim-retry").addEventListener("click", () => {
+  deskState[activeClaim].answer = null;
+  deskState[activeClaim].inspected = [];
   renderClaim();
   claimAnswers[0].focus({ preventScroll: true });
 });

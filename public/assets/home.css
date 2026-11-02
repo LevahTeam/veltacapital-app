@@ -414,6 +414,7 @@ html[lang="ko"] .claim-text{line-height:1.36}
 .claim-feedback:empty{display:none}
 .claim-next{margin-top:14px}
 .claim-next[hidden]{display:none}
+.claim-retry{margin:14px 0 0 18px}
 .exhibit{margin:0;padding:14px 16px;background:var(--sheet);border:1px solid var(--ink)}
 .exhibit-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 12.5px var(--font-mono);color:var(--ink-soft);margin-bottom:8px}
 .exhibit-head b{font-weight:500;color:var(--orange)}
